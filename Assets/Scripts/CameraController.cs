@@ -6,8 +6,8 @@ public class CameraController : MonoBehaviour
 {
     static GameObject camera;
 
-    static float speed = 40.0f;
-    static float sensitivity = 1.0f;
+    static float speed = 15.0f;
+    static float sensitivity = 0.2f;
 
     // Zoom level
     static float zoomLevel = 6;
@@ -55,11 +55,11 @@ public class CameraController : MonoBehaviour
         }
         
         // Camera X & Z translations
-        float translationX = Input.GetAxis("Horizontal") * speed * Time.deltaTime;
-        float translationZ = Input.GetAxis("Vertical") * speed * Time.deltaTime;
+        float translationX = Input.GetAxis("Horizontal") * speed * (zoomLevel + 1) * Time.deltaTime;
+        float translationZ = Input.GetAxis("Vertical") * speed * (zoomLevel + 1) * Time.deltaTime;
 
         // Camera Y Rotation
-        float yRotation = Input.GetAxis("Mouse X") * sensitivity;
+        float yRotation = Input.GetAxis("Rotation") * sensitivity * (zoomLevel + 1);
 
         transform.Translate(translationX, translationY, translationZ);
         transform.Rotate(0, yRotation, 0);
