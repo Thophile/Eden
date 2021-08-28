@@ -23,20 +23,21 @@ public class WorldBuilder : MonoBehaviour
             GameState.current = (GameState)bf.Deserialize(file);
             file.Close();
         }else{
-            New();
+            GameState.current = new GameState();
+            Save();
+
         }
-        RunGame();        
+        BuildWorld();        
 
     }
 
-    public static void New() {
-        GameState.current = new GameState();
-        Save();
-        RunGame();
+    public static void Reset(){
+        File.Delete(Application.persistentDataPath + savePath);
+        GameState.current = null;
     }
 
-    public static void RunGame(){
-        SceneManager.LoadSceneAsync(1);
+    public static void BuildWorld(){
+        Debug.Log("Building with" + GameState.current);
     }
 
 

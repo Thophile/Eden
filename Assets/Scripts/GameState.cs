@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class GameState
 {
-    public static GameState current;
+    public static GameState current = null;
 
     public int food;
 
