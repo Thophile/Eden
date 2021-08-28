@@ -5,14 +5,14 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     public static GameObject camObject;
-    public static bool isActivated = true;
+    public static bool isActivated = false;
     // Parameters
     public LayerMask layerMask;
     static float speed = 15.0f;
     static float sensitivity = 0.1f;
 
     // Zoom level
-    public static float zoomLevel = 9;
+    public static float zoomLevel = 4;
     const float minZoom = 0;
     const float maxZoom = 9;
     

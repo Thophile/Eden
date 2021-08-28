@@ -17,12 +17,6 @@ public class UserInterface : MonoBehaviour
 
     public static bool isGamePaused = true;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -35,7 +29,10 @@ public class UserInterface : MonoBehaviour
 
     public void ToggleMenu(){
         isGamePaused = !isGamePaused;
+        
+        PlayPausePhysics(isGamePaused);
         CameraController.isActivated = !isGamePaused;
+
         menuPanel.SetActive(isGamePaused);
         if (isGamePaused) MainMenu();
         
@@ -63,4 +60,12 @@ public class UserInterface : MonoBehaviour
     public void Save(){
         WorldBuilder.Save();
     }
+    public void PlayPausePhysics(bool isGamePaused){
+        Rigidbody[] rbs = GameObject.FindObjectsOfType<Rigidbody>();
+        foreach (var rb in rbs)
+        {
+            rb.isKinematic = isGamePaused;
+        }
+    }
+
 }
