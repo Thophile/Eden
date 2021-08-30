@@ -78,7 +78,9 @@ public class UserInterface : MonoBehaviour
         Rigidbody[] rbs = GameObject.FindObjectsOfType<Rigidbody>();
         foreach (var rb in rbs)
         {
-            rb.isKinematic = isGamePaused;
+            if(!rb.gameObject.GetComponent<StaticRb>() || !rb.gameObject.GetComponent<StaticRb>().isStatic){
+                rb.isKinematic = isGamePaused;
+            }
         }
     }
 

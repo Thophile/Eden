@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 8594835213117061602}
   - component: {fileID: -1715023139203677262}
   - component: {fileID: 530703314}
+  - component: {fileID: 4916830321892240538}
   m_Layer: 0
   m_Name: Olive
   m_TagString: Untagged
@@ -107,8 +108,9 @@ MonoBehaviour:
   - {fileID: 7074155084045237187, guid: 29c1a4a736e1f1044b77c2a3329dfa61, type: 3}
   - {fileID: -860120752579527204, guid: 29c1a4a736e1f1044b77c2a3329dfa61, type: 3}
   foodPiece: {fileID: 0}
+  foodMultiplier: 0
   maxHitPoint: 200
-  health: 200
+  isStatic: 0
 --- !u!54 &-1715023139203677262
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -121,7 +123,7 @@ Rigidbody:
   m_Drag: 1
   m_AngularDrag: 0.05
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
@@ -139,3 +141,16 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -860120752579527204, guid: 29c1a4a736e1f1044b77c2a3329dfa61, type: 3}
+--- !u!114 &4916830321892240538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8252656990452900717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 178af2bec8101d146bcc7d1a97dbbc06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isStatic: 0

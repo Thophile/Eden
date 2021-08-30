@@ -13,10 +13,12 @@ public class WorldManager : MonoBehaviour
 
 
     void Update(){
-        time += Time.deltaTime;
-        if (Options.autoSave && time > autoSaveTime){
-            time -= autoSaveTime;
-            Save();
+        if(!UserInterface.isGamePaused){
+            time += Time.deltaTime;
+            if (Options.autoSave && time > autoSaveTime){
+                time -= autoSaveTime;
+                Save();
+            }
         }
     }
 
@@ -47,7 +49,7 @@ public class WorldManager : MonoBehaviour
         }
 
         // BuildWorld
-        foreach (var ar in GameState.current.antsPos ?? Enumerable.Empty<int>())
+        foreach (var ar in GameState.current.antsPos)
         {
             GameObject.Find("Colony").GetComponent<Colony>().SpawnAnt(new Vector3(ar[0],ar[1],ar[2]), Quaternion.Euler(ar[3], ar[4], ar[5]));
         }        
@@ -57,6 +59,12 @@ public class WorldManager : MonoBehaviour
     public static void Reset(){
         File.Delete(Application.persistentDataPath + savePath);
         GameState.current = null;
+        foreach (var item in GameObject.Find("Colony").GetComponent<Colony>().antsOut)
+        {
+            Destroy(item);
+        } 
+        GameObject.Find("Colony").GetComponent<Colony>().antsOut.Clear();
+
     }
 
     void OnApplicationQuit()

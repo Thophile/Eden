@@ -2,23 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Food : MonoBehaviour
+public class Food : Interactable
 {
     public Mesh[] meshes = new Mesh[9];
     public GameObject foodPiece = null;
+    public float foodMultiplier;
     public int maxHitPoint = 200;
-    public int health = 200;
+    public bool isStatic = false;
+    int health = 200;
 
-    public GameObject Pick(int damage){
-        health -= damage;
+
+    public override void Interact(Ant ant)
+    {
+        health -= ant.damage;
         if (health > 0){
             int index = (8* health)/maxHitPoint;
             gameObject.GetComponent<MeshFilter>().sharedMesh = meshes[index];
         }else{
             Destroy(gameObject);
         }
-        return foodPiece;
-
+        if (foodPiece!= null){
+            var load = Instantiate(foodPiece, ant.loadPos.position, Quaternion.identity);
+            load.transform.parent = ant.loadPos;
+            load.GetComponent<FoodPiece>().foodValue = (int)(ant.damage * foodMultiplier);
+            ant.Load = load;
+        }
     }
 
     void Update(){
