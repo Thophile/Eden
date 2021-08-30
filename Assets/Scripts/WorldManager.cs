@@ -23,7 +23,7 @@ public class WorldManager : MonoBehaviour
     }
 
     public static void Save() {
-        GameState.current.antsPos.Clear();
+        if (GameState.current.antsPos.Count > 0 ) GameState.current.antsPos.Clear();
         foreach (var item in GameObject.Find("Colony").GetComponent<Colony>().antsOut)
             {
                 GameState.current.antsPos.Add(new float[] {item.transform.position.x, item.transform.position.y, item.transform.position.z, item.transform.rotation.eulerAngles.x, item.transform.rotation.eulerAngles.y, item.transform.rotation.eulerAngles.z});

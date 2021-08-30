@@ -6,7 +6,13 @@ public class Exit : Interactable
 {
     public Colony colony;
     public override void Interact(Ant ant){
-        GameState.current.food += ant.Load.GetComponent<FoodPiece>().foodValue;
+        base.Interact(ant);
+        if(ant.Load != null){
+            if(ant.Load.GetComponent<FoodPiece>()) {
+                GameState.current.food += ant.Load.GetComponent<FoodPiece>().foodValue;
+            }
+        } 
+            
         colony.DespawnAnt(ant.gameObject);
     }
 }

@@ -108,7 +108,7 @@ MonoBehaviour:
   - {fileID: 7074155084045237187, guid: 29c1a4a736e1f1044b77c2a3329dfa61, type: 3}
   - {fileID: -860120752579527204, guid: 29c1a4a736e1f1044b77c2a3329dfa61, type: 3}
   foodPiece: {fileID: 0}
-  foodMultiplier: 0
+  foodMultiplier: 1
   maxHitPoint: 200
   isStatic: 0
 --- !u!54 &-1715023139203677262

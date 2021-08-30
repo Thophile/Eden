@@ -21,6 +21,7 @@ public class Ant : MonoBehaviour
 
     public Rigidbody rb;
     public LayerMask obstacleLayer;
+    public LayerMask antLayer;
     public AntState state;
     
 
@@ -28,24 +29,34 @@ public class Ant : MonoBehaviour
         get {return _load;}
         set{
             if(value != null){
-                Target(GameObject.Find("Colony").GetComponent<Colony>().exit);
+                Target = GameObject.Find("Colony").GetComponent<Colony>().exit;
                 _load = value;
             }
         }
     }
-    public GameObject _load = null;
+    GameObject _load = null;
     public Transform loadPos;
     public float maxLifeTime;
     float lifeTime;
     float wanderingTimer = 0;
-    Transform target = null;
-    Vector3 surfaceNormal;
+    public Transform Target {
+        get { return _target; }
+        set { 
+            if (value != null){
+                _target = value;
+                //state = AntState.Targeting;
+            }
+        }
+    }
+    Transform _target = null;
+    Vector3 surfaceNormal = Vector3.up;
     Vector3 normal;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
+        rb.isKinematic = UserInterface.isGamePaused;
         Physics.IgnoreLayerCollision(7,7);
     }
 
@@ -56,18 +67,18 @@ public class Ant : MonoBehaviour
             // Go home after lifetime
             lifeTime += Time.deltaTime;
             if(lifeTime>maxLifeTime){
-                Target(GameObject.Find("Colony").GetComponent<Colony>().exit);
+                Target = GameObject.Find("Colony").GetComponent<Colony>().exit;
             }
 
-            // Surface Adaptation
-            normal = transform.up;
+            // Surface Adaptation            
             RaycastHit hit = new RaycastHit();
-            if (Physics.Raycast (transform.position + (transform.up * 0.15f), transform.forward, out hit, climbDist)) {
+            if (Physics.Raycast (transform.position + transform.up * 0.15f, transform.forward, out hit, climbDist, ~antLayer)) {
                 surfaceNormal = hit.normal;
-            }else if(Physics.Raycast (transform.position + transform.up*0.15f + transform.forward*0.1f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity)){
+            }else if(Physics.Raycast (transform.position + transform.up*0.15f + transform.forward*0.1f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity,~antLayer)){
                 surfaceNormal = hit.normal;
             }
-            Quaternion targetRot = Quaternion.LookRotation(Vector3.Cross(transform.right,surfaceNormal), surfaceNormal);
+            
+            Quaternion targetRot = Quaternion.LookRotation(Vector3.Cross(Vector3.ProjectOnPlane(transform.right,surfaceNormal),surfaceNormal), surfaceNormal);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed*Time.deltaTime);
 
 
@@ -82,18 +93,21 @@ public class Ant : MonoBehaviour
                     } 
                     break;
                 case AntState.Targeting :
-                    var dir = Vector3.ProjectOnPlane(new Vector3(target.position.x - transform.position.x, target.position.y - transform.position.y, target.position.z - transform.position.z), normal);
+                    // Try interacting with target
+                    if(Target != null && Vector3.Magnitude(Target.position - transform.position) < activationRadius){
+                        Target.gameObject.GetComponent<Interactable>().Interact(this);
+                    }
+                    if (Target == null) Debug.Log(Target);
 
-                    Debug.DrawRay(transform.position, dir, Color.blue);
-                    Debug.DrawRay(transform.position, transform.forward * 5f, Color.red);
-                    dChange = Vector3.SignedAngle(transform.forward, dir, normal);
+                    var dir = Vector3.ProjectOnPlane(Target.position - transform.position, transform.up);
+                    dChange = Vector3.SignedAngle(transform.forward, dir, transform.up);
                     break;
             }
             transform.Rotate(0, AvoidObstacles(dChange), 0);
             
             // Ant Forward velocity
             rb.velocity = state == AntState.Still ? Vector3.zero : transform.forward * speed * Time.fixedDeltaTime;
-            rb.AddForce(-normal * downForce);
+            rb.AddForce(-transform.up * downForce);
         }else{
             rb.velocity = Vector3.zero;
         }
@@ -123,19 +137,10 @@ public class Ant : MonoBehaviour
         return dChange;
     }
 
-    void Target(Transform point){
-        state = AntState.Targeting;
-        target = point;
-        Debug.Log(Vector3.Magnitude(transform.position - point.position));
-        if(Vector3.Magnitude(transform.position - point.position) < activationRadius){
-            target.gameObject.GetComponent<Interactable>().Interact(this);
-        } 
-    }
-
      private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.GetComponent<Food>() && target == null){
-            Target(other.transform);
+        if(other.gameObject.GetComponent<Food>() && Target == null){
+            Target = other.transform;
         }
     }
 }

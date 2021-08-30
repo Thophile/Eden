@@ -13,7 +13,7 @@ public class GameState
 
     public GameState() {
         food = 0;
-        antNb = 1;
+        antNb = 100;
         antsPos = new List<float[]>();
     }
 }

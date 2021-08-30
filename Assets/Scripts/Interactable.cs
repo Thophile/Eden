@@ -5,7 +5,7 @@ using UnityEngine;
 public class Interactable : MonoBehaviour
 {
     public virtual void Interact(Ant ant){
-        Debug.Log("Interacting");
+        ant.state = AntState.Still;
     }
 
 }

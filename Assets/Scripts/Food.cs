@@ -8,12 +8,12 @@ public class Food : Interactable
     public GameObject foodPiece = null;
     public float foodMultiplier;
     public int maxHitPoint = 200;
-    public bool isStatic = false;
     int health = 200;
 
 
     public override void Interact(Ant ant)
     {
+        base.Interact(ant);
         health -= ant.damage;
         if (health > 0){
             int index = (8* health)/maxHitPoint;
