@@ -12,6 +12,9 @@ public class UserInterface : MonoBehaviour
     public GameObject mainMenu;
     public GameObject playButtonText;
     public GameObject optionsMenu;
+    public GameObject foodCount;
+    public GameObject antCount;
+
 
     public GameObject uiPanel;
 
@@ -20,13 +23,24 @@ public class UserInterface : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isGamePaused) playButtonText.GetComponent<TextMeshProUGUI>().text = (GameState.current == null ? "Play" : "Resume") ;
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             ToggleMenu();
         }
+
+        if(isGamePaused){
+            playButtonText.GetComponent<TextMeshProUGUI>().text = (GameState.current == null ? "Play" : "Resume") ;
+        }else{
+            UpdateUI();
+        }
     }
 
+    // UI part
+    public void UpdateUI(){
+        foodCount.GetComponentInChildren<TextMeshProUGUI>().text = GameState.current.food.ToString();
+        antCount.GetComponentInChildren<TextMeshProUGUI>().text = GameObject.Find("Colony").GetComponent<Colony>().antsOut.Count.ToString() + "/" + GameState.current.antNb.ToString();
+    }
+    // Menu part
     public void ToggleMenu(){
         isGamePaused = !isGamePaused;
         
@@ -51,14 +65,14 @@ public class UserInterface : MonoBehaviour
     public void Play(){
         ToggleMenu();
         if (GameState.current == null){
-            WorldBuilder.Load();
+            WorldManager.Load();
         }
     }
     public void Reset(){
-        WorldBuilder.Reset();
+        WorldManager.Reset();
     }
     public void Save(){
-        WorldBuilder.Save();
+        WorldManager.Save();
     }
     public void PlayPausePhysics(bool isGamePaused){
         Rigidbody[] rbs = GameObject.FindObjectsOfType<Rigidbody>();

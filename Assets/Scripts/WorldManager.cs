@@ -5,11 +5,29 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 
-public class WorldBuilder : MonoBehaviour
+public class WorldManager : MonoBehaviour
 {
     static string savePath = "/GameState.cln";
+    public int autoSaveTime;
+    float time = 0;
+
+
+    void Update(){
+        time += Time.deltaTime;
+        if (Options.autoSave && time > autoSaveTime){
+            time -= autoSaveTime;
+            Save();
+        }
+    }
 
     public static void Save() {
+        GameState.current.antsPos.Clear();
+        foreach (var item in GameObject.Find("Colony").GetComponent<Colony>().antsOut)
+            {
+                GameState.current.antsPos.Add(new float[] {item.transform.position.x, item.transform.position.y, item.transform.position.z, item.transform.rotation.eulerAngles.x, item.transform.rotation.eulerAngles.y, item.transform.rotation.eulerAngles.z});
+            }
+
+
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create (Application.persistentDataPath + savePath);
         bf.Serialize(file, GameState.current);
@@ -27,7 +45,12 @@ public class WorldBuilder : MonoBehaviour
             Save();
 
         }
-        BuildWorld();        
+
+        // BuildWorld
+        foreach (var ar in GameState.current.antsPos ?? Enumerable.Empty<int>())
+        {
+            GameObject.Find("Colony").GetComponent<Colony>().SpawnAnt(new Vector3(ar[0],ar[1],ar[2]), Quaternion.Euler(ar[3], ar[4], ar[5]));
+        }        
 
     }
 
@@ -36,14 +59,8 @@ public class WorldBuilder : MonoBehaviour
         GameState.current = null;
     }
 
-    public static void BuildWorld(){
-        Debug.Log("Building with" + GameState.current);
-    }
-
-
     void OnApplicationQuit()
     {
         Save();
     }
-
 }

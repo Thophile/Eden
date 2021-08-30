@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - CameraGround
   - Water
   - UI
-  - 
-  - 
+  - Obstacle
+  - Ant
   - 
   - 
   - 
