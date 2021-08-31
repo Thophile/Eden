@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
     const float depthStep = 5f;
     const float minDepth = 20f;
 
-    static float hoverHeight;
+    public float hoverHeight;
 
     void Awake(){
         camObject = Camera.main.gameObject;
@@ -58,11 +58,14 @@ public class CameraController : MonoBehaviour
 
 
             // Camera Y goal
+            var old = hoverHeight;
             hoverHeight = minHeight + zoomLevel * heightStep;
             float translationY = 0;
             RaycastHit hit = new RaycastHit();
             if (Physics.Raycast (transform.position, -Vector3.up, out hit,Mathf.Infinity , layerMask)) {
                 translationY = hoverHeight - hit.distance;
+            }else{
+                translationY = hoverHeight - old;
             }
             
             // Camera X & Z translations
