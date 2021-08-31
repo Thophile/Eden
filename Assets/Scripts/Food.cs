@@ -10,7 +10,10 @@ public class Food : Interactable
     public int maxHitPoint = 200;
     int health = 200;
 
-
+    void Start(){
+        var rb = gameObject.GetComponent<Rigidbody>();
+        rb.isKinematic = UserInterface.isGamePaused;
+    }
     public override void Interact(Ant ant)
     {
         base.Interact(ant);
