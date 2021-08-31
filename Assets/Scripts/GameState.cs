@@ -10,10 +10,12 @@ public class GameState
     public int food;
     public int antNb;
     public List<float[]> antsPos;
+    public PheromonesMap pheromonesMap;
 
     public GameState() {
         food = 0;
         antNb = 100;
         antsPos = new List<float[]>();
+        pheromonesMap = new PheromonesMap();
     }
 }

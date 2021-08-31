@@ -11,6 +11,10 @@ public class Ant : MonoBehaviour
     // Parameters
     public float downForce;
     public float climbDist;
+    public float pheromonesDetectionRange;
+    public float pheromonesDirStr;
+    public Transform rightSensor;
+    public Transform leftSensor;
     public float activationRadius;
     public int damage;
     public float speed;
@@ -41,13 +45,14 @@ public class Ant : MonoBehaviour
         set { 
             if (value != null){
                 _target = value;
-                //state = AntState.Targeting;
+                state = AntState.Targeting;
             }
         }
     }
     Transform _target = null;
     Vector3 surfaceNormal = Vector3.up;
     Vector3 normal;
+    float pheromonesTimer = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -61,12 +66,6 @@ public class Ant : MonoBehaviour
     {
         if(!UserInterface.isGamePaused){
 
-            // Go home after lifetime
-            lifeTime += Time.deltaTime;
-            if(lifeTime>maxLifeTime){
-                Target = GameObject.Find("Colony").GetComponent<Colony>().exit;
-            }
-
             // Surface Adaptation            
             RaycastHit hit = new RaycastHit();
             if (Physics.Raycast (transform.position + transform.up * 0.15f, transform.forward, out hit, climbDist, ~antLayer)) {
@@ -78,15 +77,29 @@ public class Ant : MonoBehaviour
             float dChange = 0;
             switch (state){
                 case AntState.Wandering :
-                        dChange = Random.Range(-turnAngle,turnAngle);
+                    var rightStrenght = GameState.current.pheromonesMap.getPheromonesValue(rightSensor.position,pheromonesDetectionRange);
+                    var leftStrenght = GameState.current.pheromonesMap.getPheromonesValue(leftSensor.position,pheromonesDetectionRange);
+                    var pheromonesDir = (rightStrenght - leftStrenght) == 0 ? 0 : pheromonesDirStr * (rightStrenght - leftStrenght) / Mathf.Abs (rightStrenght - leftStrenght);
+                    dChange = dChange == 0f ? Random.Range(-(turnAngle/2) + pheromonesDir,(turnAngle/2) + pheromonesDir) : dChange;
                     break;
                 case AntState.Targeting :
+                    // Go back to wandering if target is destroyed
+                    if(Target == null){
+                        state = AntState.Wandering;
+                        break;
+                    }
+
                     // Try interacting with target
                     if(Target != null && Vector3.Magnitude(Target.position - transform.position) < activationRadius){
                         Target.gameObject.GetComponent<Interactable>().Interact(this);
                     }
-                    if (Target == null) Debug.Log(Target);
 
+                    // Spitting pheromones to indicates route
+                    pheromonesTimer += Time.deltaTime;
+                    if(pheromonesTimer > 1f){
+                        pheromonesTimer -= 1f;
+                        GameState.current.pheromonesMap.Mark(transform.position);
+                    }
                     var dir = Vector3.ProjectOnPlane(Target.position - transform.position, transform.up);
                     dChange = Vector3.SignedAngle(transform.forward, dir, transform.up);
                     break;
@@ -126,7 +139,7 @@ public class Ant : MonoBehaviour
                 rightDist = rightHit.distance;
             }
             //Sign of right-left gives direction of rotation
-            dChange = turnAngle * (rightDist - leftDist) / Mathf.Abs(rightDist - leftDist) ;
+            dChange = turnAngle * Mathf.Sign(rightDist - leftDist) ;
         }
         return dChange;
     }
