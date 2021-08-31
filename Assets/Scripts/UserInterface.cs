@@ -38,7 +38,7 @@ public class UserInterface : MonoBehaviour
     // UI part
     public void UpdateUI(){
         foodCount.GetComponentInChildren<TextMeshProUGUI>().text = GameState.current.food.ToString();
-        antCount.GetComponentInChildren<TextMeshProUGUI>().text = GameObject.Find("Colony").GetComponent<Colony>().antsOut.Count.ToString() + "/" + GameState.current.antNb.ToString();
+        antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameState.current.antNb -GameObject.Find("Colony").GetComponent<Colony>().antsOut.Count).ToString() + "/" + GameState.current.antNb.ToString();
     }
     // Menu part
     public void ToggleMenu(){
