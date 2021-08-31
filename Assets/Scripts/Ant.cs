@@ -11,11 +11,9 @@ public class Ant : MonoBehaviour
     // Parameters
     public float downForce;
     public float climbDist;
-    public int detectionRadius;
     public float activationRadius;
     public int damage;
     public float speed;
-    public float reactionTime;
     public int turnAngle;
     public float lerpSpeed;
 
@@ -38,7 +36,6 @@ public class Ant : MonoBehaviour
     public Transform loadPos;
     public float maxLifeTime;
     float lifeTime;
-    float wanderingTimer = 0;
     public Transform Target {
         get { return _target; }
         set { 
@@ -77,20 +74,11 @@ public class Ant : MonoBehaviour
             }else if(Physics.Raycast (transform.position + transform.up*0.15f + transform.forward*0.1f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity,~antLayer)){
                 surfaceNormal = hit.normal;
             }
-            
-            Quaternion targetRot = Quaternion.LookRotation(Vector3.Cross(Vector3.ProjectOnPlane(transform.right,surfaceNormal),surfaceNormal), surfaceNormal);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed*Time.deltaTime);
-
-
             // Ant direction Changes
             float dChange = 0;
             switch (state){
                 case AntState.Wandering :
-                    wanderingTimer += Time.deltaTime;
-                    if(wanderingTimer > reactionTime){
-                        wanderingTimer -= reactionTime;
                         dChange = Random.Range(-turnAngle,turnAngle);
-                    } 
                     break;
                 case AntState.Targeting :
                     // Try interacting with target
@@ -103,8 +91,14 @@ public class Ant : MonoBehaviour
                     dChange = Vector3.SignedAngle(transform.forward, dir, transform.up);
                     break;
             }
-            transform.Rotate(0, AvoidObstacles(dChange), 0);
-            
+            dChange = AvoidObstacles(dChange);
+
+            // Ant Rotation
+            var surfaceRight = Vector3.ProjectOnPlane(transform.right,surfaceNormal);
+            var surfaceForward = Vector3.Cross(surfaceRight, surfaceNormal);
+            var surfaceNewDir = Quaternion.AngleAxis(dChange, surfaceNormal) * surfaceForward;
+            Quaternion targetRot = Quaternion.LookRotation(surfaceNewDir, surfaceNormal);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed*Time.deltaTime);
             // Ant Forward velocity
             rb.velocity = state == AntState.Still ? Vector3.zero : transform.forward * speed * Time.fixedDeltaTime;
             rb.AddForce(-transform.up * downForce);

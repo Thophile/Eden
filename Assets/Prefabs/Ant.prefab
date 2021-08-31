@@ -66,12 +66,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   downForce: 100
   climbDist: 0.2
-  detectionRadius: 5
   activationRadius: 0.3
   damage: 10
   speed: 100
-  reactionTime: 6.1
-  turnAngle: 30
+  turnAngle: 5
   lerpSpeed: 5
   rb: {fileID: 434551117337921777}
   obstacleLayer:
