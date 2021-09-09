@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,8 +13,9 @@ public class UserInterface : MonoBehaviour
     public GameObject mainMenu;
     public GameObject playButtonText;
     public GameObject optionsMenu;
-    public GameObject foodCount;
+    public GameObject gameTime;
     public GameObject antCount;
+    public GameObject foodCount;
 
 
     public GameObject uiPanel;
@@ -38,8 +40,10 @@ public class UserInterface : MonoBehaviour
     // UI part
     public void UpdateUI(){
         foodCount.GetComponentInChildren<TextMeshProUGUI>().text = GameState.current.food.ToString();
-        antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameState.current.antNb -GameObject.Find("Colony").GetComponent<Colony>().antsOut.Count).ToString() + "/" + GameState.current.antNb.ToString();
+        antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameState.current.antNb - Colony.antsInfo.Count).ToString() + "/" + GameState.current.antNb.ToString();
+        gameTime.GetComponentInChildren<TextMeshProUGUI>().text = TimeSpan.FromSeconds(GameState.current.gameTime).Hours.ToString() + ":" + TimeSpan.FromSeconds(GameState.current.gameTime).Minutes.ToString("00");
     }
+
     // Menu part
     public void ToggleMenu(){
         isGamePaused = !isGamePaused;

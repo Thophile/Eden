@@ -9,31 +9,60 @@ public class WorldManager : MonoBehaviour
 {
     static string savePath = "/GameState.cln";
     public int autoSaveTime;
-    float time = 0;
+
+    float lastSaveTime = 0f;
 
 
     void Update(){
         if(!UserInterface.isGamePaused){
-            time += Time.deltaTime;
-            if (Options.autoSave && time > autoSaveTime){
-                time -= autoSaveTime;
+            GameState.current.gameTime += Time.deltaTime;
+            if (Options.autoSave && GameState.current.gameTime - lastSaveTime > autoSaveTime){
+                lastSaveTime = GameState.current.gameTime;
                 Save();
             }
         }
+
     }
 
     public static void Save() {
-        if (GameState.current.antsPos.Count > 0 ) GameState.current.antsPos.Clear();
-        foreach (var item in GameObject.Find("Colony").GetComponent<Colony>().antsOut)
+        if(GameState.current != null){
+            if (GameState.current.antsInfo.Count > 0 ) GameState.current.antsInfo.Clear();
+            foreach (var item in Colony.antsInfo)
             {
-                GameState.current.antsPos.Add(new float[] {item.transform.position.x, item.transform.position.y, item.transform.position.z, item.transform.rotation.eulerAngles.x, item.transform.rotation.eulerAngles.y, item.transform.rotation.eulerAngles.z});
+                GameState.current.antsInfo.Add(new object[] {
+                    item.transform.position.x,
+                    item.transform.position.y,
+                    item.transform.position.z,
+                    item.transform.rotation.eulerAngles.x,
+                    item.transform.rotation.eulerAngles.y,
+                    item.transform.rotation.eulerAngles.z,
+                    item.GetComponent<Ant>().prefabName,
+                    item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<FoodPiece>().prefabName
+                    });
+            }
+
+            if (GameState.current.foodsInfo.Count > 0 ) GameState.current.foodsInfo.Clear();
+            foreach (var item in FoodSpawner.foodsInfo)
+            {
+                GameState.current.foodsInfo.Add(new object[] {
+                    item.transform.position.x,
+                    item.transform.position.y,
+                    item.transform.position.z,
+                    item.transform.rotation.eulerAngles.x,
+                    item.transform.rotation.eulerAngles.y,
+                    item.transform.rotation.eulerAngles.z,
+                    item.GetComponent<Food>().prefabName,
+                    item.GetComponent<Food>().health
+                    });
             }
 
 
-        BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create (Application.persistentDataPath + savePath);
-        bf.Serialize(file, GameState.current);
-        file.Close();
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Create (Application.persistentDataPath + savePath);
+            bf.Serialize(file, GameState.current);
+            file.Close();
+
+        }
     }
 
     public static void Load() {
@@ -49,22 +78,37 @@ public class WorldManager : MonoBehaviour
         }
 
         // BuildWorld
-        foreach (var ar in GameState.current.antsPos)
+        foreach (var ar in GameState.current.antsInfo)
         {
-            GameObject.Find("Colony").GetComponent<Colony>().SpawnAnt(new Vector3(ar[0],ar[1],ar[2]), Quaternion.Euler(ar[3], ar[4], ar[5]));
-        }        
+            Colony.SpawnAnt(
+                new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
+                Quaternion.Euler((float)ar[3], (float)ar[4], (float)ar[5]),
+                Resources.Load((string)ar[6]) as GameObject,
+                Resources.Load((string)ar[7]) as GameObject
+            );
+        }      
+        foreach (var ar in GameState.current.foodsInfo)
+        {
+            FoodSpawner.SpawnFood(
+                new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
+                Quaternion.Euler((float)ar[3], (float)ar[4], (float)ar[5]),
+                Resources.Load((string)ar[6]) as GameObject,
+                (int) ar[7]
+            );
+        }   
+        
 
     }
 
     public static void Reset(){
         File.Delete(Application.persistentDataPath + savePath);
         GameState.current = null;
-        foreach (var item in GameObject.Find("Colony").GetComponent<Colony>().antsOut)
+        var keepAlives = GameObject.FindObjectsOfType<KeepAlive>();
+        foreach (var item in keepAlives)
         {
-            Destroy(item);
-        } 
-        GameObject.Find("Colony").GetComponent<Colony>().antsOut.Clear();
-
+            if(item.baseSceneName == SceneManager.GetActiveScene().name) Destroy(item.gameObject);
+        }
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void OnApplicationQuit()

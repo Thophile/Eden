@@ -9,7 +9,7 @@ public class CameraController : MonoBehaviour
     // Parameters
     public LayerMask layerMask;
     static float speed = 15.0f;
-    static float sensitivity = 0.1f;
+    static float sensitivity = 0.8f;
 
     // Zoom level
     public static float zoomLevel = 4;
@@ -73,7 +73,7 @@ public class CameraController : MonoBehaviour
             float translationZ = Input.GetAxis("Vertical") * speed * (zoomLevel + 1) * Time.deltaTime;
 
             // Camera Y Rotation
-            float yRotation = Input.GetAxis("Rotation") * sensitivity * (zoomLevel + 1);
+            float yRotation = Input.GetAxis("Rotation") * sensitivity;
 
             transform.Translate(translationX, translationY, translationZ);
             transform.Rotate(0, yRotation, 0);

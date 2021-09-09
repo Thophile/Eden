@@ -7,22 +7,28 @@ public class Food : Interactable
     public Mesh[] meshes = new Mesh[9];
     public GameObject foodPiece = null;
     public float foodMultiplier;
-    public int maxHitPoint = 200;
-    int health = 200;
+    public int maxHealth = 200;
+    public int health = 200;
+
+    public string prefabName;
 
     void Start(){
         var rb = gameObject.GetComponent<Rigidbody>();
         rb.isKinematic = UserInterface.isGamePaused;
+        int index = (8* health)/maxHealth;
+        gameObject.GetComponent<MeshFilter>().sharedMesh = meshes[index];
     }
     public override void Interact(Ant ant)
     {
         base.Interact(ant);
         health -= ant.damage;
         if (health > 0){
-            int index = (8* health)/maxHitPoint;
+            int index = (8* health)/maxHealth;
             gameObject.GetComponent<MeshFilter>().sharedMesh = meshes[index];
         }else{
+            FoodSpawner.foodsInfo.Remove(gameObject);
             Destroy(gameObject);
+
         }
         if (foodPiece!= null){
             var load = Instantiate(foodPiece, ant.loadPos.position, Quaternion.identity);
@@ -34,6 +40,7 @@ public class Food : Interactable
 
     void Update(){
         if (transform.position.y < -20){
+            FoodSpawner.foodsInfo.Remove(gameObject);
             Destroy(gameObject);
         }
     }

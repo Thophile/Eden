@@ -4,5 +4,6 @@ using UnityEngine;
 
 public class FoodPiece : MonoBehaviour
 {
+    public string prefabName;
     public int foodValue;
 }

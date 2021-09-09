@@ -8,7 +8,7 @@ public class Colony : MonoBehaviour
     public GameObject ant;
     public int spawnDelay;
     float time = 0;
-    public List<GameObject> antsOut = new List<GameObject>();
+    public static List<GameObject> antsInfo = new List<GameObject>();
 
     // Update is called once per frame
     void Update()
@@ -17,21 +17,26 @@ public class Colony : MonoBehaviour
             time += Time.deltaTime;
             if (time > spawnDelay){
                 time-=spawnDelay;
-                if ((10*antsOut.Count)/GameState.current.antNb <= 8){
-                    var dir = Random.Range(-90,90);
-                    SpawnAnt(exit.position, Quaternion.Euler(0, dir, 0) * exit.rotation);
+                if ((10*antsInfo.Count)/GameState.current.antNb <= 8){
+                    
+                    SpawnAnt(exit.position, exit.rotation, ant);
                 }
             }
         }
     }
-    public void SpawnAnt(Vector3 pos, Quaternion rot){
+    public static void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null){
         var obj = Instantiate(ant, pos, rot);
-        antsOut.Add(obj);
-            
-        obj.transform.parent = gameObject.transform;
+        obj.transform.parent = GameObject.Find("WorldManager").transform;
+        obj.GetComponent<Ant>().prefabName = ant.name;
+        if(load != null) {
+            obj.GetComponent<Ant>().Load = Instantiate(load, obj.GetComponent<Ant>().loadPos.position, obj.GetComponent<Ant>().loadPos.rotation);
+            obj.GetComponent<Ant>().Load.transform.parent = obj.transform;
+        }
+
+        antsInfo.Add(obj);
     }
     public void DespawnAnt(GameObject ant){
-        antsOut.Remove(ant);
+        antsInfo.Remove(ant);
         Destroy(ant);
     }
 }

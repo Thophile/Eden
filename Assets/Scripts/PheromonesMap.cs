@@ -6,7 +6,8 @@ using UnityEngine;
 public class PheromonesMarker{
 
 
-    public readonly float lifeTime = 30f;
+    public readonly float lifeTime = 60f;
+
     public Vector3 Position{
         get{
             return new Vector3(x,y,z);
@@ -24,7 +25,7 @@ public class PheromonesMarker{
     public PheromonesMarker(Vector3 position){
         Position = position;
         
-        timeStamp = Time.time;
+        timeStamp = GameState.current.gameTime;
     }
 
 }
@@ -36,7 +37,7 @@ public class PheromonesMap
     public float getPheromonesValue( Vector3 position, float range){
         var closeElements = new List<PheromonesMarker>();
         var expiredElements = new List<PheromonesMarker>();
-        var now = Time.time;
+        var now = GameState.current.gameTime;
         lock (markers)
         {
             foreach (var item in markers)
