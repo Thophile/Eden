@@ -28,8 +28,7 @@ public class WorldManager : MonoBehaviour
             pheroDecayTimer += Time.deltaTime;
             if(pheroDecayTimer > pheroDecayDelay){
                 pheroDecayTimer -= pheroDecayDelay;
-                Thread decayThread = new Thread(GameState.current.pheromonesMap.decayMarkers);
-                decayThread.Start();
+                GameState.current.pheromonesMap.decayMarkers();
             }
         }
 

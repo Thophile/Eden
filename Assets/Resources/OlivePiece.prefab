@@ -91,8 +91,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2185359547749318099}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f77f41cd1d0b5854aa1ee99947cd32ee, type: 3}
+  m_Script: {fileID: 11500000, guid: 5e765142a575b71409ea4ae533ff4847, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: OlivePiece
-  foodValue: 10
+  value: 10
+  type: 0

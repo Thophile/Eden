@@ -17,10 +17,10 @@ public class Ant : MonoBehaviour
     public float downForce;
     public float climbDist;
     public int damage;
-    public int turnAngle;
     public LayerMask obstacleLayer;
     public LayerMask antLayer;
 
+    //[System.NonSerialized]
     public Rigidbody rb;
     public AntState state;
     
@@ -39,45 +39,15 @@ public class Ant : MonoBehaviour
     public List<GameObject> Targets = new List<GameObject>();
     Vector3 surfaceNormal = Vector3.up;
     Vector3 oldPheroPos;
-    public bool isGrounded;
 
     // Serialized
-    public float maxVelocity = 2f;
-    public float steerStrength = 2f;
+    public float maxVelocity = 20f;
+    public float steerStrength = 1f;
     public float wanderStrenght = 0.5f;
+    public int updateDelay = 3;
 
     Vector3 desiredDirection;
-    void FixedUpdate(){
-        if(!UserInterface.isGamePaused){
-            // Try interacting with target
-            var target = PickTarget();
-            TryInteract(target);
-
-            // Surface Adaptation
-            surfaceNormal = GetTargetSurfaceNormal();
-
-            Vector3 directionChange = AvoidObstacles();
-            directionChange += directionChange == Vector3.zero ? Random.insideUnitSphere * wanderStrenght + GetDir() : Vector3.zero;
-            desiredDirection = (desiredDirection + directionChange).normalized;
-            Vector3 desiredVelocity = desiredDirection * maxVelocity;
-            Vector3 desiredSteeringForce = (desiredVelocity - rb.velocity) * steerStrength;
-            Vector3 acceleration = Vector3.ClampMagnitude(desiredSteeringForce, steerStrength);
-
-            rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration * Time.fixedDeltaTime, maxVelocity);
-            transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal),surfaceNormal);
-
-
-            //Ant down force
-            RaycastHit hit = new RaycastHit();
-            if (Physics.Raycast (transform.position, -transform.up, out hit, 0.8f, ~antLayer)) {
-                isGrounded=true;
-                rb.AddForce(-surfaceNormal * downForce);
-            }else{
-                isGrounded=false;
-                rb.AddForce(-Vector3.up * downForce);
-            }
-        }
-    }
+    float updateCounter = 0;
 
     void Start()
     {
@@ -86,74 +56,52 @@ public class Ant : MonoBehaviour
         rb.isKinematic = UserInterface.isGamePaused;
         Physics.IgnoreLayerCollision(7,7);
     }
-
-    /*void FixedUpdate()
-    {
+    void Update(){
         if(!UserInterface.isGamePaused){
-            // try interacting with preferred potential target
-            var target = PickTarget();
-            TryInteract(target);
 
             // Surface Adaptation
-            surfaceNormal = GetTargetSurfaceNormal();            
-            
-            // Obstacle check
-            float dChange = AvoidObstacles();
+            surfaceNormal = GetTargetSurfaceNormal();
 
-            // Ant direction Changes
-            dirUpdateTimer += Time.fixedDeltaTime;
-            if(dChange == 0f){
-                switch (state){
-                    case AntState.Wandering :
-                        if(dirUpdateTimer > dirUpdateDelay){
-                            dirUpdateTimer = 0;
-                            dChange = GetPheroDir(surfaceNormal);
-                        }
-                        break;
+            desiredDirection += AvoidObstacles();
 
-                    case AntState.GoingHome :
-                        if(dirUpdateTimer > dirUpdateDelay){
-                            dirUpdateTimer = 0;
-                            dChange = GetPheroDir(surfaceNormal);
-                        }
-                        
-                        break;
-                }
+            updateCounter+= Time.deltaTime;
+            if (updateCounter >= updateDelay){
+                updateCounter -= updateDelay;
+                MarkPath();
+
+                Vector2 random = Random.insideUnitCircle;
+                Vector3 randomDir = Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
+                Vector3 targetDir = GetDir(surfaceNormal);
+
+                desiredDirection += (randomDir * wanderStrenght + targetDir).normalized;
+
+                
+
             }
-            
-            
+
+            Vector3 desiredVelocity = Vector3.ProjectOnPlane(desiredDirection, surfaceNormal) * maxVelocity;
+            Vector3 acceleration = Vector3.ClampMagnitude((desiredVelocity - rb.velocity) * steerStrength, steerStrength) /1;
+
+            rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration * Time.deltaTime,maxVelocity);
+            Quaternion targetRot =  Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal),surfaceNormal);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1f*Time.deltaTime);          
 
             //Ant down force
             RaycastHit hit = new RaycastHit();
             if (Physics.Raycast (transform.position, -transform.up, out hit, 0.8f, ~antLayer)) {
-                isGrounded=true;
-                // Ant Rotation
-                var surfaceRight = Vector3.ProjectOnPlane(transform.right,surfaceNormal);
-                var surfaceForward = Vector3.Cross(surfaceRight, surfaceNormal);
-                Quaternion targetRot = Quaternion.LookRotation(surfaceForward, surfaceNormal);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed*Time.deltaTime);
-                transform.Rotate(0, dChange, 0);
-                rb.AddForce(-transform.up * downForce);
+                rb.AddForce(-surfaceNormal * downForce);
             }else{
-                isGrounded=false;
-                var globalForward = Vector3.ProjectOnPlane(transform.forward,Vector3.up);
-                Quaternion targetRot = Quaternion.LookRotation(globalForward, Vector3.up);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, lerpSpeed*Time.deltaTime);
                 rb.AddForce(-Vector3.up * downForce);
             }
-
-            // Ant Forward velocity
-            rb.velocity = state == AntState.Still ? Vector3.zero : transform.forward * speed * Time.fixedDeltaTime;
-        }else{
-            rb.velocity = Vector3.zero;
         }
-        
-    }*/
+    }
+
     GameObject PickTarget(){
         float? minDist = null;
         GameObject closest = null;
         foreach (var item in Targets)
         {
+            if (item == null) continue;
             if(minDist == null || (transform.position - item.transform.position).magnitude < minDist ){
                 minDist = (transform.position - item.transform.position).magnitude;
                 closest = item;
@@ -181,10 +129,14 @@ public class Ant : MonoBehaviour
         }
     }
 
-    Vector3 GetDir(){
+    Vector3 GetDir(Vector3 surfaceNormal){
         if(Targets.Count > 0){
             var target = PickTarget();
-             return (target.transform.position - transform.position).normalized;
+            if (target!=null){
+                TryInteract(target);
+                return Vector3.ProjectOnPlane(target.transform.position - transform.position, surfaceNormal).normalized;
+            } 
+            else return transform.forward;
         }else{
             const float magnitude = 2f;
             Vector3 center = transform.forward * magnitude;
@@ -222,7 +174,7 @@ public class Ant : MonoBehaviour
 
     }
 
-    // Spitting phero to indicates route every 1 meter
+    // Spitting phero to indicates route every 1 s
     void MarkPath(){
         MarkerType type = MarkerType.Wander;
         if(state == AntState.GoingHome) type = MarkerType.Resource;
@@ -240,8 +192,8 @@ public class Ant : MonoBehaviour
         var front = new Vector3(transform.forward.x,0,transform.forward.z);
         RaycastHit hit = new RaycastHit();
         if(Physics.Raycast (transform.position, front, out hit, 5f, obstacleLayer)){
-            var right = Quaternion.Euler(0, turnAngle, 0) * front;
-            var left = Quaternion.Euler(0, -turnAngle, 0) * front;
+            var right = Quaternion.Euler(0, 45, 0) * front;
+            var left = Quaternion.Euler(0, -45, 0) * front;
             float leftDist = 0f;
             float rightDist = 0f;
             RaycastHit leftHit = new RaycastHit();

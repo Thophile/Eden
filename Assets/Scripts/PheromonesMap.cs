@@ -68,6 +68,7 @@ public class PheromonesMap
 
         foreach (var marker in markers)
         {
+            if (marker == null) continue;
             if(marker.x > pos.x + radius) continue;
             if(marker.y > pos.y + radius) continue;
             if(marker.z > pos.z + radius) continue;
@@ -81,17 +82,15 @@ public class PheromonesMap
         return valueCount == 0 ? values: values/valueCount;
     }
     public void decayMarkers(){
-        lock(markers){
-            List<Marker> expiredElements = new List<Marker>();
-            foreach (Marker marker in markers){
-                if (marker.Values.magnitude > threshold){
-                    marker.Values *= decayFactor;
-                }else{
-                    expiredElements.Add(marker);
-                }
+        List<Marker> expiredElements = new List<Marker>();
+        foreach (Marker marker in markers){
+            if (marker.Values.magnitude > threshold){
+                marker.Values *= decayFactor;
+            }else{
+                expiredElements.Add(marker);
             }
-            RemoveMarkers(expiredElements);
         }
+        RemoveMarkers(expiredElements);
     }
      public void RemoveMarkers(List<Marker> expiredElements){
         foreach (var item in expiredElements)
