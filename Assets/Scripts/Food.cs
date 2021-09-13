@@ -33,7 +33,8 @@ public class Food : Interactable
         if (foodPiece!= null){
             var load = Instantiate(foodPiece, ant.loadPos.position, Quaternion.identity);
             load.transform.parent = ant.loadPos;
-            load.GetComponent<FoodPiece>().foodValue = (int)(ant.damage * foodMultiplier);
+            load.GetComponent<Carryable>().value = (int)(ant.damage * foodMultiplier);
+            load.GetComponent<Carryable>().type = CarryableType.Food;
             ant.Load = load;
         }
     }

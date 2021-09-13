@@ -8,11 +8,16 @@ public class Exit : Interactable
     public override void Interact(Ant ant){
         base.Interact(ant);
         if(ant.Load != null){
-            if(ant.Load.GetComponent<FoodPiece>()) {
-                GameState.current.food += ant.Load.GetComponent<FoodPiece>().foodValue;
+            if(ant.Load.GetComponent<Carryable>()){
+                switch (ant.Load.GetComponent<Carryable>().type){
+                    case CarryableType.Food:
+                        GameState.current.food += ant.Load.GetComponent<Carryable>().value;
+                        break;
+
+                }
             }
         } 
-            
         colony.DespawnAnt(ant.gameObject);
+            
     }
 }
