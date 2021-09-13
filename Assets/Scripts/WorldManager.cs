@@ -4,6 +4,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+using System.Threading;
+
 
 public class WorldManager : MonoBehaviour
 {
@@ -12,6 +14,8 @@ public class WorldManager : MonoBehaviour
 
     float lastSaveTime = 0f;
 
+    float pheroDecayTimer = 0f;
+    float pheroDecayDelay = 1f;
 
     void Update(){
         if(!UserInterface.isGamePaused){
@@ -20,7 +24,13 @@ public class WorldManager : MonoBehaviour
                 lastSaveTime = GameState.current.gameTime;
                 Save();
             }
-            GameState.current.pheromonesMap.decayMarkers();
+
+            pheroDecayTimer += Time.deltaTime;
+            if(pheroDecayTimer > pheroDecayDelay){
+                pheroDecayTimer -= pheroDecayDelay;
+                Thread decayThread = new Thread(GameState.current.pheromonesMap.decayMarkers);
+                decayThread.Start();
+            }
         }
 
     }

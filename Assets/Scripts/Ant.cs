@@ -55,14 +55,16 @@ public class Ant : MonoBehaviour
 
             // Surface Adaptation
             surfaceNormal = GetTargetSurfaceNormal();
-            Vector3 directionChange = Random.insideUnitSphere * wanderStrenght + GetDir();
+
+            Vector3 directionChange = AvoidObstacles();
+            directionChange += directionChange == Vector3.zero ? Random.insideUnitSphere * wanderStrenght + GetDir() : Vector3.zero;
             desiredDirection = (desiredDirection + directionChange).normalized;
             Vector3 desiredVelocity = desiredDirection * maxVelocity;
             Vector3 desiredSteeringForce = (desiredVelocity - rb.velocity) * steerStrength;
             Vector3 acceleration = Vector3.ClampMagnitude(desiredSteeringForce, steerStrength);
 
             rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration * Time.fixedDeltaTime, maxVelocity);
-            transform.rotation = Quaternion.LookRotation(rb.velocity, surfaceNormal);
+            transform.rotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal),surfaceNormal);
 
 
             //Ant down force

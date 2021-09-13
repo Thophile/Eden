@@ -84,7 +84,7 @@ MonoBehaviour:
   isGrounded: 0
   maxVelocity: 4
   steerStrength: 4
-  wanderStrenght: 0.4
+  wanderStrenght: 0.15
 --- !u!135 &241660428
 SphereCollider:
   m_ObjectHideFlags: 0
