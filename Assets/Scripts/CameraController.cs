@@ -17,20 +17,20 @@ public class CameraController : MonoBehaviour
     const float maxZoom = 9;
     
     // Rotation
-    const float rotStep = 3f;
+    const float rotStep = 2f;
     const float minRot = 15f;
 
     // Translation
-    const float heightStep = 5f;
-    const float minHeight = 5f;
+    const float heightStep = 0.5f;
+    const float minHeight = 1f;
 
     // Field of view
     const float fovStep = 5f;
     const float minFov = 20f;
 
     // Camera depth
-    const float depthStep = 5f;
-    const float minDepth = 20f;
+    const float depthStep = .5f;
+    const float minDepth = 1f;
 
     public float hoverHeight;
 

@@ -190,22 +190,13 @@ public class Ant : MonoBehaviour
     Vector3 AvoidObstacles(){
         // Obstacle Avoidance
         var front = new Vector3(transform.forward.x,0,transform.forward.z);
+        var right = Quaternion.Euler(0, 45, 0) * front;
+        var left = Quaternion.Euler(0, -45, 0) * front;
         RaycastHit hit = new RaycastHit();
-        if(Physics.Raycast (transform.position, front, out hit, 5f, obstacleLayer)){
-            var right = Quaternion.Euler(0, 45, 0) * front;
-            var left = Quaternion.Euler(0, -45, 0) * front;
-            float leftDist = 0f;
-            float rightDist = 0f;
-            RaycastHit leftHit = new RaycastHit();
-            if(Physics.Raycast (transform.position, left, out leftHit, Mathf.Infinity, obstacleLayer)){
-                leftDist = leftHit.distance;
-            }
-            RaycastHit rightHit = new RaycastHit();
-            if(Physics.Raycast (transform.position, right, out rightHit, Mathf.Infinity, obstacleLayer)){
-                rightDist = rightHit.distance;
-            }
-            if(rightDist > leftDist) return right;
-            else return left;
+        if(Physics.Raycast (transform.position + left, - Vector3.up, out hit, Mathf.Infinity, obstacleLayer)){
+            return right;
+        }else if(Physics.Raycast (transform.position + right, - Vector3.up, out hit, Mathf.Infinity, obstacleLayer)){
+            return left;
         }else {
             return Vector3.zero;
         }
