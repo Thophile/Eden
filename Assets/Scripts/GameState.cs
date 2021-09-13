@@ -17,7 +17,7 @@ public class GameState
     public GameState() {
         food = 0;
         gameTime = 0f;
-        antNb = 100;
+        antNb = 10;
         antsInfo = new List<object[]>();
         foodsInfo = new List<object[]>();
         pheromonesMap = new PheromonesMap();

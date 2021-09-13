@@ -20,6 +20,7 @@ public class WorldManager : MonoBehaviour
                 lastSaveTime = GameState.current.gameTime;
                 Save();
             }
+            GameState.current.pheromonesMap.decayMarkers();
         }
 
     }
@@ -27,33 +28,37 @@ public class WorldManager : MonoBehaviour
     public static void Save() {
         if(GameState.current != null){
             if (GameState.current.antsInfo.Count > 0 ) GameState.current.antsInfo.Clear();
-            foreach (var item in Colony.antsInfo)
-            {
-                GameState.current.antsInfo.Add(new object[] {
-                    item.transform.position.x,
-                    item.transform.position.y,
-                    item.transform.position.z,
-                    item.transform.rotation.eulerAngles.x,
-                    item.transform.rotation.eulerAngles.y,
-                    item.transform.rotation.eulerAngles.z,
-                    item.GetComponent<Ant>().prefabName,
-                    item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<FoodPiece>().prefabName
-                    });
+            if(Colony.antsInfo.Count >0 ){
+                foreach (var item in Colony.antsInfo)
+                {
+                    GameState.current.antsInfo.Add(new object[] {
+                        item.transform.position.x,
+                        item.transform.position.y,
+                        item.transform.position.z,
+                        item.transform.rotation.eulerAngles.x,
+                        item.transform.rotation.eulerAngles.y,
+                        item.transform.rotation.eulerAngles.z,
+                        item.GetComponent<Ant>().prefabName,
+                        item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<Carryable>().prefabName
+                        });
+                }
             }
 
             if (GameState.current.foodsInfo.Count > 0 ) GameState.current.foodsInfo.Clear();
-            foreach (var item in FoodSpawner.foodsInfo)
-            {
-                GameState.current.foodsInfo.Add(new object[] {
-                    item.transform.position.x,
-                    item.transform.position.y,
-                    item.transform.position.z,
-                    item.transform.rotation.eulerAngles.x,
-                    item.transform.rotation.eulerAngles.y,
-                    item.transform.rotation.eulerAngles.z,
-                    item.GetComponent<Food>().prefabName,
-                    item.GetComponent<Food>().health
-                    });
+            if(FoodSpawner.foodsInfo.Count > 0 ){
+                foreach (var item in FoodSpawner.foodsInfo)
+                {
+                    GameState.current.foodsInfo.Add(new object[] {
+                        item.transform.position.x,
+                        item.transform.position.y,
+                        item.transform.position.z,
+                        item.transform.rotation.eulerAngles.x,
+                        item.transform.rotation.eulerAngles.y,
+                        item.transform.rotation.eulerAngles.z,
+                        item.GetComponent<Food>().prefabName,
+                        item.GetComponent<Food>().health
+                        });
+                }
             }
 
 
@@ -103,6 +108,8 @@ public class WorldManager : MonoBehaviour
     public static void Reset(){
         File.Delete(Application.persistentDataPath + savePath);
         GameState.current = null;
+        Colony.antsInfo.Clear();
+        FoodSpawner.foodsInfo.Clear();
         var keepAlives = GameObject.FindObjectsOfType<KeepAlive>();
         foreach (var item in keepAlives)
         {

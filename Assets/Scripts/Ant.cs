@@ -3,72 +3,94 @@ using System.Collections.Generic;
 using UnityEngine;
 public enum AntState {
         Wandering,
-        Targeting,
+        GoingHome,
         Still,
     }
 public class Ant : MonoBehaviour
 {
     // Parameters
     public string prefabName;
+    public int pheroDetectionRange;
+
+    // Stats
+    public float activationRadius;
     public float downForce;
     public float climbDist;
-    public float pheroDetectionRange;
-    public float pheroThreshold;
-    public Transform rightSensor;
-    public Transform leftSensor;
-    public float activationRadius;
     public int damage;
-    public float speed;
     public int turnAngle;
-    public float lerpSpeed;
-
-    public Rigidbody rb;
     public LayerMask obstacleLayer;
     public LayerMask antLayer;
+
+    public Rigidbody rb;
     public AntState state;
     
-    float dirUpdateTimer = 0f;
-    public float dirUpdateDelay;
 
     public GameObject Load{
         get {return _load;}
         set{
             if(value != null){
-                Target = GameObject.Find("Colony").GetComponent<Colony>().exit;
+                state = AntState.GoingHome;
                 _load = value;
             }
         }
     }
     GameObject _load = null;
     public Transform loadPos;
-    public Transform Target {
-        get { return _target; }
-        set { 
-            if (value != null){
-                _target = value;
-                state = AntState.Targeting;
+    public List<GameObject> Targets = new List<GameObject>();
+    Vector3 surfaceNormal = Vector3.up;
+    Vector3 oldPheroPos;
+    public bool isGrounded;
+
+    // Serialized
+    public float maxVelocity = 2f;
+    public float steerStrength = 2f;
+    public float wanderStrenght = 0.5f;
+
+    Vector3 desiredDirection;
+    void FixedUpdate(){
+        if(!UserInterface.isGamePaused){
+            // Try interacting with target
+            var target = PickTarget();
+            TryInteract(target);
+
+            // Surface Adaptation
+            surfaceNormal = GetTargetSurfaceNormal();
+            Vector3 directionChange = Random.insideUnitSphere * wanderStrenght + GetDir();
+            desiredDirection = (desiredDirection + directionChange).normalized;
+            Vector3 desiredVelocity = desiredDirection * maxVelocity;
+            Vector3 desiredSteeringForce = (desiredVelocity - rb.velocity) * steerStrength;
+            Vector3 acceleration = Vector3.ClampMagnitude(desiredSteeringForce, steerStrength);
+
+            rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration * Time.fixedDeltaTime, maxVelocity);
+            transform.rotation = Quaternion.LookRotation(rb.velocity, surfaceNormal);
+
+
+            //Ant down force
+            RaycastHit hit = new RaycastHit();
+            if (Physics.Raycast (transform.position, -transform.up, out hit, 0.8f, ~antLayer)) {
+                isGrounded=true;
+                rb.AddForce(-surfaceNormal * downForce);
+            }else{
+                isGrounded=false;
+                rb.AddForce(-Vector3.up * downForce);
             }
         }
     }
-    Transform _target = null;
-    Vector3 surfaceNormal = Vector3.up;
-    Vector3 normal;
-    Vector3 oldPheroPos;
 
-    public bool isGrounded;
-
-
-    // Start is called before the first frame update
     void Start()
     {
+        desiredDirection = transform.forward;
         rb = gameObject.GetComponent<Rigidbody>();
         rb.isKinematic = UserInterface.isGamePaused;
         Physics.IgnoreLayerCollision(7,7);
     }
 
-    void FixedUpdate()
+    /*void FixedUpdate()
     {
         if(!UserInterface.isGamePaused){
+            // try interacting with preferred potential target
+            var target = PickTarget();
+            TryInteract(target);
 
             // Surface Adaptation
             surfaceNormal = GetTargetSurfaceNormal();            
@@ -81,21 +103,18 @@ public class Ant : MonoBehaviour
             if(dChange == 0f){
                 switch (state){
                     case AntState.Wandering :
-                        // Sensing phero
                         if(dirUpdateTimer > dirUpdateDelay){
                             dirUpdateTimer = 0;
                             dChange = GetPheroDir(surfaceNormal);
                         }
                         break;
 
-                    case AntState.Targeting :
-                        if(CheckTarget()){
-                            MarkPath();
-                            if(dirUpdateTimer > dirUpdateDelay){
-                                dirUpdateTimer = 0;
-                                dChange = GetTargetDir(surfaceNormal);
-                            }
+                    case AntState.GoingHome :
+                        if(dirUpdateTimer > dirUpdateDelay){
+                            dirUpdateTimer = 0;
+                            dChange = GetPheroDir(surfaceNormal);
                         }
+                        
                         break;
                 }
             }
@@ -127,7 +146,20 @@ public class Ant : MonoBehaviour
             rb.velocity = Vector3.zero;
         }
         
+    }*/
+    GameObject PickTarget(){
+        float? minDist = null;
+        GameObject closest = null;
+        foreach (var item in Targets)
+        {
+            if(minDist == null || (transform.position - item.transform.position).magnitude < minDist ){
+                minDist = (transform.position - item.transform.position).magnitude;
+                closest = item;
+            }
+        }
+        return closest;
     }
+
     Vector3 GetTargetSurfaceNormal(){
         RaycastHit hit = new RaycastHit();
         if (Physics.Raycast (transform.position - transform.up*0.1f, Quaternion.AngleAxis(-5,transform.up)*transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast (transform.position - transform.up*0.06f, Quaternion.AngleAxis(5,transform.up)*transform.forward, out hit, climbDist, ~antLayer)) {
@@ -139,52 +171,69 @@ public class Ant : MonoBehaviour
         }
     }
 
-    // Try interacting with target and go back to wandering if target is destroyed
-    bool CheckTarget(){
-        if(Target == null){
-            state = AntState.Wandering;
-            return false;
-        }else if(Vector3.Magnitude(Target.position - transform.position) < activationRadius){
-            Target.gameObject.GetComponent<Interactable>().Interact(this);
+    // Try interacting with target
+    void TryInteract(GameObject target){
+        
+        if(target!= null && Vector3.Magnitude(target.transform.position - transform.position) < activationRadius){
+            target.GetComponent<Interactable>().Interact(this);
         }
-        return true;
     }
 
-    // Getting phero path direction
-    float GetPheroDir(Vector3 surfaceNormal){
-        var rightStrenght = GameState.current.pheromonesMap.getPheromonesValue(rightSensor.position,pheroDetectionRange);
-        var leftStrenght = GameState.current.pheromonesMap.getPheromonesValue(leftSensor.position,pheroDetectionRange);
-        if((rightStrenght - leftStrenght) != 0){
-            var exitDir = Vector3.ProjectOnPlane(GameObject.Find("Colony").GetComponent<Colony>().exit.position - transform.position, surfaceNormal);
-            var dirAngle =  turnAngle*((rightStrenght - leftStrenght) / Mathf.Abs (rightStrenght - leftStrenght));
-            return dirAngle + Random.Range(- turnAngle/3,turnAngle/3);
+    Vector3 GetDir(){
+        if(Targets.Count > 0){
+            var target = PickTarget();
+             return (target.transform.position - transform.position).normalized;
         }else{
-            return Random.Range(- turnAngle/2,turnAngle/2);
-        }
-    }
+            const float magnitude = 2f;
+            Vector3 center = transform.forward * magnitude;
+            Vector3 left = Quaternion.AngleAxis(-15,transform.up)*transform.forward* magnitude;
+            Vector3 right = Quaternion.AngleAxis(15,transform.up)*transform.forward* magnitude;
 
-    // Getting target path direction
-    float GetTargetDir(Vector3 surfaceNormal){
-        var dir = Vector3.ProjectOnPlane(Target.position - transform.position, surfaceNormal);
-        if(Vector3.Angle(surfaceNormal, dir) < 45){
-            return 0f;
+            var centerPhero = GameState.current.pheromonesMap.ComputeZone(transform.position+center, pheroDetectionRange);
+            var leftPhero = GameState.current.pheromonesMap.ComputeZone(transform.position+left, pheroDetectionRange);
+            var rightPhero = GameState.current.pheromonesMap.ComputeZone(transform.position+right, pheroDetectionRange);
+
+            float centerValue = 0f, leftValue = 0f, rightValue = 0f;
+
+            switch(state){
+                case AntState.Wandering:
+                    centerValue = centerPhero.x-centerPhero.z;
+                    leftValue = leftPhero.x-leftPhero.z;
+                    rightValue = rightPhero.x-rightPhero.z;
+                    break;
+                case AntState.GoingHome:
+                    centerValue = centerPhero.y;
+                    leftValue = leftPhero.y;
+                    rightValue = rightPhero.y;
+                    break;
+
+            }
+
+            if(centerValue >= leftValue && centerValue >= rightValue) return center.normalized;
+            else if(leftValue >= centerValue && leftValue >= rightValue) return left.normalized;
+            else return right.normalized;
         }
-        var dirAngle = Vector3.SignedAngle(transform.forward, dir, surfaceNormal);
-        return dirAngle + Random.Range(- turnAngle/3,turnAngle/3);
+
+        
+
+
+
     }
 
     // Spitting phero to indicates route every 1 meter
     void MarkPath(){
-        
+        MarkerType type = MarkerType.Wander;
+        if(state == AntState.GoingHome) type = MarkerType.Resource;
+
         var dist = oldPheroPos == null ? 1f : (transform.position - oldPheroPos).magnitude;
         if(dist >= 1f){
             oldPheroPos = transform.position;
-            GameState.current.pheromonesMap.Mark(transform.position);
+            GameState.current.pheromonesMap.Mark(transform.position, type);
         }
     }
 
     // Return a rotation to avoid end of map
-    float AvoidObstacles(){
+    Vector3 AvoidObstacles(){
         // Obstacle Avoidance
         var front = new Vector3(transform.forward.x,0,transform.forward.z);
         RaycastHit hit = new RaycastHit();
@@ -201,17 +250,22 @@ public class Ant : MonoBehaviour
             if(Physics.Raycast (transform.position, right, out rightHit, Mathf.Infinity, obstacleLayer)){
                 rightDist = rightHit.distance;
             }
-            //Sign of right-left gives direction of rotation
-            return turnAngle * Mathf.Sign(rightDist - leftDist) ;
+            if(rightDist > leftDist) return right;
+            else return left;
         }else {
-            return 0f;
+            return Vector3.zero;
         }
     }
 
      private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.GetComponent<Food>() && Target == null){
-            Target = other.transform;
+        if(other.gameObject.GetComponent<Interactable>()){
+            Targets.Add(other.gameObject);
+        }
+    }
+    private void OnTriggerExit(Collider other){
+        if(other.gameObject.GetComponent<Interactable>()){
+            Targets.Remove(other.gameObject);
         }
     }
 }
