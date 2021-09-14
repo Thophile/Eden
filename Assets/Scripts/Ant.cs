@@ -44,13 +44,15 @@ public class Ant : MonoBehaviour
     public float maxVelocity = 20f;
     public float steerStrength = 1f;
     public float wanderStrenght = 0.5f;
-    public int updateDelay = 3;
+    public float updateDelay = 1f;
 
     Vector3 desiredDirection;
     float updateCounter = 0;
+    Animator animator;
 
     void Start()
     {
+        animator = gameObject.GetComponent<Animator>();
         desiredDirection = transform.forward;
         rb = gameObject.GetComponent<Rigidbody>();
         rb.isKinematic = UserInterface.isGamePaused;
@@ -71,20 +73,20 @@ public class Ant : MonoBehaviour
 
                 Vector2 random = Random.insideUnitCircle;
                 Vector3 randomDir = Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
-                Vector3 targetDir = GetDir(surfaceNormal);
-
-                desiredDirection += (randomDir * wanderStrenght + targetDir).normalized;
-
                 
+                Vector3 targetDir = GetDir(surfaceNormal).normalized;
+
+                desiredDirection = (randomDir * wanderStrenght + targetDir).normalized;             
 
             }
 
-            Vector3 desiredVelocity = Vector3.ProjectOnPlane(desiredDirection, surfaceNormal) * maxVelocity;
-            Vector3 acceleration = Vector3.ClampMagnitude((desiredVelocity - rb.velocity) * steerStrength, steerStrength) /1;
+            Vector3 desiredVelocity = desiredDirection * maxVelocity;
+            Vector3 acceleration = Vector3.ClampMagnitude(Vector3.ProjectOnPlane(desiredVelocity - rb.velocity, surfaceNormal) * steerStrength, steerStrength);
 
-            rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration * Time.deltaTime,maxVelocity);
-            Quaternion targetRot =  Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal),surfaceNormal);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1f*Time.deltaTime);          
+            rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration, maxVelocity);
+            Quaternion targetRot =  Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.velocity, surfaceNormal),surfaceNormal);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1f*Time.deltaTime);   
+
 
             //Ant down force
             RaycastHit hit = new RaycastHit();
@@ -92,10 +94,26 @@ public class Ant : MonoBehaviour
                 rb.AddForce(-surfaceNormal * downForce);
             }else{
                 rb.AddForce(-Vector3.up * downForce);
-            }
+            }           
+            
         }
+        if(animator){
+            animator.SetFloat("velocity", 2*rb.velocity.magnitude * rb.velocity.magnitude );
+        }
+        
     }
 
+    void LateUpdate(){
+        
+        var head = transform.Find("AntBody/Armature/Main/Head").transform;
+        Debug.DrawRay(transform.position, transform.forward, Color.blue);
+        Debug.DrawRay(transform.position, desiredDirection, Color.green);
+
+        var angle = Vector3.SignedAngle(transform.forward, desiredDirection, transform.up);
+        
+        var z = (angle - head.localEulerAngles.z) / 3 ;
+        if (Mathf.Abs( z ) > 0.1f ) head.localEulerAngles = new Vector3(head.localEulerAngles.x,head.localEulerAngles.y,angle);
+    }
     GameObject PickTarget(){
         float? minDist = null;
         GameObject closest = null;
@@ -112,9 +130,9 @@ public class Ant : MonoBehaviour
 
     Vector3 GetTargetSurfaceNormal(){
         RaycastHit hit = new RaycastHit();
-        if (Physics.Raycast (transform.position - transform.up*0.1f, Quaternion.AngleAxis(-5,transform.up)*transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast (transform.position - transform.up*0.06f, Quaternion.AngleAxis(5,transform.up)*transform.forward, out hit, climbDist, ~antLayer)) {
+        if (Physics.Raycast (transform.position - transform.up*0.03f, Quaternion.AngleAxis(-5,transform.up)*transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast (transform.position - transform.up*0.06f, Quaternion.AngleAxis(5,transform.up)*transform.forward, out hit, climbDist, ~antLayer)) {
             return hit.normal;
-        }else if(Physics.Raycast (transform.position - transform.up*0.06f+ transform.forward*0.03f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity,~antLayer)){
+        }else if(Physics.Raycast (transform.position - transform.up*0.02f+ transform.forward*0.01f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity,~antLayer)){
             return hit.normal;
         }else{
             return surfaceNormal;
@@ -202,7 +220,7 @@ public class Ant : MonoBehaviour
         }
     }
 
-     private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.GetComponent<Interactable>()){
             Targets.Add(other.gameObject);

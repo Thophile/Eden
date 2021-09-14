@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
     public static bool isActivated = false;
     // Parameters
     public LayerMask layerMask;
-    static float speed = 15.0f;
+    static float speed = 3.0f;
     static float sensitivity = 0.8f;
 
     // Zoom level
