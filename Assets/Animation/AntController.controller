@@ -17,9 +17,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.07110238
+  m_TransitionDuration: 0.12885427
   m_TransitionOffset: 0
-  m_ExitTime: 0.974588
+  m_ExitTime: 0.93648744
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -42,16 +42,16 @@ AnimatorState:
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
   m_Mirror: 0
-  m_SpeedParameterActive: 0
+  m_SpeedParameterActive: 1
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
   m_Motion: {fileID: 8349542763059015795, guid: 9608e590515001a47b95231f610072eb, type: 3}
   m_Tag: 
   m_SpeedParameter: velocity
-  m_MirrorParameter: 
+  m_MirrorParameter: Static
   m_CycleOffsetParameter: 
-  m_TimeParameter: 
+  m_TimeParameter: velocity
 --- !u!91 &9100000
 AnimatorController:
   m_ObjectHideFlags: 0
@@ -61,18 +61,6 @@ AnimatorController:
   m_Name: AntController
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: Left
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
-  - m_Name: Right
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 0}
   - m_Name: velocity
     m_Type: 1
     m_DefaultFloat: 1
@@ -147,7 +135,7 @@ AnimatorStateMachine:
   m_EntryPosition: {x: 10, y: 90, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
-  m_DefaultState: {fileID: 8073909382844326836}
+  m_DefaultState: {fileID: -828614885228996362}
 --- !u!1102 &8073909382844326836
 AnimatorState:
   serializedVersion: 6
@@ -169,7 +157,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 0}
+  m_Motion: {fileID: 7400000, guid: ec5d49142dc4f1e4a82f96c52ed33165, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

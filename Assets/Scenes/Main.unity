@@ -2234,6 +2234,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.93986994
+      objectReference: {fileID: 0}
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.33879545
+      objectReference: {fileID: 0}
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.032723982
+      objectReference: {fileID: 0}
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.028131023
+      objectReference: {fileID: 0}
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -39.694
+      objectReference: {fileID: 0}
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -3.163
+      objectReference: {fileID: 0}
+    - target: {fileID: 272747888815493880, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: -2.287
+      objectReference: {fileID: 0}
     - target: {fileID: 434551117337921779, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -2244,7 +2272,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 434551117337921779, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.18915558
+      value: 0.245
       objectReference: {fileID: 0}
     - target: {fileID: 434551117337921779, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
       propertyPath: m_LocalPosition.z
@@ -2282,13 +2310,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ant
       objectReference: {fileID: 0}
-    - target: {fileID: 2015417275358008915, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
-      propertyPath: m_CullingType
-      value: 0
+    - target: {fileID: 1783877523464469341, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: maxVelocity
+      value: 0.8
       objectReference: {fileID: 0}
-    - target: {fileID: 2015417275358008915, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
-      propertyPath: m_PlayAutomatically
-      value: 0
+    - target: {fileID: 1783877523464469341, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
+      propertyPath: updateDelay
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
