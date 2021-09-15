@@ -17,7 +17,7 @@ public class Ant : MonoBehaviour
     public float downForce;
     public float climbDist;
     public int damage;
-    public LayerMask obstacleLayer;
+    public LayerMask waterLayer;
     public LayerMask antLayer;
 
     //[System.NonSerialized]
@@ -64,7 +64,7 @@ public class Ant : MonoBehaviour
             // Surface Adaptation
             surfaceNormal = GetTargetSurfaceNormal();
 
-            desiredDirection += AvoidObstacles();
+            
 
             updateCounter+= Time.deltaTime;
             if (updateCounter >= updateDelay){
@@ -79,21 +79,29 @@ public class Ant : MonoBehaviour
                 desiredDirection = (randomDir * wanderStrenght + targetDir).normalized;             
 
             }
+            Vector3 waterDirectionChange = AvoidWater();
+            if(waterDirectionChange != Vector3.zero) desiredDirection = waterDirectionChange;
 
-            Vector3 desiredVelocity = desiredDirection * maxVelocity;
-            Vector3 acceleration = Vector3.ClampMagnitude(Vector3.ProjectOnPlane(desiredVelocity - rb.velocity, surfaceNormal) * steerStrength, steerStrength);
+            Vector3 targetVelocity =  Vector3.ProjectOnPlane(desiredDirection * maxVelocity, surfaceNormal);
+            //rb.velocity = Vector3.ClampMagnitude(Vector3.Lerp(rb.velocity, targetVelocity, steerStrength*Time.deltaTime), maxVelocity);
+            rb.velocity = Vector3.ClampMagnitude(rb.velocity + (targetVelocity - rb.velocity) * steerStrength * Time.deltaTime, maxVelocity);
+            //rb.velocity = Vector3.ClampMagnitude(targetVelocity, maxVelocity);
+            // Debug direction
+            Debug.DrawRay(transform.position, desiredDirection, Color.red);
+            Debug.DrawRay(transform.position, targetVelocity, Color.blue);
+            Debug.DrawRay(transform.position, rb.velocity, Color.magenta);
 
-            rb.velocity = Vector3.ClampMagnitude(rb.velocity + acceleration, maxVelocity);
             Quaternion targetRot =  Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.velocity, surfaceNormal),surfaceNormal);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 1f*Time.deltaTime);   
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 2f*Time.deltaTime);   
 
+            
 
             //Ant down force
             RaycastHit hit = new RaycastHit();
             if (Physics.Raycast (transform.position, -transform.up, out hit, 0.8f, ~antLayer)) {
                 rb.AddForce(-surfaceNormal * downForce);
             }else{
-                rb.AddForce(-Vector3.up * downForce);
+                rb.AddForce(-Vector3.up * 10*downForce);
             }           
             
         }
@@ -105,20 +113,18 @@ public class Ant : MonoBehaviour
 
     void LateUpdate(){
         
-        var head = transform.Find("AntBody/Armature/Main/Head").transform;
-        Debug.DrawRay(transform.position, transform.forward, Color.blue);
-        Debug.DrawRay(transform.position, desiredDirection, Color.green);
-
-        var angle = Vector3.SignedAngle(transform.forward, desiredDirection, transform.up);
+        var head = transform.Find("Body/Armature/Main/Head").transform;
         
-        var z = (angle - head.localEulerAngles.z) / 3 ;
-        if (Mathf.Abs( z ) > 0.1f ) head.localEulerAngles = new Vector3(head.localEulerAngles.x,head.localEulerAngles.y,angle);
+        var angle = Vector3.SignedAngle(transform.forward, desiredDirection, transform.up);
+        var targetRot = Quaternion.Euler(head.localEulerAngles.x,head.localEulerAngles.y,angle);
+        head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2f*Time.deltaTime);
     }
     GameObject PickTarget(){
         float? minDist = null;
         GameObject closest = null;
         foreach (var item in Targets)
         {
+            if (item.GetComponent<Exit>() && state == AntState.Wandering) continue;
             if (item == null) continue;
             if(minDist == null || (transform.position - item.transform.position).magnitude < minDist ){
                 minDist = (transform.position - item.transform.position).magnitude;
@@ -130,7 +136,7 @@ public class Ant : MonoBehaviour
 
     Vector3 GetTargetSurfaceNormal(){
         RaycastHit hit = new RaycastHit();
-        if (Physics.Raycast (transform.position - transform.up*0.03f, Quaternion.AngleAxis(-5,transform.up)*transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast (transform.position - transform.up*0.06f, Quaternion.AngleAxis(5,transform.up)*transform.forward, out hit, climbDist, ~antLayer)) {
+        if (Physics.Raycast (transform.position - transform.up*0.01f, Quaternion.AngleAxis(-5,transform.up)*transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast (transform.position - transform.up*0.06f, Quaternion.AngleAxis(5,transform.up)*transform.forward, out hit, climbDist, ~antLayer)) {
             return hit.normal;
         }else if(Physics.Raycast (transform.position - transform.up*0.02f+ transform.forward*0.01f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity,~antLayer)){
             return hit.normal;
@@ -185,11 +191,6 @@ public class Ant : MonoBehaviour
             else if(leftValue >= centerValue && leftValue >= rightValue) return left.normalized;
             else return right.normalized;
         }
-
-        
-
-
-
     }
 
     // Spitting phero to indicates route every 1 s
@@ -197,25 +198,25 @@ public class Ant : MonoBehaviour
         MarkerType type = MarkerType.Wander;
         if(state == AntState.GoingHome) type = MarkerType.Resource;
 
-        var dist = oldPheroPos == null ? 1f : (transform.position - oldPheroPos).magnitude;
-        if(dist >= 1f){
-            oldPheroPos = transform.position;
-            GameState.current.pheromonesMap.Mark(transform.position, type);
-        }
+        GameState.current.pheromonesMap.Mark(transform.position, type);
     }
 
     // Return a rotation to avoid end of map
-    Vector3 AvoidObstacles(){
+    Vector3 AvoidWater(){
         // Obstacle Avoidance
-        var front = new Vector3(transform.forward.x,0,transform.forward.z);
-        var right = Quaternion.Euler(0, 45, 0) * front;
-        var left = Quaternion.Euler(0, -45, 0) * front;
+        var right = Quaternion.Euler(0, 30, 0) * transform.forward * 0.2f;
+        var left = Quaternion.Euler(0, -30, 0) * transform.forward * 0.2f;
+        
         RaycastHit hit = new RaycastHit();
-        if(Physics.Raycast (transform.position + left, - Vector3.up, out hit, Mathf.Infinity, obstacleLayer)){
-            return right;
-        }else if(Physics.Raycast (transform.position + right, - Vector3.up, out hit, Mathf.Infinity, obstacleLayer)){
-            return left;
+        if(Physics.Raycast (transform.position + left + Vector3.up, - Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water")){
+            Debug.DrawRay(transform.position + left + Vector3.up, - Vector3.up,Color.red);
+            return 2*right;
+        }else if(Physics.Raycast (transform.position + right + Vector3.up, - Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water")){
+            Debug.DrawRay(transform.position + right + Vector3.up, - Vector3.up,Color.red);
+            return 2*left;
         }else {
+            Debug.DrawRay(transform.position + left + Vector3.up, - Vector3.up,Color.green);
+            Debug.DrawRay(transform.position + right + Vector3.up, - Vector3.up,Color.green);
             return Vector3.zero;
         }
     }

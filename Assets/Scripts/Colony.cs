@@ -18,8 +18,8 @@ public class Colony : MonoBehaviour
             if (time > spawnDelay){
                 time-=spawnDelay;
                 if ((10*antsInfo.Count)/GameState.current.antNb <= 8){
-                    
-                    SpawnAnt(exit.position, exit.rotation, ant);
+                    var rand = Vector3.ProjectOnPlane(Random.insideUnitSphere, Vector3.up);
+                    SpawnAnt(exit.position, Quaternion.LookRotation(rand, Vector3.up), ant);
                 }
             }
         }
