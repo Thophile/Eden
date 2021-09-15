@@ -83,16 +83,17 @@ public class Ant : MonoBehaviour
             if(waterDirectionChange != Vector3.zero) desiredDirection = waterDirectionChange;
 
             Vector3 targetVelocity =  Vector3.ProjectOnPlane(desiredDirection * maxVelocity, surfaceNormal);
-            //rb.velocity = Vector3.ClampMagnitude(Vector3.Lerp(rb.velocity, targetVelocity, steerStrength*Time.deltaTime), maxVelocity);
-            rb.velocity = Vector3.ClampMagnitude(rb.velocity + (targetVelocity - rb.velocity) * steerStrength * Time.deltaTime, maxVelocity);
-            //rb.velocity = Vector3.ClampMagnitude(targetVelocity, maxVelocity);
+            float turnRatio = 1 - (Vector3.Angle(targetVelocity, rb.velocity)/180);
+
+            rb.velocity = Vector3.ClampMagnitude(transform.forward * maxVelocity, maxVelocity) * turnRatio * turnRatio;
+
             // Debug direction
             Debug.DrawRay(transform.position, desiredDirection, Color.red);
             Debug.DrawRay(transform.position, targetVelocity, Color.blue);
             Debug.DrawRay(transform.position, rb.velocity, Color.magenta);
 
-            Quaternion targetRot =  Quaternion.LookRotation(Vector3.ProjectOnPlane(rb.velocity, surfaceNormal),surfaceNormal);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 2f*Time.deltaTime);   
+            Quaternion targetRot =  Quaternion.LookRotation(Vector3.ProjectOnPlane(targetVelocity, surfaceNormal),surfaceNormal);
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 3f*Time.deltaTime);   
 
             
 
@@ -175,14 +176,14 @@ public class Ant : MonoBehaviour
 
             switch(state){
                 case AntState.Wandering:
-                    centerValue = centerPhero.x-centerPhero.z;
-                    leftValue = leftPhero.x-leftPhero.z;
-                    rightValue = rightPhero.x-rightPhero.z;
+                    centerValue = centerPhero.y-centerPhero.z;
+                    leftValue = leftPhero.y-leftPhero.z;
+                    rightValue = rightPhero.y-rightPhero.z;
                     break;
                 case AntState.GoingHome:
-                    centerValue = centerPhero.y;
-                    leftValue = leftPhero.y;
-                    rightValue = rightPhero.y;
+                    centerValue = centerPhero.x;
+                    leftValue = leftPhero.x;
+                    rightValue = rightPhero.x;
                     break;
 
             }
@@ -204,8 +205,8 @@ public class Ant : MonoBehaviour
     // Return a rotation to avoid end of map
     Vector3 AvoidWater(){
         // Obstacle Avoidance
-        var right = Quaternion.Euler(0, 30, 0) * transform.forward * 0.2f;
-        var left = Quaternion.Euler(0, -30, 0) * transform.forward * 0.2f;
+        var right = Quaternion.Euler(0, 30, 0) * transform.forward * 0.3f;
+        var left = Quaternion.Euler(0, -30, 0) * transform.forward * 0.3f;
         
         RaycastHit hit = new RaycastHit();
         if(Physics.Raycast (transform.position + left + Vector3.up, - Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water")){
