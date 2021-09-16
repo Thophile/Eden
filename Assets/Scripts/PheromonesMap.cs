@@ -25,6 +25,14 @@ public class Marker{
                 break;
         }
     }
+    public void Decay(float decayFactor){
+        if(isSpreading){
+            this.Values = this.Values * decayFactor;
+        }else{
+            this.Values = this.Values / decayFactor;
+        }
+    }
+    private bool isSpreading = true;
     public Vector3 Values{
         get{
             return new Vector3(wander,resource,repel);
@@ -58,8 +66,8 @@ public class Marker{
 [System.Serializable]
 public class PheromonesMap
 {
-    static float threshold = 0.1f;
-    static float decayFactor = 0.9f;
+    static float threshold = 0.2f;
+    static float decayFactor = 1.1f;
     public List<Marker> markers = new List<Marker>();
 
     public Vector3 ComputeZone(Vector3 pos, int radius=2){
@@ -85,7 +93,7 @@ public class PheromonesMap
         List<Marker> expiredElements = new List<Marker>();
         foreach (Marker marker in markers){
             if (marker.Values.magnitude > threshold){
-                marker.Values *= decayFactor;
+                marker.Decay(decayFactor);
             }else{
                 expiredElements.Add(marker);
             }

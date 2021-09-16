@@ -77,7 +77,7 @@ public class Ant : MonoBehaviour
     public void UpdateSelf(){
         if(!UserInterface.isGamePaused){                      
             // Debug direction
-            //Debug.DrawRay(transform.position, desiredDirection, Color.red);
+            Debug.DrawRay(transform.position, desiredDirection, Color.red);
             //Debug.DrawRay(transform.position, targetVelocity, Color.blue);
             //Debug.DrawRay(transform.position, rb.velocity, Color.magenta);
 
@@ -97,7 +97,7 @@ public class Ant : MonoBehaviour
 
                 //Apply stickingForce if grounded else apply gravity
                 RaycastHit hit = new RaycastHit();
-                if (Physics.Raycast (transform.position, -transform.up, out hit, 0.4f, ~antLayer)) {
+                if (Physics.Raycast (transform.position, -transform.up, out hit, 0.05f, ~antLayer)) {
                     rb.AddForce(-surfaceNormal * downForce);
                 }else{
                     rb.AddForce(-Vector3.up * 10*downForce);
@@ -133,7 +133,13 @@ public class Ant : MonoBehaviour
         Vector3 dryPathDir = GetDryPathDir();
         if(dryPathDir == Vector3.zero){ 
             MarkPath();
-            return GetRandomDir() * wanderStrenght * WorldManager.activeAnts.Count/200f + GetTargetDir();
+            var randomDir = GetRandomDir();
+            var targetDir =  GetTargetDir();
+
+            Debug.DrawRay(transform.position, targetDir, Color.green);
+            Debug.DrawRay(transform.position, randomDir, Color.red);
+
+            return randomDir * wanderStrenght * WorldManager.activeAnts.Count/200f + targetDir;
         }else{
             return dryPathDir;
         }
@@ -142,19 +148,23 @@ public class Ant : MonoBehaviour
         Vector2 random = Random.insideUnitCircle;
         return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
     }
+
     Vector3 GetTargetDir(){
         if(Targets.Count > 0){
             var target = PickTarget();
             if (target!=null){
-                TryInteract(target);
-                return (target.transform.position - transform.position).normalized;
+                if(TryInteract(target)){
+                    return -transform.forward;
+                }else{
+                    return (target.transform.position - transform.position).normalized;
+                }
             } 
             else return transform.forward;
         }else{
-            const float magnitude = 2f;
+            const float magnitude = 0.5f;
             Vector3 center = transform.forward * magnitude;
-            Vector3 left = Quaternion.AngleAxis(-15,transform.up)*transform.forward* magnitude;
-            Vector3 right = Quaternion.AngleAxis(15,transform.up)*transform.forward* magnitude;
+            Vector3 left = Quaternion.AngleAxis(-60,transform.up)*transform.forward* magnitude;
+            Vector3 right = Quaternion.AngleAxis(60,transform.up)*transform.forward* magnitude;
 
             var centerPhero = GameState.current.pheromonesMap.ComputeZone(transform.position+center, pheroDetectionRange);
             var leftPhero = GameState.current.pheromonesMap.ComputeZone(transform.position+left, pheroDetectionRange);
@@ -175,6 +185,10 @@ public class Ant : MonoBehaviour
                     break;
 
             }
+            Debug.DrawLine(transform.position + center, transform.position + center + Vector3.up * centerValue, Color.white, 1f);
+            Debug.DrawLine(transform.position + left,  transform.position+ left +Vector3.up* leftValue, Color.white, 1f);
+            Debug.DrawLine(transform.position + right, transform.position + right+ Vector3.up* rightValue, Color.white, 1f);
+            
 
             if(centerValue >= leftValue && centerValue >= rightValue) return center.normalized;
             else if(leftValue >= centerValue && leftValue >= rightValue) return left.normalized;
@@ -205,19 +219,22 @@ public class Ant : MonoBehaviour
 
         GameState.current.pheromonesMap.Mark(transform.position, type);
     }
-    void TryInteract(GameObject target){
+    bool TryInteract(GameObject target){
         
         if(target!= null && Vector3.Magnitude(target.transform.position - transform.position) < activationRadius){
             target.GetComponent<Interactable>().Interact(this);
+            return true;
         }
+        return false;
     }
     GameObject PickTarget(){
         float? minDist = null;
         GameObject closest = null;
         foreach (var item in Targets)
         {
-            if (item.GetComponent<Exit>() && state == AntState.Wandering) continue;
             if (item == null) continue;
+            if (item.GetComponent<Exit>() && state == AntState.Wandering) continue;
+            if (item.GetComponent<Resource>() && Load != null) continue;
             if(minDist == null || (transform.position - item.transform.position).sqrMagnitude < minDist ){
                 minDist = (transform.position - item.transform.position).sqrMagnitude;
                 closest = item;

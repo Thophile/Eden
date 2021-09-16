@@ -9,12 +9,7 @@ public class Exit : Interactable
         base.Interact(ant);
         if(ant.Load != null){
             if(ant.Load.GetComponent<Carryable>()){
-                switch (ant.Load.GetComponent<Carryable>().type){
-                    case CarryableType.Food:
-                        GameState.current.food += ant.Load.GetComponent<Carryable>().value;
-                        break;
-
-                }
+                GameState.current.resourceValue += ant.Load.GetComponent<Carryable>().resourceValue;
             }
         } 
         colony.DespawnAnt(ant.gameObject);

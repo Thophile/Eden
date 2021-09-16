@@ -83,19 +83,19 @@ public class WorldManager : MonoBehaviour
                 }
             }
 
-            if (GameState.current.foodsInfo.Count > 0 ) GameState.current.foodsInfo.Clear();
-            if(FoodSpawner.foodsInfo.Count > 0 ){
-                foreach (var item in FoodSpawner.foodsInfo)
+            if (GameState.current.resourceInfo.Count > 0 ) GameState.current.resourceInfo.Clear();
+            if(ResourceSpawner.resourceInfo.Count > 0 ){
+                foreach (var item in ResourceSpawner.resourceInfo)
                 {
-                    GameState.current.foodsInfo.Add(new object[] {
+                    GameState.current.resourceInfo.Add(new object[] {
                         item.transform.position.x,
                         item.transform.position.y,
                         item.transform.position.z,
                         item.transform.rotation.eulerAngles.x,
                         item.transform.rotation.eulerAngles.y,
                         item.transform.rotation.eulerAngles.z,
-                        item.GetComponent<Food>().prefabName,
-                        item.GetComponent<Food>().health
+                        item.GetComponent<Resource>().prefabName,
+                        item.GetComponent<Resource>().health
                         });
                 }
             }
@@ -131,9 +131,9 @@ public class WorldManager : MonoBehaviour
                 Resources.Load((string)ar[7]) as GameObject
             );
         }      
-        foreach (var ar in GameState.current.foodsInfo)
+        foreach (var ar in GameState.current.resourceInfo)
         {
-            FoodSpawner.SpawnFood(
+            ResourceSpawner.SpawnResource(
                 new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
                 Quaternion.Euler((float)ar[3], (float)ar[4], (float)ar[5]),
                 Resources.Load((string)ar[6]) as GameObject,
@@ -149,7 +149,7 @@ public class WorldManager : MonoBehaviour
         GameState.current = null;
         Colony.antsInfo.Clear();
         activeAnts.Clear();
-        FoodSpawner.foodsInfo.Clear();
+        ResourceSpawner.resourceInfo.Clear();
         var keepAlives = GameObject.FindObjectsOfType<KeepAlive>();
         foreach (var item in keepAlives)
         {

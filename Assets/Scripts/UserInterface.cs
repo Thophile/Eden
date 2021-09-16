@@ -15,7 +15,7 @@ public class UserInterface : MonoBehaviour
     public GameObject optionsMenu;
     public GameObject gameTime;
     public GameObject antCount;
-    public GameObject foodCount;
+    public GameObject resourceInfo;
 
 
     public GameObject uiPanel;
@@ -39,7 +39,7 @@ public class UserInterface : MonoBehaviour
 
     // UI part
     public void UpdateUI(){
-        foodCount.GetComponentInChildren<TextMeshProUGUI>().text = GameState.current.food.ToString();
+        resourceInfo.GetComponentInChildren<TextMeshProUGUI>().text = GameState.current.resourceValue.ToString();
         antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameState.current.antNb - Colony.antsInfo.Count).ToString() + "/" + GameState.current.antNb.ToString();
         gameTime.GetComponentInChildren<TextMeshProUGUI>().text = TimeSpan.FromSeconds(GameState.current.gameTime).Hours.ToString() + ":" + TimeSpan.FromSeconds(GameState.current.gameTime).Minutes.ToString("00");
     }

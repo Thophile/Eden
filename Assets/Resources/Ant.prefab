@@ -95,8 +95,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: Ant
-  pheroDetectionRange: 2
-  activationRadius: 0.6
+  pheroDetectionRange: 1
+  activationRadius: 0.2
   downForce: 0.1
   climbDist: 0.1
   damage: 10
@@ -492,7 +492,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4237965919035242034}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.012, y: -0.0094, z: 0.0873}
+  m_LocalPosition: {x: -0.012, y: 0.023, z: 0.092}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 434551117337921779}
