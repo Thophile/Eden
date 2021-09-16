@@ -150,6 +150,7 @@ public class Ant : MonoBehaviour
     }
 
     Vector3 GetTargetDir(){
+        //TODO : rework condition for phero following after picking ressource
         if(Targets.Count > 0){
             var target = PickTarget();
             if (target!=null){
