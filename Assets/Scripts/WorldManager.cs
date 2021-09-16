@@ -5,17 +5,23 @@ using System.IO;
 using UnityEngine.SceneManagement;
 using UnityEngine;
 using System.Threading;
+using System.Diagnostics;
 
 
 public class WorldManager : MonoBehaviour
 {
     static string savePath = "/GameState.cln";
+    public static List<Ant> activeAnts = new List<Ant>();
     public int autoSaveTime;
 
     float lastSaveTime = 0f;
 
     float pheroDecayTimer = 0f;
     float pheroDecayDelay = 1f;
+
+    void Start(){
+        StartCoroutine("UpdateAnts");
+    }
 
     void Update(){
         if(!UserInterface.isGamePaused){
@@ -31,6 +37,30 @@ public class WorldManager : MonoBehaviour
                 GameState.current.pheromonesMap.decayMarkers();
             }
         }
+
+    }
+
+    public IEnumerator UpdateAnts(){
+        Stopwatch watch = new System.Diagnostics.Stopwatch();
+        int MAX_MILLIS = 3;
+        watch.Start();
+        for(int i = 0;; i++){
+            UnityEngine.Debug.Log(i);
+            
+            if (watch.ElapsedMilliseconds > MAX_MILLIS)
+            {
+                watch.Reset();
+                yield return null;
+                watch.Start();
+            }
+            if(i > activeAnts.Count - 1){
+                i = -1;
+            }else if(activeAnts[i] != null){
+                activeAnts[i].UpdateSelf();
+                UnityEngine.Debug.Log("Updating ant n° "+i);
+
+            }
+        }       
 
     }
 
@@ -118,6 +148,7 @@ public class WorldManager : MonoBehaviour
         File.Delete(Application.persistentDataPath + savePath);
         GameState.current = null;
         Colony.antsInfo.Clear();
+        activeAnts.Clear();
         FoodSpawner.foodsInfo.Clear();
         var keepAlives = GameObject.FindObjectsOfType<KeepAlive>();
         foreach (var item in keepAlives)

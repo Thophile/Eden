@@ -111,9 +111,7 @@ MonoBehaviour:
   loadPos: {fileID: 4237965919035242033}
   Targets: []
   maxVelocity: 0.5
-  steerStrength: 0
-  wanderStrenght: 2
-  updateDelay: 1
+  wanderStrenght: 1
 --- !u!54 &405757102476171647
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -730,12 +728,12 @@ SkinnedMeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6110448656415080409}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_DynamicOccludee: 1
   m_MotionVectors: 1
   m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
+  m_ReflectionProbeUsage: 3
   m_RayTracingMode: 3
   m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1

@@ -10,13 +10,16 @@ public class Food : Interactable
     public int maxHealth = 200;
     public int health = 200;
 
+    MeshFilter meshFilter;
+
     public string prefabName;
 
     void Start(){
         var rb = gameObject.GetComponent<Rigidbody>();
         rb.isKinematic = UserInterface.isGamePaused;
         int index = (8* health)/maxHealth;
-        gameObject.GetComponent<MeshFilter>().sharedMesh = meshes[index];
+        meshFilter = gameObject.GetComponent<MeshFilter>();
+        meshFilter.sharedMesh = meshes[index];
     }
     public override void Interact(Ant ant)
     {
@@ -24,7 +27,7 @@ public class Food : Interactable
         health -= ant.damage;
         if (health > 0){
             int index = (8* health)/maxHealth;
-            gameObject.GetComponent<MeshFilter>().sharedMesh = meshes[index];
+            meshFilter.sharedMesh = meshes[index];
         }else{
             FoodSpawner.foodsInfo.Remove(gameObject);
             Destroy(gameObject);

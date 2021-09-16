@@ -6,6 +6,7 @@ public class Colony : MonoBehaviour
 {
     public Transform exit;
     public GameObject ant;
+    
     public int spawnDelay;
     float time = 0;
     public static List<GameObject> antsInfo = new List<GameObject>();
@@ -27,16 +28,19 @@ public class Colony : MonoBehaviour
     public static void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null){
         var obj = Instantiate(ant, pos, rot);
         obj.transform.parent = GameObject.Find("WorldManager").transform;
-        obj.GetComponent<Ant>().prefabName = ant.name;
+        var antComponent = obj.GetComponent<Ant>();
+        antComponent.prefabName = ant.name;
         if(load != null) {
-            obj.GetComponent<Ant>().Load = Instantiate(load, obj.GetComponent<Ant>().loadPos.position, obj.GetComponent<Ant>().loadPos.rotation);
-            obj.GetComponent<Ant>().Load.transform.parent = obj.transform;
+            antComponent.Load = Instantiate(load, antComponent.loadPos.position, antComponent.loadPos.rotation);
+            antComponent.Load.transform.parent = obj.transform;
         }
 
         antsInfo.Add(obj);
+        WorldManager.activeAnts.Add(antComponent);
     }
     public void DespawnAnt(GameObject ant){
         antsInfo.Remove(ant);
+        WorldManager.activeAnts.Remove(ant.GetComponent<Ant>());
         Destroy(ant);
     }
 }
