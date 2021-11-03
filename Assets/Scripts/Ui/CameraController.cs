@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
     const float depthStep = .5f;
     const float minDepth = 1f;
 
-    public float hoverHeight;
+    float hoverHeight;
 
     void Awake(){
         camObject = Camera.main.gameObject;

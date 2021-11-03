@@ -41,24 +41,25 @@ public class WorldManager : MonoBehaviour
     }
 
     public IEnumerator UpdateAnts(){
-        Stopwatch watch = new System.Diagnostics.Stopwatch();
+        Stopwatch watch = new Stopwatch();
         int MAX_MILLIS = 3;
         watch.Start();
         for(int i = 0;; i++){
-            UnityEngine.Debug.Log(i);
-            
-            if (watch.ElapsedMilliseconds > MAX_MILLIS)
-            {
-                watch.Reset();
-                yield return null;
-                watch.Start();
-            }
-            if(i > activeAnts.Count - 1){
-                i = -1;
-            }else if(activeAnts[i] != null){
-                activeAnts[i].UpdateSelf();
-                UnityEngine.Debug.Log("Updating ant n° "+i);
+            if (!UserInterface.isGamePaused) {
+                if (watch.ElapsedMilliseconds > MAX_MILLIS) {
+                    watch.Reset();
+                    yield return null;
+                    watch.Start();
+                }
+                if(i > activeAnts.Count - 1) {
+                    i = -1;
+                } else if(activeAnts[i] != null) {
+                    activeAnts[i].UpdateSelf();
+                    UnityEngine.Debug.Log("Updating ant n° " + i);
 
+                }
+            } else {
+                yield return null;
             }
         }       
 

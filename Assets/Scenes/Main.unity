@@ -2428,7 +2428,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcae425c6e7cec4428ce37c0e2b5b98a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseSceneName: 
+  baseSceneName: Main
 --- !u!82 &1407350232
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2908,13 +2908,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1611064095}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b688192583cbe8d409e8b1c860ca3f6e, type: 3}
+  m_Script: {fileID: 11500000, guid: f7739d54ee265ff4aad0886a1a07d75e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   layerMask:
     serializedVersion: 2
     m_Bits: 8
-  hoverHeight: 0
 --- !u!4 &1611064097
 Transform:
   m_ObjectHideFlags: 0
