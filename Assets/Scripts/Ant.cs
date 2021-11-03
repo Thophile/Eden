@@ -1,11 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-public enum AntState {
-        Wandering,
-        GoingHome,
-        Still,
-    }
+    
 public class Ant : MonoBehaviour
 {
     // Parameters
@@ -74,6 +70,7 @@ public class Ant : MonoBehaviour
             animator.SetFloat("velocity", 4*rb.velocity.magnitude );
         }
     }
+
     public void UpdateSelf(){
         if(!UserInterface.isGamePaused){                      
             // Debug direction
@@ -102,13 +99,8 @@ public class Ant : MonoBehaviour
                 }else{
                     rb.AddForce(-Vector3.up * 10*downForce);
                 }           
-            }
-
-            
-
+            }           
         }
-        
-        
     }
 
     void LateUpdate(){
@@ -129,6 +121,7 @@ public class Ant : MonoBehaviour
             return surfaceNormal;
         }
     }
+
     Vector3 GetDesiredDir(){
         Vector3 dryPathDir = GetDryPathDir();
         if(dryPathDir == Vector3.zero){ 
@@ -144,6 +137,7 @@ public class Ant : MonoBehaviour
             return dryPathDir;
         }
     }
+
     Vector3 GetRandomDir(){
         Vector2 random = Random.insideUnitCircle;
         return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
@@ -196,6 +190,7 @@ public class Ant : MonoBehaviour
             else return right.normalized;
         }
     }
+
     Vector3 GetDryPathDir(){
         // Obstacle Avoidance
         var right = Quaternion.Euler(0, 30, 0) * transform.forward * 0.3f;
@@ -214,6 +209,7 @@ public class Ant : MonoBehaviour
             return Vector3.zero;
         }
     }
+
     void MarkPath(){
         MarkerType type = MarkerType.Wander;
         if(state == AntState.GoingHome) type = MarkerType.Resource;
@@ -228,6 +224,7 @@ public class Ant : MonoBehaviour
         }
         return false;
     }
+
     GameObject PickTarget(){
         float? minDist = null;
         GameObject closest = null;
@@ -250,6 +247,7 @@ public class Ant : MonoBehaviour
             Targets.Add(other.gameObject);
         }
     }
+
     private void OnTriggerExit(Collider other){
         if(other.gameObject.GetComponent<Interactable>()){
             Targets.Remove(other.gameObject);

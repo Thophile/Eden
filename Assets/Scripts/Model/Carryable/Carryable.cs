@@ -6,5 +6,4 @@ public class Carryable : MonoBehaviour
 {
     public string prefabName;
     public ResourceValue resourceValue;
-
 }
