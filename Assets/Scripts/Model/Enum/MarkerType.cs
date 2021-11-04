@@ -1,9 +1,9 @@
-﻿using System.Collections;
-using UnityEngine;
-
-public enum MarkerType
+﻿namespace Assets.Scripts.Model
 {
-    Wander,
-    Resource,
-    Repel
+    public enum MarkerType
+    {
+        Wander,
+        Resource,
+        Repel
+    }
 }

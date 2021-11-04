@@ -1,16 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class StaticRb : MonoBehaviour
+namespace Assets.Scripts.MonoBehaviours
 {
-    // Make static rb after being to sleep once
-    public bool isStatic = false;
+    public class StaticRb : MonoBehaviour
+    {
+        // Make static rb after being to sleep once
+        public bool isStatic = false;
 
-    void Update(){
-        if(gameObject.GetComponent<Rigidbody>().IsSleeping()){
-            isStatic = true;
-            gameObject.GetComponent<Rigidbody>().isKinematic=true;
+        void Update(){
+            if(gameObject.GetComponent<Rigidbody>().IsSleeping()){
+                isStatic = true;
+                gameObject.GetComponent<Rigidbody>().isKinematic=true;
+            }
         }
     }
 }

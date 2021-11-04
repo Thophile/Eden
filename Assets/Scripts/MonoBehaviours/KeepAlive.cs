@@ -1,14 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class KeepAlive : MonoBehaviour
+namespace Assets.Scripts.MonoBehaviours
 {
-    public string baseSceneName;
-    void Awake()
+    public class KeepAlive : MonoBehaviour
     {
-        baseSceneName = SceneManager.GetActiveScene().name;
-        DontDestroyOnLoad(gameObject);
+        public string baseSceneName;
+        void Awake()
+        {
+            baseSceneName = SceneManager.GetActiveScene().name;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 }
