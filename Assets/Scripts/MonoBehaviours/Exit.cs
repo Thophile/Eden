@@ -11,7 +11,8 @@ namespace Assets.Scripts.MonoBehaviours
                 if(ant.Load.GetComponent<Carryable>()){
                     WorldManager.gameState.resources += ant.Load.GetComponent<Carryable>().resourceValue;
                 }
-            } 
+            }
+            UnityEngine.Debug.Log(ant.gameObject);
             antSpawner.DespawnAnt(ant.gameObject);
             
         }

@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public abstract class WorldManager : MonoBehaviour
+public class WorldManager : MonoBehaviour
 {
     static string savePath = "/GameState.cln";
     public static bool isPaused = true;
@@ -20,7 +20,7 @@ public abstract class WorldManager : MonoBehaviour
     float lastSaveTime = 0f;
 
     float pheroDecayTimer = 0f;
-    float pheroDecayDelay = 1f;
+    float pheroDecayDelay = 0.5f;
 
 
 
@@ -29,17 +29,17 @@ public abstract class WorldManager : MonoBehaviour
     }
 
     void Update(){
-        if(!UserInterface.WorldManagerisPaused){
-            WorldManager.gameState.gameTime += Time.deltaTime;
-            if (Options.autoSave && WorldManager.gameState.gameTime - lastSaveTime > autoSaveTime){
-                lastSaveTime = WorldManager.gameState.gameTime;
+        if(!isPaused){
+            gameState.gameTime += Time.deltaTime;
+            if (Options.autoSave && gameState.gameTime - lastSaveTime > autoSaveTime){
+                lastSaveTime = gameState.gameTime;
                 Save();
             }
 
             pheroDecayTimer += Time.deltaTime;
             if(pheroDecayTimer > pheroDecayDelay){
                 pheroDecayTimer -= pheroDecayDelay;
-                WorldManager.gameState.pheromonesMap.decayMarkers();
+                gameState.pheromonesMap.decayMarkers();
             }
         }
 
@@ -50,7 +50,7 @@ public abstract class WorldManager : MonoBehaviour
         int MAX_MILLIS = 3;
         watch.Start();
         for(int i = 0;; i++){
-            if (!UserInterface.WorldManagerisPaused) {
+            if (!isPaused) {
                 if (watch.ElapsedMilliseconds > MAX_MILLIS) {
                     watch.Reset();
                     yield return null;
@@ -71,12 +71,12 @@ public abstract class WorldManager : MonoBehaviour
     }
 
     public static void Save() {
-        if(WorldManager.gameState != null){
-            if (WorldManager.gameState.antsInfo.Count > 0 ) WorldManager.gameState.antsInfo.Clear();
+        if(gameState != null){
+            if (gameState.antsInfo.Count > 0 ) gameState.antsInfo.Clear();
             if(AntSpawner.antsInfo.Count >0 ){
                 foreach (var item in AntSpawner.antsInfo)
                 {
-                    WorldManager.gameState.antsInfo.Add(new object[] {
+                    gameState.antsInfo.Add(new object[] {
                         item.transform.position.x,
                         item.transform.position.y,
                         item.transform.position.z,
@@ -89,11 +89,11 @@ public abstract class WorldManager : MonoBehaviour
                 }
             }
 
-            if (WorldManager.gameState.resourceInfo.Count > 0 ) WorldManager.gameState.resourceInfo.Clear();
+            if (gameState.resourceInfo.Count > 0 ) gameState.resourceInfo.Clear();
             if(ResourceSpawner.resourceInfo.Count > 0 ){
                 foreach (var item in ResourceSpawner.resourceInfo)
                 {
-                    WorldManager.gameState.resourceInfo.Add(new object[] {
+                    gameState.resourceInfo.Add(new object[] {
                         item.transform.position.x,
                         item.transform.position.y,
                         item.transform.position.z,
@@ -109,7 +109,7 @@ public abstract class WorldManager : MonoBehaviour
 
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Create (Application.persistentDataPath + savePath);
-            bf.Serialize(file, WorldManager.gameState);
+            bf.Serialize(file, gameState);
             file.Close();
 
         }
@@ -119,16 +119,16 @@ public abstract class WorldManager : MonoBehaviour
         if(File.Exists(Application.persistentDataPath + savePath)) {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + savePath, FileMode.Open);
-            WorldManager.gameState = (GameState)bf.Deserialize(file);
+            gameState = (GameState)bf.Deserialize(file);
             file.Close();
         }else{
-            WorldManager.gameState = new GameState();
+            gameState = new GameState();
             Save();
 
         }
 
         // BuildWorld
-        foreach (var ar in WorldManager.gameState.antsInfo)
+        foreach (var ar in gameState.antsInfo)
         {
             AntSpawner.SpawnAnt(
                 new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
@@ -137,7 +137,7 @@ public abstract class WorldManager : MonoBehaviour
                 Resources.Load((string)ar[7]) as GameObject
             );
         }      
-        foreach (var ar in WorldManager.gameState.resourceInfo)
+        foreach (var ar in gameState.resourceInfo)
         {
             ResourceSpawner.SpawnResource(
                 new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
@@ -152,7 +152,7 @@ public abstract class WorldManager : MonoBehaviour
 
     public static void Reset(){
         File.Delete(Application.persistentDataPath + savePath);
-        WorldManager.gameState = null;
+        gameState = null;
         AntSpawner.antsInfo.Clear();
         activeAnts.Clear();
         ResourceSpawner.resourceInfo.Clear();

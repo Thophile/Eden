@@ -91,7 +91,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 256679705965541082}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e765142a575b71409ea4ae533ff4847, type: 3}
+  m_Script: {fileID: 11500000, guid: 84e9be2ecef099743b37fcf2280577de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: ResourcePiece
@@ -100,4 +100,4 @@ MonoBehaviour:
     sugar: 0
     fat: 0
     fiber: 0
-    dirt: 0
+    minerals: 0

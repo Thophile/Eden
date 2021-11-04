@@ -92,7 +92,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5eda1aa30733fcf49b12bd24c0ad9eba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  colony: {fileID: 2022680362278642572}
+  antSpawner: {fileID: 2022680362278642572}
 --- !u!135 &14226509181102904
 SphereCollider:
   m_ObjectHideFlags: 0

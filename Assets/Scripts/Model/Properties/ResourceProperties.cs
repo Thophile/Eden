@@ -25,7 +25,7 @@ namespace Assets.Scripts.Model
         public static ResourceProperties operator *(ResourceProperties a, int b) => new ResourceProperties(a.protein * b, a.sugar * b, a.fat * b, a.fiber * b, a.minerals * b);
         public static ResourceProperties operator *(int b, ResourceProperties a) => new ResourceProperties(a.protein * b, a.sugar * b, a.fat * b, a.fiber * b, a.minerals * b);
 
-        public override string ToString() => $"{protein}Protein {sugar}Sugar {fat}Fat {fiber}Fiber {minerals}Dirt";
+        public override string ToString() => $"{protein} Protein, {sugar} Sugar, {fat} Fat, {fiber} Fiber, {minerals} Minerals";
 
         public static ResourceProperties operator +(ResourceProperties a, ResourceProperties b) => new ResourceProperties(a.protein + b.protein, a.sugar + b.sugar, a.fat + b.fat, a.fiber + b.fiber, a.minerals + b.minerals);
 

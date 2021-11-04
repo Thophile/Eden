@@ -17,11 +17,7 @@ namespace Assets.Scripts.Ui
         public GameObject gameTime;
         public GameObject antCount;
         public GameObject resourceInfo;
-
-
         public GameObject uiPanel;
-
-        public static bool WorldManagerisPaused = true;
 
         // Update is called once per frame
         void Update()
@@ -49,7 +45,7 @@ namespace Assets.Scripts.Ui
         public void ToggleMenu(){
             WorldManager.isPaused = !WorldManager.isPaused;
         
-            PlayPausePhysics(WorldManagerisPaused);
+            PlayPausePhysics(WorldManager.isPaused);
             CameraController.isActivated = !WorldManager.isPaused;
 
             menuPanel.SetActive(WorldManager.isPaused);

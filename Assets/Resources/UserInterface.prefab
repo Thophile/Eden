@@ -416,9 +416,9 @@ MonoBehaviour:
   mainMenu: {fileID: 8988506919667401203}
   playButtonText: {fileID: 8988506921312188138}
   optionsMenu: {fileID: 8988506920116294993}
-  gameTime: {fileID: 8988506920170828629}
-  antCount: {fileID: 8988506921078814603}
-  resourceInfo: {fileID: 8988506920358413380}
+  gameTime: {fileID: 8988506921078814603}
+  antCount: {fileID: 8988506920358413380}
+  resourceInfo: {fileID: 8988506920170828629}
   uiPanel: {fileID: 8988506920555215417}
 --- !u!1 &8988506919773459525
 GameObject:
@@ -827,7 +827,7 @@ GameObject:
   - component: {fileID: 8988506920170828628}
   - component: {fileID: 8988506920170828651}
   m_Layer: 5
-  m_Name: Element
+  m_Name: Element (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

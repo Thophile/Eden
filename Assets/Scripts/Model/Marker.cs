@@ -5,7 +5,6 @@ namespace Assets.Scripts.Model
     [System.Serializable]
     public class Marker
     {
-        private bool isSpreading = true;
         public Vector3 Values
         {
             get
@@ -59,14 +58,7 @@ namespace Assets.Scripts.Model
 
         public void Decay(float decayFactor)
         {
-            if (isSpreading)
-            {
-                this.Values = this.Values * decayFactor;
-            }
-            else
-            {
-                this.Values = this.Values / decayFactor;
-            }
+            this.Values = this.Values * decayFactor;
         }
     }
 }
