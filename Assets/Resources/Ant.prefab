@@ -97,7 +97,7 @@ MonoBehaviour:
   prefabName: Ant
   pheroDetectionRange: 1
   activationRadius: 0.2
-  downForce: 0.1
+  downForce: 0.2
   climbDist: 0.1
   damage: 10
   waterLayer:
@@ -108,10 +108,15 @@ MonoBehaviour:
     m_Bits: 128
   rb: {fileID: 405757102476171647}
   state: 0
+  maxVelocity: 1
+  wanderStrenght: 0.5
+  pheroStrenght: 0.5
+  markingDistance: 0.3
+  groundDistance: 0.03
+  previousPosDistance: 2
   loadPos: {fileID: 4237965919035242033}
   Targets: []
-  maxVelocity: 0.5
-  wanderStrenght: 1
+  previousPositions: []
 --- !u!54 &405757102476171647
 Rigidbody:
   m_ObjectHideFlags: 0

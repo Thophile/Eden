@@ -27,7 +27,7 @@ namespace Assets.Scripts.MonoBehaviours
                 }
             }
         }
-        public static void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null){
+        public static void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null, List<PreviousPosition> previousPositions = null){
             var obj = Instantiate(ant, pos, rot);
             obj.transform.parent = GameObject.Find("WorldManager").transform;
             var antComponent = obj.GetComponent<Ant>();
@@ -35,6 +35,10 @@ namespace Assets.Scripts.MonoBehaviours
             if(load != null) {
                 antComponent.Load = Instantiate(load, antComponent.loadPos.position, antComponent.loadPos.rotation);
                 antComponent.Load.transform.parent = obj.transform;
+            }
+            if(previousPositions != null)
+            {
+                antComponent.previousPositions = previousPositions;
             }
 
             antsInfo.Add(obj);

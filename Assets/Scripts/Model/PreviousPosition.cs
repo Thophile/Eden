@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace Assets.Scripts.Model
 {
     [System.Serializable]
-    public class Marker
+    public class PreviousPosition
     {
-        public float intensity = 1f;
 
         public Vector3 Position
         {
@@ -23,15 +23,18 @@ namespace Assets.Scripts.Model
         public float x;
         public float y;
         public float z;
+        public float time;
 
-        public Marker(Vector3 position)
+        public PreviousPosition(Vector3 position, float time)
         {
             this.Position = position;
+            this.time = time;
         }
 
-        public void Decay(float decayFactor)
+        public PreviousPosition(Vector3 position)
         {
-            this.intensity = this.intensity * decayFactor;
+            this.Position = position;
+            this.time = WorldManager.gameState.gameTime;
         }
     }
 }

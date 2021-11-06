@@ -76,6 +76,18 @@ public class WorldManager : MonoBehaviour
             if(AntSpawner.antsInfo.Count >0 ){
                 foreach (var item in AntSpawner.antsInfo)
                 {
+                    List<object[]> previousPositions = new List<object[]>();
+                    foreach(var pos in item.GetComponent<Ant>().previousPositions)
+                    {
+                        previousPositions.Add(new object[] {
+                            pos.x,
+                            pos.y,
+                            pos.z,
+                            pos.time
+                        });
+                    }
+
+
                     gameState.antsInfo.Add(new object[] {
                         item.transform.position.x,
                         item.transform.position.y,
@@ -84,7 +96,8 @@ public class WorldManager : MonoBehaviour
                         item.transform.rotation.eulerAngles.y,
                         item.transform.rotation.eulerAngles.z,
                         item.GetComponent<Ant>().prefabName,
-                        item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<Carryable>().prefabName
+                        item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<Carryable>().prefabName,
+                        previousPositions
                         });
                 }
             }
@@ -130,11 +143,22 @@ public class WorldManager : MonoBehaviour
         // BuildWorld
         foreach (var ar in gameState.antsInfo)
         {
+            List<PreviousPosition> previousPositions = new List<PreviousPosition>();
+            foreach(var e in ar[8] as List<object[]>)
+            {
+                previousPositions.Add(
+                    new PreviousPosition(
+                        new Vector3((float)e[0], (float)e[1], (float)e[2]),
+                        (float)e[3])
+                    );
+            }
             AntSpawner.SpawnAnt(
                 new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
                 Quaternion.Euler((float)ar[3], (float)ar[4], (float)ar[5]),
                 Resources.Load((string)ar[6]) as GameObject,
-                Resources.Load((string)ar[7]) as GameObject
+                Resources.Load((string)ar[7]) as GameObject,
+                previousPositions
+
             );
         }      
         foreach (var ar in gameState.resourceInfo)

@@ -9,19 +9,23 @@ namespace Assets.Scripts.MonoBehaviours
         // Parameters
         public string prefabName;
         public int pheroDetectionRange;
-
-        // Stats
         public float activationRadius;
         public float downForce;
         public float climbDist;
         public int damage;
         public LayerMask waterLayer;
         public LayerMask antLayer;
-
-        //[System.NonSerialized]
         public Rigidbody rb;
         public AntState state;
-
+        public float maxVelocity;
+        public float wanderStrenght;
+        public float pheroStrenght;
+        public float markingDistance;
+        public float groundDistance;
+        public float previousPosDistance;
+        private Vector3 previousMark;
+        private Vector3 velocity;
+        
 
         public GameObject Load
         {
@@ -38,11 +42,8 @@ namespace Assets.Scripts.MonoBehaviours
         GameObject _load = null;
         public Transform loadPos;
         public List<GameObject> Targets = new List<GameObject>();
-        Vector3 oldPheroPos;
+        public List<PreviousPosition> previousPositions;
 
-        // Serialized
-        public float maxVelocity = 20f;
-        public float wanderStrenght = 0.5f;
         Animator animator;
 
         Vector3 surfaceNormal;
@@ -69,11 +70,11 @@ namespace Assets.Scripts.MonoBehaviours
                 // Setting rotation and velocity
                 float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
                 transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime);
-                rb.velocity = (transform.forward * maxVelocity * turnRatio + rb.velocity) / 2f;
+                rb.velocity= velocity = ((transform.forward * maxVelocity * turnRatio * turnRatio + velocity * 2) / 3f);
             }
             if (animator)
             {
-                animator.SetFloat("velocity", 4 * rb.velocity.magnitude);
+                animator.SetFloat("velocity", 6 * (velocity.sqrMagnitude/(maxVelocity*maxVelocity)));
             }
         }
 
@@ -81,9 +82,6 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!WorldManager.isPaused)
             {
-                // Debug direction
-                Debug.DrawRay(transform.position, desiredDirection, Color.red);
-
                 // Surface alignement
                 Vector3 newNormal = GetTargetSurfaceNormal();
 
@@ -98,16 +96,16 @@ namespace Assets.Scripts.MonoBehaviours
                     targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal), surfaceNormal);
 
 
-                    //Apply stickingForce if grounded else apply gravity
-                    RaycastHit hit = new RaycastHit();
-                    if (Physics.Raycast(transform.position, -transform.up, out hit, 0.05f, ~antLayer))
-                    {
-                        rb.AddForce(-surfaceNormal * downForce);
-                    }
-                    else
-                    {
-                        rb.AddForce(-Vector3.up * 10 * downForce);
-                    }
+                }
+                //Apply stickingForce if grounded else apply gravity
+                RaycastHit hit = new RaycastHit();
+                if (Physics.Raycast(transform.position, -transform.up, out hit, groundDistance, ~antLayer))
+                {
+                    rb.AddForce(-surfaceNormal * downForce);
+                }
+                else
+                {
+                    rb.AddForce(-Vector3.up * 30 * downForce);
                 }
             }
         }
@@ -147,7 +145,7 @@ namespace Assets.Scripts.MonoBehaviours
                 var randomDir = GetRandomDir();
                 var targetDir = GetTargetDir();
 
-                return randomDir * wanderStrenght * WorldManager.activeAnts.Count / 200f + targetDir;
+                return (randomDir * wanderStrenght * WorldManager.activeAnts.Count / 200f) + targetDir * pheroStrenght;
             }
             else
             {
@@ -163,6 +161,8 @@ namespace Assets.Scripts.MonoBehaviours
 
         Vector3 GetTargetDir()
         {
+            
+
             if (Targets.Count > 0)
             {
                 var target = PickTarget();
@@ -172,40 +172,51 @@ namespace Assets.Scripts.MonoBehaviours
                     return (target.transform.position - transform.position).normalized;
                 }
             }
-            const float magnitude = 0.5f;
-            Vector3 center = transform.forward * magnitude;
-            Vector3 left = Quaternion.AngleAxis(-60, transform.up) * transform.forward * magnitude;
-            Vector3 right = Quaternion.AngleAxis(60, transform.up) * transform.forward * magnitude;
 
-            var centerPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + center, pheroDetectionRange);
-            var leftPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + left, pheroDetectionRange);
-            var rightPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + right, pheroDetectionRange);
-
-            float centerValue = 0f, leftValue = 0f, rightValue = 0f;
+            Vector3 targetDir = transform.forward;
 
             switch (state)
             {
                 case AntState.Wandering:
-                    centerValue = centerPhero.y - centerPhero.z;
-                    leftValue = leftPhero.y - leftPhero.z;
-                    rightValue = rightPhero.y - rightPhero.z;
+                    const float magnitude = 0.5f;
+                    Vector3 center = transform.forward * magnitude;
+                    Vector3 left = Quaternion.AngleAxis(-30, transform.up) * transform.forward * magnitude;
+                    Vector3 right = Quaternion.AngleAxis(30, transform.up) * transform.forward * magnitude;
+
+                    var centerPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + center, pheroDetectionRange);
+                    var leftPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + left, pheroDetectionRange);
+                    var rightPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + right, pheroDetectionRange);
+
+                    Debug.DrawLine(transform.position + center, transform.position + center + Vector3.up * centerPhero, Color.white, 1f);
+                    Debug.DrawLine(transform.position + left, transform.position + left + Vector3.up * leftPhero, Color.white, 1f);
+                    Debug.DrawLine(transform.position + right, transform.position + right + Vector3.up * rightPhero, Color.white, 1f);
+
+                    if (centerPhero >= leftPhero && centerPhero >= rightPhero) targetDir = center;
+                    else if (leftPhero >= centerPhero && leftPhero >= rightPhero) targetDir = left;
+                    else targetDir = right;
                     break;
                 case AntState.GoingHome:
-                    centerValue = centerPhero.x;
-                    leftValue = leftPhero.x;
-                    rightValue = rightPhero.x;
+                    PreviousPosition oldestPos = null;
+
+                    List<PreviousPosition> inRanges = new List<PreviousPosition>();
+                    previousPositions.ForEach((PreviousPosition pos) =>
+                    {
+                        if((pos.Position - transform.position).sqrMagnitude < previousPosDistance * previousPosDistance)
+                        {
+                            inRanges.Add(pos);
+                        }
+                    });
+                    inRanges.ForEach((PreviousPosition pos) =>
+                    {
+                        if(oldestPos == null || pos.time < oldestPos.time)
+                        {
+                            oldestPos = pos;
+                        }
+                    });
+                    targetDir = (oldestPos.Position - transform.position);
                     break;
-
             }
-            Debug.DrawLine(transform.position + center, transform.position + center + Vector3.up * centerValue, Color.white, 1f);
-            Debug.DrawLine(transform.position + left, transform.position + left + Vector3.up * leftValue, Color.white, 1f);
-            Debug.DrawLine(transform.position + right, transform.position + right + Vector3.up * rightValue, Color.white, 1f);
-
-
-            if (centerValue >= leftValue && centerValue >= rightValue) return center.normalized;
-            else if (leftValue >= centerValue && leftValue >= rightValue) return left.normalized;
-            else return right.normalized;
-
+            return targetDir;
         }
 
         Vector3 GetDryPathDir()
@@ -231,10 +242,20 @@ namespace Assets.Scripts.MonoBehaviours
 
         void MarkPath()
         {
-            MarkerType type = MarkerType.Wander;
-            if (state == AntState.GoingHome) type = MarkerType.Resource;
+            if (previousMark == null || (previousMark - transform.position).sqrMagnitude > markingDistance * markingDistance)
+            {
+                previousMark = transform.position;
 
-            WorldManager.gameState.pheromonesMap.Mark(transform.position, type);
+                switch (state)
+                {
+                    case AntState.Wandering:
+                        this.previousPositions.Add(new PreviousPosition(transform.position));
+                        break;
+                    case AntState.GoingHome:
+                    WorldManager.gameState.pheromonesMap.Mark(transform.position);
+                        break;
+                }
+            }
         }
 
         bool TryInteract(GameObject target)
