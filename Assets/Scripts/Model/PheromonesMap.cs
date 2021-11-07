@@ -6,8 +6,8 @@ namespace Assets.Scripts.Model
     [System.Serializable]
     public class PheromonesMap
     {
-        static float threshold = 10f;
-        static float decayFactor = 1.05f;
+        static readonly float threshold = 10f;
+        static readonly float decayFactor = 1.05f;
         public List<Marker> markers = new List<Marker>();
 
         public float ComputeZone(Vector3 pos, int radius=2){
@@ -27,7 +27,7 @@ namespace Assets.Scripts.Model
 
             return intensity;
         }
-        public void decayMarkers(){
+        public void DecayMarkers(){
             List<Marker> expiredElements = new List<Marker>();
             foreach (Marker marker in markers){
                 if (marker.intensity > threshold){

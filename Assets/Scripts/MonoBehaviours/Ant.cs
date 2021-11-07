@@ -70,7 +70,7 @@ namespace Assets.Scripts.MonoBehaviours
                 // Setting rotation and velocity
                 float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
                 transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime);
-                rb.velocity= velocity = ((transform.forward * maxVelocity * turnRatio * turnRatio + velocity * 2) / 3f);
+                rb.velocity= velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
             }
             if (animator)
             {
@@ -98,14 +98,14 @@ namespace Assets.Scripts.MonoBehaviours
 
                 }
                 //Apply stickingForce if grounded else apply gravity
-                RaycastHit hit = new RaycastHit();
-                if (Physics.Raycast(transform.position, -transform.up, out hit, groundDistance, ~antLayer))
+                if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
                 {
                     rb.AddForce(-surfaceNormal * downForce);
                 }
                 else
                 {
-                    rb.AddForce(-Vector3.up * 30 * downForce);
+                    rb.AddForce(10 * downForce * -Vector3.up);
+                    targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, Vector3.up), Vector3.up);
                 }
             }
         }
@@ -121,7 +121,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         Vector3 GetTargetSurfaceNormal()
         {
-            RaycastHit hit = new RaycastHit();
+            RaycastHit hit;
             if (Physics.Raycast(transform.position - transform.up * 0.01f, Quaternion.AngleAxis(-5, transform.up) * transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast(transform.position - transform.up * 0.06f, Quaternion.AngleAxis(5, transform.up) * transform.forward, out hit, climbDist, ~antLayer))
             {
                 return hit.normal;
@@ -145,7 +145,7 @@ namespace Assets.Scripts.MonoBehaviours
                 var randomDir = GetRandomDir();
                 var targetDir = GetTargetDir();
 
-                return (randomDir * wanderStrenght * WorldManager.activeAnts.Count / 200f) + targetDir * pheroStrenght;
+                return (wanderStrenght * WorldManager.activeAnts.Count * randomDir / 200f) + targetDir * pheroStrenght;
             }
             else
             {
@@ -225,7 +225,7 @@ namespace Assets.Scripts.MonoBehaviours
             var right = Quaternion.Euler(0, 30, 0) * transform.forward * 0.3f;
             var left = Quaternion.Euler(0, -30, 0) * transform.forward * 0.3f;
 
-            RaycastHit hit = new RaycastHit();
+            RaycastHit hit;
             if (Physics.Raycast(transform.position + left + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water"))
             {
                 return -left;

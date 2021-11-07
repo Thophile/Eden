@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 
 public class WorldManager : MonoBehaviour
 {
-    static string savePath = "/GameState.cln";
+    static readonly string savePath = "/GameState.cln";
     public static bool isPaused = true;
     public static GameState gameState = null;
     public static List<Ant> activeAnts = new List<Ant>();
@@ -20,12 +20,12 @@ public class WorldManager : MonoBehaviour
     float lastSaveTime = 0f;
 
     float pheroDecayTimer = 0f;
-    float pheroDecayDelay = 0.5f;
+    readonly float pheroDecayDelay = 0.5f;
 
 
 
     void Start(){
-        StartCoroutine("UpdateAnts");
+        StartCoroutine(nameof(UpdateAnts));
     }
 
     void Update(){
@@ -39,7 +39,7 @@ public class WorldManager : MonoBehaviour
             pheroDecayTimer += Time.deltaTime;
             if(pheroDecayTimer > pheroDecayDelay){
                 pheroDecayTimer -= pheroDecayDelay;
-                gameState.pheromonesMap.decayMarkers();
+                gameState.pheromonesMap.DecayMarkers();
             }
         }
 

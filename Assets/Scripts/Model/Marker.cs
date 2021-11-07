@@ -31,7 +31,7 @@ namespace Assets.Scripts.Model
 
         public void Decay(float decayFactor)
         {
-            this.intensity = this.intensity * decayFactor;
+            this.intensity *= decayFactor;
         }
     }
 }

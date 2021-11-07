@@ -110,10 +110,10 @@ MonoBehaviour:
   state: 0
   maxVelocity: 1
   wanderStrenght: 0.5
-  pheroStrenght: 0.5
+  pheroStrenght: 0.7
   markingDistance: 0.3
   groundDistance: 0.03
-  previousPosDistance: 2
+  previousPosDistance: 1
   loadPos: {fileID: 4237965919035242033}
   Targets: []
   previousPositions: []
