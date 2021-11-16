@@ -113,7 +113,7 @@ MonoBehaviour:
   pheroStrenght: 0.7
   markingDistance: 0.3
   groundDistance: 0.03
-  previousPosDistance: 1
+  previousPosDistance: 2
   loadPos: {fileID: 4237965919035242033}
   Targets: []
   previousPositions: []

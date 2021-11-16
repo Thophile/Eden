@@ -1,3 +1,4 @@
+using Assets.Scripts.Model;
 using UnityEngine;
 
 namespace Assets.Scripts.Ui
@@ -8,14 +9,20 @@ namespace Assets.Scripts.Ui
         public static bool isActivated = false;
         // Parameters
         public LayerMask layerMask;
-        static float speed = 3.0f;
-        static float sensitivity = 0.8f;
+
+        //TODO move to options
+        static float speed = 1f; // %
+        static float sensitivity = 5f; // %
 
         // Zoom level
         public static float zoomLevel = 4;
         const float minZoom = 0;
         const float maxZoom = 9;
-    
+
+        // Drag
+        private Vector3 dragOriginT;
+        private Vector3 dragOriginR;
+
         // Rotation
         const float rotStep = 2f;
         const float minRot = 15f;
@@ -30,7 +37,7 @@ namespace Assets.Scripts.Ui
 
         // Camera depth
         const float depthStep = .5f;
-        const float minDepth = 1f;
+        const float minDepth = 3f;
 
         float hoverHeight;
 
@@ -40,43 +47,72 @@ namespace Assets.Scripts.Ui
 
         void Update()
         {
-            if(isActivated){
+            if(!WorldManager.isPaused){
                 // Scroll action
                 zoomLevel -= Input.GetAxis("Mouse ScrollWheel") * 10f;
                 zoomLevel = Mathf.Clamp(zoomLevel, minZoom, maxZoom);
 
-                // Camera  X rotation
-                var xRotation =  minRot + zoomLevel * rotStep;
-                camObject.transform.Rotate(xRotation - camObject.transform.rotation.eulerAngles.x, 0, 0);
+                RotateCamera();
+                MoveCamera();
+            }
+        }
 
-                // Camera Fov
-                var fov = minFov + zoomLevel * fovStep;;
-                Camera.main.fieldOfView = fov;
+        void MoveCamera()
+        {
+            Vector3 move = Vector3.zero;
+            if (Input.GetMouseButtonDown(0))
+            {
+                dragOriginT = Input.mousePosition;
+            }
+            else if (Input.GetMouseButton(0))
+            {
+                move = (Input.mousePosition - dragOriginT) * (((zoomLevel * 5f) + Options.cameraSpeed) / 1000f) * -1f;
+                dragOriginT = Input.mousePosition;
+            }
+            transform.Translate(new Vector3(move.x, ZoomCamera(), move.y));
+        }
 
-                // Camera Depth
-                camObject.transform.position = transform.position - transform.forward * (minDepth + depthStep * zoomLevel);
+        void RotateCamera()
+        {
+            Vector3 move = Vector3.zero;
+            if (Input.GetMouseButtonDown(2))
+            {
+                dragOriginR = Input.mousePosition;
+            }
+            else if (Input.GetMouseButton(2))
+            {
+                move = (Input.mousePosition - dragOriginR) * (Options.cameraSensitivity / 100f);
+                dragOriginR = Input.mousePosition;
+            }
+            transform.Rotate(new Vector3(0,move.x,0));
+        }
 
+        float ZoomCamera()
+        {
 
-                // Camera Y goal
-                var old = hoverHeight;
-                hoverHeight = minHeight + zoomLevel * heightStep;
-                float translationY = 0;
-                RaycastHit hit = new RaycastHit();
-                if (Physics.Raycast (transform.position, -Vector3.up, out hit,Mathf.Infinity , layerMask)) {
-                    translationY = hoverHeight - hit.distance;
-                }else{
-                    translationY = hoverHeight - old;
-                }
-            
-                // Camera X & Z translations
-                float translationX = Input.GetAxis("Horizontal") * speed * (zoomLevel + 1) * Time.deltaTime;
-                float translationZ = Input.GetAxis("Vertical") * speed * (zoomLevel + 1) * Time.deltaTime;
+            // Camera  X rotation
+            var xRotation = minRot + zoomLevel * rotStep;
+            camObject.transform.Rotate(xRotation - camObject.transform.rotation.eulerAngles.x, 0, 0);
 
-                // Camera Y Rotation
-                float yRotation = Input.GetAxis("Rotation") * sensitivity;
+            // Camera Fov
+            var fov = minFov + zoomLevel * fovStep; ;
+            Camera.main.fieldOfView = fov;
 
-                transform.Translate(translationX, translationY, translationZ);
-                transform.Rotate(0, yRotation, 0);
+            // Camera Depth
+            camObject.transform.position = transform.position - transform.forward * (minDepth + depthStep * zoomLevel);
+
+            // Camera Y goal
+            var old = hoverHeight;
+            hoverHeight = minHeight + zoomLevel * heightStep;
+
+            RaycastHit hit = new RaycastHit();
+            if (Physics.Raycast(transform.position, -Vector3.up, out hit, Mathf.Infinity, layerMask))
+            {
+                return hoverHeight - hit.distance;
+            }
+            else
+            {
+                return hoverHeight - old;
             }
         }
     }
