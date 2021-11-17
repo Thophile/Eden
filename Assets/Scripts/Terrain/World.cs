@@ -12,6 +12,8 @@ namespace Assets.Scripts.Terrain
         public int cellSize;
         public int seed;
 
+        public bool autoUpdate;
+
         public Renderer textureRenderer;
 
         public void GenerateMap()

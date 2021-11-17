@@ -5,12 +5,18 @@ using UnityEngine;
 namespace Assets.Scripts
 {
     [CustomEditor (typeof (World))]
-    public class MapGeneratorEditor : Editor
+    public class WorldEditor : Editor
     {
         public override void OnInspectorGUI()
         {
             World world = (World)target;
-            DrawDefaultInspector();
+            if(DrawDefaultInspector())
+            {
+                if (world.autoUpdate)
+                {
+                    world.GenerateMap();
+                }
+            }
 
             if (GUILayout.Button("Generate"))
             {

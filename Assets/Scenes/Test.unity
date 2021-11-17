@@ -319,9 +319,10 @@ MonoBehaviour:
   width: 64
   height: 64
   regionNb: 64
-  noiseScale: 2.5
-  cellSize: 160
+  noiseScale: 2
+  cellSize: 180
   seed: 5
+  autoUpdate: 1
   textureRenderer: {fileID: 338610019}
 --- !u!4 &1309032809
 Transform:
