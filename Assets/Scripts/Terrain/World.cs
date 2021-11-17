@@ -5,20 +5,20 @@ namespace Assets.Scripts.Terrain
 {
     public class World : MonoBehaviour
     {
+        public int seed;
         public int width;
         public int height;
-        public int regionNb;
-        public float noiseScale;
-        public int cellSize;
-        public int seed;
-
+        public float scale;
+        public int octaves;
+        public float persistance;
+        public float lacunarity;
         public bool autoUpdate;
 
         public Renderer textureRenderer;
 
         public void GenerateMap()
         {
-            float[,] noiseMap = Noise.GenerateNoiseMap(width, height, regionNb, noiseScale, seed);
+            float[,] noiseMap = Noise.GenerateNoiseMap(width, height, scale, octaves, persistance, lacunarity, seed);
             DrawNoiseMap(noiseMap);
         }
 
@@ -40,7 +40,10 @@ namespace Assets.Scripts.Terrain
             {
                 for (int x = 0; x < width; x++)
                 {
-                    colors[y * width + x] = Color.Lerp(Color.black, Color.white, noiseMap[x, y] / cellSize);
+                    colors[y * width + x] = Color.Lerp(
+                        Color.black, 
+                        Color.white, 
+                        Mathf.InverseLerp(Noise.minNoiseHeight, Noise.maxNoiseHeight, noiseMap[x, y]));
                 }
             }
             texture.SetPixels(colors);

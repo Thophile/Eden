@@ -5,13 +5,22 @@ namespace Assets.Scripts.Terrain
 {
     public static class Noise
     {
+        public static float maxNoiseHeight;
+        public static float minNoiseHeight;
 
-        public static float[,] GenerateNoiseMap(int width, int height, int regionNb, float scale, int seed = 0)
+        public static float[,] GenerateNoiseMap(
+            int width, 
+            int height, 
+            float scale, 
+            int octaves, 
+            float persistance, 
+            float lacunarity, 
+            int seed = 0)
         {
 
-            if (scale <= 0)
+            if (scale < 1f)
             {
-                scale = float.Epsilon;
+                scale = 1f;
             }
             if (seed == 0)
             {
@@ -20,23 +29,46 @@ namespace Assets.Scripts.Terrain
             Random.InitState(seed);
 
             float[,] noiseMap = new float[width, height];
-            Vector2[] nodes = GenerateNodes(width, height, regionNb);
-            float maxDist = 0f;
+            int nodeNb = width + height;
+            Vector2[] nodes;
+            maxNoiseHeight = float.MinValue;
+            minNoiseHeight = float.MaxValue;
+            float amplitude = 1f;
+            float frequency = 1f;
 
+            for (int i = 0; i < octaves; i++)
+            {
+                nodes = GenerateNodes(width, height, (int)(nodeNb*frequency));
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        noiseMap[x, y] += amplitude * GetDistanceToClosestNode(
+                            x / scale,
+                            y / scale,
+                            nodes);
+                    }
+                }
+                amplitude *= persistance;
+                frequency *= lacunarity;
+            }
 
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    float dist = GetDistanceToClosestNode(x / scale, y / scale, nodes);
-                    if (dist > maxDist)
+                    float noiseHeight = noiseMap[x, y];
+
+                    if (noiseHeight > maxNoiseHeight)
                     {
-                        maxDist = dist;
+                        maxNoiseHeight = noiseHeight;
                     }
-                    noiseMap[x, y] = dist;
+                    else if (noiseHeight < minNoiseHeight)
+                    {
+                        minNoiseHeight = noiseHeight;
+                    }
                 }
             }
-
             return noiseMap;
         }
 
