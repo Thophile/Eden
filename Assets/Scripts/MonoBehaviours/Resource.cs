@@ -17,7 +17,7 @@ namespace Assets.Scripts.MonoBehaviours
         void Start(){
             var rb = gameObject.GetComponent<Rigidbody>();
             if(rb != null){
-                rb.isKinematic = WorldManager.isPaused;
+                rb.isKinematic = GameManager.isPaused;
             }
         }
         public override void Interact(Ant ant)

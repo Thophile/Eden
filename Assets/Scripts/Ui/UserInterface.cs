@@ -27,8 +27,8 @@ namespace Assets.Scripts.Ui
                 ToggleMenu();
             }
 
-            if(WorldManager.isPaused){
-                playButtonText.GetComponent<TextMeshProUGUI>().text = (WorldManager.gameState == null ? "Play" : "Resume") ;
+            if(GameManager.isPaused){
+                playButtonText.GetComponent<TextMeshProUGUI>().text = (GameManager.gameState == null ? "Play" : "Resume") ;
             }else{
                 UpdateUI();
             }
@@ -36,22 +36,22 @@ namespace Assets.Scripts.Ui
 
         // UI part
         public void UpdateUI(){
-            resourceInfo.GetComponentInChildren<TextMeshProUGUI>().text = WorldManager.gameState.resources.ToString();
-            antCount.GetComponentInChildren<TextMeshProUGUI>().text = (WorldManager.gameState.antNb - AntSpawner.antsInfo.Count).ToString() + "/" + WorldManager.gameState.antNb.ToString();
-            gameTime.GetComponentInChildren<TextMeshProUGUI>().text = TimeSpan.FromSeconds(WorldManager.gameState.gameTime).Hours.ToString() + ":" + TimeSpan.FromSeconds(WorldManager.gameState.gameTime).Minutes.ToString("00");
+            resourceInfo.GetComponentInChildren<TextMeshProUGUI>().text = GameManager.gameState.resources.ToString();
+            antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameManager.gameState.antNb - AntSpawner.antsInfo.Count).ToString() + "/" + GameManager.gameState.antNb.ToString();
+            gameTime.GetComponentInChildren<TextMeshProUGUI>().text = TimeSpan.FromSeconds(GameManager.gameState.gameTime).Hours.ToString() + ":" + TimeSpan.FromSeconds(GameManager.gameState.gameTime).Minutes.ToString("00");
         }
 
         // Menu part
         public void ToggleMenu(){
-            WorldManager.isPaused = !WorldManager.isPaused;
+            GameManager.isPaused = !GameManager.isPaused;
         
-            PlayPausePhysics(WorldManager.isPaused);
-            CameraController.isActivated = !WorldManager.isPaused;
+            PlayPausePhysics(GameManager.isPaused);
+            CameraController.isActivated = !GameManager.isPaused;
 
-            menuPanel.SetActive(WorldManager.isPaused);
-            if (WorldManager.isPaused) MainMenu();
+            menuPanel.SetActive(GameManager.isPaused);
+            if (GameManager.isPaused) MainMenu();
         
-            uiPanel.SetActive(!WorldManager.isPaused);
+            uiPanel.SetActive(!GameManager.isPaused);
         }
 
         public void OptionsMenu(){
@@ -65,15 +65,15 @@ namespace Assets.Scripts.Ui
 
         public void Play(){
             ToggleMenu();
-            if (WorldManager.gameState == null){
-                WorldManager.Load();
+            if (GameManager.gameState == null){
+                GameManager.Load();
             }
         }
         public void Reset(){
-            WorldManager.Reset();
+            GameManager.Reset();
         }
         public void Save(){
-            WorldManager.Save();
+            GameManager.Save();
         }
         public void PlayPausePhysics(bool isGamePaused){
             Rigidbody[] rbs = GameObject.FindObjectsOfType<Rigidbody>();

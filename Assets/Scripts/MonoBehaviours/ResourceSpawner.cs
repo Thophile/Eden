@@ -15,7 +15,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         void Update()
         {
-            if(!WorldManager.isPaused){
+            if(!GameManager.isPaused){
                 timer += Time.deltaTime;
                 if(timer > spawnDelay){
                     var coord = Random.insideUnitCircle * spawnRadius;
@@ -31,7 +31,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         public static void SpawnResource(Vector3 pos, Quaternion rot, GameObject resource, int health = 0){
             var obj = Instantiate(resource, pos, rot);
-            obj.transform.parent = GameObject.Find("WorldManager").transform;
+            obj.transform.parent = GameObject.Find("GameManager").transform;
             obj.GetComponent<Resource>().prefabName = resource.name;
             if (health != 0){
                 obj.GetComponent<Resource>().health = health;

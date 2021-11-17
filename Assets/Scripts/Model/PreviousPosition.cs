@@ -34,7 +34,7 @@ namespace Assets.Scripts.Model
         public PreviousPosition(Vector3 position)
         {
             this.Position = position;
-            this.time = WorldManager.gameState.gameTime;
+            this.time = GameManager.gameState.gameTime;
         }
     }
 }

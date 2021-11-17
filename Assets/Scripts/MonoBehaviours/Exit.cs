@@ -9,7 +9,7 @@ namespace Assets.Scripts.MonoBehaviours
             base.Interact(ant);
             if(ant.Load != null){
                 if(ant.Load.GetComponent<Carryable>()){
-                    WorldManager.gameState.resources += ant.Load.GetComponent<Carryable>().resourceValue;
+                    GameManager.gameState.resources += ant.Load.GetComponent<Carryable>().resourceValue;
                 }
             }
             UnityEngine.Debug.Log(ant.gameObject);

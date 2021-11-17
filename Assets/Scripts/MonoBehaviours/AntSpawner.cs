@@ -16,11 +16,11 @@ namespace Assets.Scripts.MonoBehaviours
         // Update is called once per frame
         void Update()
         {
-            if(!WorldManager.isPaused){
+            if(!GameManager.isPaused){
                 time += Time.deltaTime;
                 if (time > spawnDelay){
                     time-=spawnDelay;
-                    if ((10*antsInfo.Count)/WorldManager.gameState.antNb <= 8){
+                    if ((10*antsInfo.Count)/GameManager.gameState.antNb <= 8){
                         var rand = Vector3.ProjectOnPlane(Random.insideUnitSphere, Vector3.up);
                         SpawnAnt(exit.position, Quaternion.LookRotation(rand, Vector3.up), ant);
                     }
@@ -29,7 +29,7 @@ namespace Assets.Scripts.MonoBehaviours
         }
         public static void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null, List<PreviousPosition> previousPositions = null){
             var obj = Instantiate(ant, pos, rot);
-            obj.transform.parent = GameObject.Find("WorldManager").transform;
+            obj.transform.parent = GameObject.Find("GameManager").transform;
             var antComponent = obj.GetComponent<Ant>();
             antComponent.prefabName = ant.name;
             if(load != null) {
@@ -42,11 +42,11 @@ namespace Assets.Scripts.MonoBehaviours
             }
 
             antsInfo.Add(obj);
-            WorldManager.activeAnts.Add(antComponent);
+            GameManager.activeAnts.Add(antComponent);
         }
         public void DespawnAnt(GameObject ant){
             antsInfo.Remove(ant);
-            WorldManager.activeAnts.Remove(ant.GetComponent<Ant>());
+            GameManager.activeAnts.Remove(ant.GetComponent<Ant>());
             Destroy(ant);
         }
     }

@@ -43,7 +43,7 @@ namespace Assets.Scripts.Ui
 
         void Update()
         {
-            if(!WorldManager.isPaused){
+            if(!GameManager.isPaused){
                 // Scroll action
                 zoomLevel -= Input.GetAxis("Mouse ScrollWheel") * 10f;
                 zoomLevel = Mathf.Clamp(zoomLevel, minZoom, maxZoom);

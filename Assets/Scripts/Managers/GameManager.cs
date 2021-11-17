@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class WorldManager : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     static readonly string savePath = "/GameState.cln";
     public static bool isPaused = true;

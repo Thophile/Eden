@@ -55,7 +55,7 @@ namespace Assets.Scripts.MonoBehaviours
             animator = gameObject.GetComponent<Animator>();
             rb = gameObject.GetComponent<Rigidbody>();
 
-            rb.isKinematic = WorldManager.isPaused;
+            rb.isKinematic = GameManager.isPaused;
             desiredDirection = transform.forward;
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
@@ -65,7 +65,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         void Update()
         {
-            if (!WorldManager.isPaused)
+            if (!GameManager.isPaused)
             {
                 // Setting rotation and velocity
                 float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
@@ -80,7 +80,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         public void UpdateSelf()
         {
-            if (!WorldManager.isPaused)
+            if (!GameManager.isPaused)
             {
                 // Surface alignement
                 Vector3 newNormal = GetTargetSurfaceNormal();
@@ -145,7 +145,7 @@ namespace Assets.Scripts.MonoBehaviours
                 var randomDir = GetRandomDir();
                 var targetDir = GetTargetDir();
 
-                return (wanderStrenght * WorldManager.activeAnts.Count * randomDir / 200f) + targetDir * pheroStrenght;
+                return (wanderStrenght * GameManager.activeAnts.Count * randomDir / 200f) + targetDir * pheroStrenght;
             }
             else
             {
@@ -183,9 +183,9 @@ namespace Assets.Scripts.MonoBehaviours
                     Vector3 left = Quaternion.AngleAxis(-30, transform.up) * transform.forward * magnitude;
                     Vector3 right = Quaternion.AngleAxis(30, transform.up) * transform.forward * magnitude;
 
-                    var centerPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + center, pheroDetectionRange);
-                    var leftPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + left, pheroDetectionRange);
-                    var rightPhero = WorldManager.gameState.pheromonesMap.ComputeZone(transform.position + right, pheroDetectionRange);
+                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(transform.position + center, pheroDetectionRange);
+                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(transform.position + left, pheroDetectionRange);
+                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(transform.position + right, pheroDetectionRange);
 
                     Debug.DrawLine(transform.position + center, transform.position + center + Vector3.up * centerPhero, Color.white, 1f);
                     Debug.DrawLine(transform.position + left, transform.position + left + Vector3.up * leftPhero, Color.white, 1f);
@@ -252,7 +252,7 @@ namespace Assets.Scripts.MonoBehaviours
                         this.previousPositions.Add(new PreviousPosition(transform.position));
                         break;
                     case AntState.GoingHome:
-                    WorldManager.gameState.pheromonesMap.Mark(transform.position);
+                    GameManager.gameState.pheromonesMap.Mark(transform.position);
                         break;
                 }
             }
