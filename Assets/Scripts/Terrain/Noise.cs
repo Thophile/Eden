@@ -14,14 +14,9 @@ namespace Assets.Scripts.Terrain
             float scale, 
             int octaves, 
             float persistance, 
-            float lacunarity, 
+            float lacunarity,
             int seed = 0)
         {
-
-            if (scale < 1f)
-            {
-                scale = 1f;
-            }
             if (seed == 0)
             {
                 seed = Random.Range(int.MinValue, int.MaxValue);

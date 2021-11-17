@@ -52,5 +52,58 @@ namespace Assets.Scripts.Terrain
             textureRenderer.sharedMaterial.mainTexture = texture;
             textureRenderer.transform.localScale = new Vector3(width, 1, height);
         }
+
+        private void OnValidate()
+        {
+            if(width < 1)
+            {
+                width = 1;
+            }
+            if (width > 128)
+            {
+                width = 128;
+            }
+            if (height < 1)
+            {
+                height = 1;
+            }
+            if (height > 128)
+            {
+                height = 128;
+            }
+            if (scale < 1f)
+            {
+                scale = 1f;
+            }
+            if (scale > 5f)
+            {
+                scale = 5f;
+            }
+            if (octaves < 1)
+            {
+                octaves = 1;
+            }
+            if (octaves > 4)
+            {
+                octaves = 4;
+            }
+            if (persistance > 1)
+            {
+                persistance = 1;
+            }
+            if (persistance < 0)
+            {
+                persistance = 0;
+            }
+            if (lacunarity < 1)
+            {
+                lacunarity = 1;
+            }
+            if (lacunarity > 3)
+            {
+                lacunarity = 3;
+            }
+
+        }
     }
 }
