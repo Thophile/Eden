@@ -12,14 +12,26 @@ namespace Assets.Scripts.Terrain
         public int octaves;
         public float persistance;
         public float lacunarity;
+        public float fallof;
+        public float centerRadius;
+        public float fade;
         public bool autoUpdate;
 
         public Renderer textureRenderer;
 
         public void GenerateMap()
         {
-            float[,] noiseMap = Noise.GenerateNoiseMap(width, height, scale, octaves, persistance, lacunarity, seed);
-            DrawNoiseMap(noiseMap);
+            
+            float[,] noiseMap = Noise.GenerateNoiseMap(
+                width, 
+                height, 
+                scale, 
+                octaves, 
+                persistance, 
+                lacunarity, 
+                seed);
+            float[,] fallofMap = Noise.GenerateFallofMap(width, height, fallof, centerRadius, fade);
+            DrawNoiseMap(noiseMap, fallofMap);
         }
 
         public void LoadMap()
@@ -27,7 +39,7 @@ namespace Assets.Scripts.Terrain
 
         }
 
-        public void DrawNoiseMap(float[,] noiseMap)
+        public void DrawNoiseMap(float[,] noiseMap, float[,] fallofMap)
         {
             int width = noiseMap.GetLength(0);
             int height = noiseMap.GetLength(1);
@@ -42,8 +54,13 @@ namespace Assets.Scripts.Terrain
                 {
                     colors[y * width + x] = Color.Lerp(
                         Color.black, 
-                        Color.white, 
-                        Mathf.InverseLerp(Noise.minNoiseHeight, Noise.maxNoiseHeight, noiseMap[x, y]));
+                        Color.white,
+                        Mathf.InverseLerp(
+                            Noise.minNoiseHeight, 
+                            Noise.maxNoiseHeight, 
+                            noiseMap[x, y]
+                        ) - fallofMap[x, y]
+                    );
                 }
             }
             texture.SetPixels(colors);
@@ -103,7 +120,14 @@ namespace Assets.Scripts.Terrain
             {
                 lacunarity = 3;
             }
-
+            if (fallof < 0)
+            {
+                fallof = 0;
+            }
+            if (fallof > 1)
+            {
+                fallof = 1;
+            }
         }
     }
 }

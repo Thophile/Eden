@@ -67,6 +67,26 @@ namespace Assets.Scripts.Terrain
             return noiseMap;
         }
 
+        public static float[,] GenerateFallofMap(
+            int width,
+            int height,
+            float fallof,
+            float centerRadius,
+            float fade)
+        {
+            float[,] fallofMap = new float[width, height];
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Vector2 dist = (new Vector2(x, y) - new Vector2(width / 2, height / 2)) ;
+                    fallofMap[x, y] = Mathf.Clamp(((fallof * (dist.magnitude - width/centerRadius)) / width * fade), 0f, 1f);
+                }
+            }
+
+            return fallofMap;
+        }
+
         public static Vector2[] GenerateNodes(int width, int height, int nodeNb)
         {
             Vector2[] nodes = new Vector2[nodeNb];

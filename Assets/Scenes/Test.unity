@@ -316,13 +316,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ade5891bb126fbc4481676628ea3ae0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  seed: 5
   width: 64
   height: 64
-  regionNb: 64
-  noiseScale: 2
-  cellSize: 180
-  seed: 5
-  autoUpdate: 1
+  scale: 1
+  octaves: 4
+  persistance: 1
+  lacunarity: 3
+  fallof: 0.5
+  centerRadius: 7
+  fade: 8
+  autoUpdate: 0
   textureRenderer: {fileID: 338610019}
 --- !u!4 &1309032809
 Transform:
