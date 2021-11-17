@@ -10,10 +10,6 @@ namespace Assets.Scripts.Ui
         // Parameters
         public LayerMask layerMask;
 
-        //TODO move to options
-        static float speed = 1f; // %
-        static float sensitivity = 5f; // %
-
         // Zoom level
         public static float zoomLevel = 4;
         const float minZoom = 0;
