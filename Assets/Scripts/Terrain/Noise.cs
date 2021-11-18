@@ -42,27 +42,23 @@ namespace Assets.Scripts.Terrain
                             x / scale,
                             y / scale,
                             nodes);
+                        if(i == octaves - 1)
+                        {
+                            float noiseHeight = noiseMap[x, y];
+
+                            if (noiseHeight > maxNoiseHeight)
+                            {
+                                maxNoiseHeight = noiseHeight;
+                            }
+                            else if (noiseHeight < minNoiseHeight)
+                            {
+                                minNoiseHeight = noiseHeight;
+                            }
+                        }
                     }
                 }
                 amplitude *= persistance;
                 frequency *= lacunarity;
-            }
-
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    float noiseHeight = noiseMap[x, y];
-
-                    if (noiseHeight > maxNoiseHeight)
-                    {
-                        maxNoiseHeight = noiseHeight;
-                    }
-                    else if (noiseHeight < minNoiseHeight)
-                    {
-                        minNoiseHeight = noiseHeight;
-                    }
-                }
             }
             return noiseMap;
         }

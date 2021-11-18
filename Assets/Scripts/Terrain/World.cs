@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Terrain
@@ -15,13 +16,18 @@ namespace Assets.Scripts.Terrain
         public float fallof;
         public float centerRadius;
         public float fade;
+        public float yScale;
         public bool autoUpdate;
 
+        public Biome[] biomes;
+
         public Renderer textureRenderer;
+        public MeshFilter meshFilter;
+        public MeshRenderer meshRenderer;
 
         public void GenerateMap()
         {
-            
+
             float[,] noiseMap = Noise.GenerateNoiseMap(
                 width, 
                 height, 
@@ -31,7 +37,69 @@ namespace Assets.Scripts.Terrain
                 lacunarity, 
                 seed);
             float[,] fallofMap = Noise.GenerateFallofMap(width, height, fallof, centerRadius, fade);
-            DrawNoiseMap(noiseMap, fallofMap);
+
+            Mesh mesh = new Mesh();
+            List<Vector3> vertices = new List<Vector3>();
+            List<Vector2> uvs = new List<Vector2>();
+            List<int> indices = new List<int>();
+            List<Color> colors = new List<Color>();
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    float mapHeight = (Mathf.InverseLerp(
+                            Noise.minNoiseHeight,
+                            Noise.maxNoiseHeight,
+                            noiseMap[x, y]) - fallofMap[x, y]) * yScale;
+
+                    vertices.Add(new Vector3(y, mapHeight, x));
+                    uvs.Add(new Vector2(x / (float)width, y / (float)height));
+
+                    int index = y * height + x;
+                    if (x < width - 1 && y < height - 1)
+                    {
+
+                        indices.Add(index);
+                        indices.Add(index + width + 1);
+                        indices.Add(index + width);
+
+                        indices.Add(index + width + 1);
+                        indices.Add(index);
+                        indices.Add(index + 1);
+                    }
+                }
+            }
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    int index = y * height + x;
+                    float mapHeight = vertices[index].y;
+                    Color color = Color.white;
+                    foreach (var biome in biomes)
+                    {
+
+                        if (mapHeight > (biome.height * yScale))
+                        {
+                            color = biome.color;
+                            
+                            break;
+                        }
+
+                    }
+                    colors.Add(color);
+                }
+            }
+
+            mesh.SetVertices(vertices);
+            mesh.SetIndices(indices.ToArray(), MeshTopology.Triangles, 0);
+            mesh.SetUVs(0, uvs);
+
+            mesh.RecalculateNormals();
+
+            BuildMesh(mesh);
+            BuildTexture(colors);
         }
 
         public void LoadMap()
@@ -39,7 +107,22 @@ namespace Assets.Scripts.Terrain
 
         }
 
-        public void DrawNoiseMap(float[,] noiseMap, float[,] fallofMap)
+        public void BuildMesh(Mesh mesh)
+        {
+            meshFilter.mesh = mesh;
+        }
+
+        public void BuildTexture(List<Color> colors)
+        {
+            Texture2D texture = new Texture2D(width, height);
+            texture.filterMode = FilterMode.Point;
+            texture.wrapMode = TextureWrapMode.Clamp;
+            texture.SetPixels(colors.ToArray());
+            texture.Apply();
+            meshRenderer.sharedMaterial.mainTexture = texture;
+        }
+
+        public void DrawNoiseMap(float[,] noiseMap)
         {
             int width = noiseMap.GetLength(0);
             int height = noiseMap.GetLength(1);
@@ -54,12 +137,8 @@ namespace Assets.Scripts.Terrain
                 {
                     colors[y * width + x] = Color.Lerp(
                         Color.black, 
-                        Color.white,
-                        Mathf.InverseLerp(
-                            Noise.minNoiseHeight, 
-                            Noise.maxNoiseHeight, 
-                            noiseMap[x, y]
-                        ) - fallofMap[x, y]
+                        Color.white, 
+                        noiseMap[x, y]
                     );
                 }
             }
