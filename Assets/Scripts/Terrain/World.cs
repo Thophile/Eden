@@ -114,9 +114,11 @@ namespace Assets.Scripts.Terrain
 
         public void BuildTexture(List<Color> colors)
         {
-            Texture2D texture = new Texture2D(width, height);
-            texture.filterMode = FilterMode.Point;
-            texture.wrapMode = TextureWrapMode.Clamp;
+            Texture2D texture = new Texture2D(width, height)
+            {
+                filterMode = FilterMode.Bilinear,
+                wrapMode = TextureWrapMode.Clamp
+            };
             texture.SetPixels(colors.ToArray());
             texture.Apply();
             meshRenderer.sharedMaterial.mainTexture = texture;
