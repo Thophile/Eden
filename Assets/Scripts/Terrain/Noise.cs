@@ -5,12 +5,13 @@ namespace Assets.Scripts.Terrain
 {
     public static class Noise
     {
-        public static float maxNoiseHeight;
-        public static float minNoiseHeight;
-
-        public static float[,] GenerateNoiseMap(
+        public static float[,] GenerateHeightMap(
             int width, 
-            int height, 
+            int height,
+            float fallof,
+            float centerRadius,
+            float fade,
+            float yScale,
             float scale, 
             int octaves, 
             float persistance, 
@@ -26,8 +27,6 @@ namespace Assets.Scripts.Terrain
             float[,] noiseMap = new float[width, height];
             int nodeNb = width + height;
             Vector2[] nodes;
-            maxNoiseHeight = float.MinValue;
-            minNoiseHeight = float.MaxValue;
             float amplitude = 1f;
             float frequency = 1f;
 
@@ -41,19 +40,15 @@ namespace Assets.Scripts.Terrain
                         noiseMap[x, y] += amplitude * GetDistanceToClosestNode(
                             x / scale,
                             y / scale,
-                            nodes);
+                            nodes)
+                            / width;
                         if(i == octaves - 1)
                         {
-                            float noiseHeight = noiseMap[x, y];
-
-                            if (noiseHeight > maxNoiseHeight)
-                            {
-                                maxNoiseHeight = noiseHeight;
-                            }
-                            else if (noiseHeight < minNoiseHeight)
-                            {
-                                minNoiseHeight = noiseHeight;
-                            }
+                            Vector2 dist = (new Vector2(x, y) - new Vector2(width / 2, height / 2));
+                            noiseMap[x, y] *= yScale * (1 - Mathf.Clamp(
+                                (fallof * (dist.magnitude - width / centerRadius)) / width * fade,
+                                0f,
+                                1f));
                         }
                     }
                 }
@@ -61,26 +56,6 @@ namespace Assets.Scripts.Terrain
                 frequency *= lacunarity;
             }
             return noiseMap;
-        }
-
-        public static float[,] GenerateFallofMap(
-            int width,
-            int height,
-            float fallof,
-            float centerRadius,
-            float fade)
-        {
-            float[,] fallofMap = new float[width, height];
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    Vector2 dist = (new Vector2(x, y) - new Vector2(width / 2, height / 2)) ;
-                    fallofMap[x, y] = Mathf.Clamp(((fallof * (dist.magnitude - width/centerRadius)) / width * fade), 0f, 1f);
-                }
-            }
-
-            return fallofMap;
         }
 
         public static Vector2[] GenerateNodes(int width, int height, int nodeNb)
