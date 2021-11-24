@@ -32,32 +32,32 @@ namespace Assets.Scripts.Terrain
 
         }
 
-        public void CreateTriangles(int x, int y)
+        public void CreateTriangles(int x, int z)
         {           
-            if (IsEven(x,y))
+            if (IsEven(x,z))
             {
-                triangles.Add(IndexAtPoint(x, y));
-                triangles.Add(IndexAtPoint(x + 1,y));
-                triangles.Add(IndexAtPoint(x, y + 1));
+                triangles.Add(IndexAtPoint(x, z));
+                triangles.Add(IndexAtPoint(x + 1, z));
+                triangles.Add(IndexAtPoint(x, z + 1));
 
-                triangles.Add(IndexAtPoint(x + 1, y));
-                triangles.Add(IndexAtPoint(x + 1, y + 1));
-                triangles.Add(IndexAtPoint(x, y + 1));
+                triangles.Add(IndexAtPoint(x + 1, z));
+                triangles.Add(IndexAtPoint(x + 1, z + 1));
+                triangles.Add(IndexAtPoint(x, z + 1));
             } else
             {
-                triangles.Add(IndexAtPoint(x, y));
-                triangles.Add(IndexAtPoint(x + 1, y + 1));
-                triangles.Add(IndexAtPoint(x, y + 1));
+                triangles.Add(IndexAtPoint(x, z));
+                triangles.Add(IndexAtPoint(x + 1, z + 1));
+                triangles.Add(IndexAtPoint(x, z + 1));
 
-                triangles.Add(IndexAtPoint(x + 1, y));
-                triangles.Add(IndexAtPoint(x + 1, y + 1));
-                triangles.Add(IndexAtPoint(x, y));
+                triangles.Add(IndexAtPoint(x + 1, z));
+                triangles.Add(IndexAtPoint(x + 1, z + 1));
+                triangles.Add(IndexAtPoint(x, z));
             }
         }
-        public int IndexAtPoint(int x, int y)
+        public int IndexAtPoint(int x, int z)
         {
-            int index = GetIndex(x, y) + points[x, y];
-            points[x, y]++;
+            int index = GetIndex(x, z) + points[x, z];
+            points[x, z]++;
             return index;
         }
         public int GetPointAtCoordinate(int x, int z)
@@ -83,34 +83,30 @@ namespace Assets.Scripts.Terrain
             }
             return n;
         }
-        public int GetIndex(int x, int y)
+        public int GetIndex(int x, int z)
         {
 
             int rowOffset = 0;
             int colOffset = 0;
-            if(y != 0)
-            {
-                for (int i = 0; i < y; i++)
-                {
-                    if (i < height - 1 && i > 0)
-                    {
-                        rowOffset += 6 * (width - 1);
 
-                    }
-                    else
-                    {
-                        rowOffset += 3 * (width - 1);
-                    }
+            for (int i = 0; i < z; i++)
+            {
+                if (i < height - 1 && i > 0)
+                {
+                    rowOffset += 6 * (width - 1);
+
+                }
+                else
+                {
+                    rowOffset += 3 * (width - 1);
                 }
             }
 
-            if(x != 0)
+            for (int j = 0; j < x; j++)
             {
-                for (int j = 0; j < x; j++)
-                {
-                    colOffset += GetPointAtCoordinate(j, y);
-                }
+                colOffset += GetPointAtCoordinate(j, z);
             }
+
             return rowOffset + colOffset;
         }
         bool IsEven(int x, int z)
