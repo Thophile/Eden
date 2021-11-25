@@ -7,18 +7,22 @@ namespace Assets.Scripts.Terrain
     public class MeshData
     {
         public int width;
-        public int height;
+        public float height;
+        public int length;
+        public Biome[] biomes;
         public List<Vector3> vertices = new List<Vector3>();
         public int[,] points;
         public List<Vector2> uv = new List<Vector2>();
         public Color32[] colors = new Color32[5046];
         public List<int> triangles = new List<int>();
 
-        public MeshData(int width, int height)
+        public MeshData(int width, float height, int length, Biome[] biomes)
         {
             this.width = width;
             this.height = height;
-            points = new int[width, height];
+            this.length = length;
+            this.biomes = biomes;
+            points = new int[width, length];
         }
 
         public void AddVertex(float x, float y, float z)
@@ -28,7 +32,7 @@ namespace Assets.Scripts.Terrain
             for (int i = 0; i < n; i++)
             {
                 vertices.Add(new Vector3(z, y, x));
-                uv.Add(new Vector2(x / (float)width, y / (float)height));
+                uv.Add(new Vector2(x / (float)width, y / (float)length));
             }
 
         }
@@ -73,7 +77,7 @@ namespace Assets.Scripts.Terrain
                 n = 2;
             }
             
-            if (z < height - 1 && z > 0)
+            if (z < length - 1 && z > 0)
             {
                 n *= 2;
             }
@@ -92,7 +96,7 @@ namespace Assets.Scripts.Terrain
 
             for (int i = 0; i < z; i++)
             {
-                if (i < height - 1 && i > 0)
+                if (i < length - 1 && i > 0)
                 {
                     rowOffset += 6 * (width - 1);
 
@@ -130,19 +134,31 @@ namespace Assets.Scripts.Terrain
 
                 if ((i % 3) == 0)
                 {
-                    color = GetBiomeColor(i);
+                    Vector3 p0 = vertices[triangles[i + 0]];
+                    Vector3 p1 = vertices[triangles[i + 1]];
+                    Vector3 p2 = vertices[triangles[i + 2]];
+
+                    Vector3 normal = Vector3.Cross(p1 - p0, p2 - p0).normalized;
+                    float height = (p0.y + p1.y + p2.y) / 3;
+                    color = GetBiomeColor(normal, height);
+
                 }
                     colors[triangles[i]] = color;
             }
         }
 
-        public Color32 GetBiomeColor(int index)
+        public Color32 GetBiomeColor(Vector3 normal, float y)
         {
-            return new Color32(
-                (byte)Random.Range(0, 255),
-                (byte)Random.Range(0, 255),
-                (byte)Random.Range(0, 255),
-                255);
+            float steepness = Vector3.ProjectOnPlane(normal, Vector3.up).magnitude;
+
+            foreach (var biome in biomes)
+            {
+                if(steepness <= biome.steepness && y <= biome.maxHeight * this.height && y >= biome.minHeight * this.height)
+                {
+                    return (Color32)biome.color;
+                }
+            }
+            return new Color32(255,255,255,255);
         }
 
         public Mesh BuildMesh()

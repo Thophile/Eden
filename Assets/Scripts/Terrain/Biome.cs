@@ -8,7 +8,8 @@ namespace Assets.Scripts.Terrain
     {
         public string name;
         public float steepness;
-        public float height;
+        public float minHeight;
+        public float maxHeight;
         public Color color;
     }
 }

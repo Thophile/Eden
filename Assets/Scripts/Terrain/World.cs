@@ -8,7 +8,8 @@ namespace Assets.Scripts.Terrain
     {
         public int seed;
         public int width;
-        public int height;
+        public float height;
+        public int length;
         public float scale;
         public int octaves;
         public float persistance;
@@ -16,7 +17,6 @@ namespace Assets.Scripts.Terrain
         public float fallof;
         public float centerRadius;
         public float fade;
-        public float yScale;
         public bool autoUpdate;
 
         public Biome[] biomes;
@@ -29,28 +29,28 @@ namespace Assets.Scripts.Terrain
         {
             float[,] heightMap = Noise.GenerateHeightMap(
                 width,
-                height,
+                length,
                 fallof,
                 centerRadius,
                 fade,
-                yScale,
+                height,
                 scale,
                 octaves,
                 persistance,
                 lacunarity,
                 seed);
 
-            MeshData meshData = new MeshData(width, height);
-            for (int y = 0; y < height; y++)
+            MeshData meshData = new MeshData(width, height, length, biomes);
+            for (int z = 0; z < length; z++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     // Generate triangle associated with each point
-                    meshData.AddVertex(x, heightMap[x,y], y);
+                    meshData.AddVertex(x, heightMap[x,z], z);
 
-                    if ( (y < height - 1) && (x < width - 1))
+                    if ( (z < length - 1) && (x < width - 1))
                     {
-                        meshData.CreateTriangles(x, y);
+                        meshData.CreateTriangles(x, z);
                     }
                 }
             }
@@ -95,13 +95,13 @@ namespace Assets.Scripts.Terrain
             {
                 width = 128;
             }
-            if (height < 1)
+            if (length < 1)
             {
-                height = 1;
+                length = 1;
             }
-            if (height > 128)
+            if (length > 128)
             {
-                height = 128;
+                length = 128;
             }
             if (scale < 1f)
             {
@@ -142,6 +142,16 @@ namespace Assets.Scripts.Terrain
             if (fallof > 1)
             {
                 fallof = 1;
+            }
+            foreach(var biome in biomes){
+                if (biome.minHeight < 0) biome.minHeight = 0;
+                else if (biome.minHeight > 1) biome.minHeight = 1;
+
+                if (biome.maxHeight < 0) biome.maxHeight = 0;
+                else if (biome.maxHeight > 1) biome.maxHeight = 1;
+
+                if (biome.steepness < 0) biome.steepness = 0;
+                else if (biome.steepness > 1) biome.steepness = 1;
             }
         }
     }
