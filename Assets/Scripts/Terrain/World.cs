@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace Assets.Scripts.Terrain
         public int width;
         public float height;
         public int length;
+        public int heightStep;
         public float scale;
         public int octaves;
         public float persistance;
@@ -33,20 +35,20 @@ namespace Assets.Scripts.Terrain
                 fallof,
                 centerRadius,
                 fade,
-                height,
+                height * heightStep,
                 scale,
                 octaves,
                 persistance,
                 lacunarity,
                 seed);
 
-            MeshData meshData = new MeshData(width, height, length, biomes);
+            MeshData meshData = new MeshData(width, height*heightStep, length, biomes);
             for (int z = 0; z < length; z++)
             {
                 for (int x = 0; x < width; x++)
                 {
                     // Generate triangle associated with each point
-                    meshData.AddVertex(x, heightMap[x,z], z);
+                    meshData.AddVertex(x, (float)Math.Round(heightMap[x,z])/(heightStep+1f), z);
 
                     if ( (z < length - 1) && (x < width - 1))
                     {

@@ -147,9 +147,6 @@ namespace Assets.Scripts.Terrain
                 }
                 colors[triangles[i]] = color;
             }
-            Debug.Log(triangles.Count);
-            Debug.Log(colors.Length);
-            Debug.Log(vertices.Count);
         }
 
         public Color32 GetBiomeColor(Vector3 normal, float y)
@@ -168,7 +165,6 @@ namespace Assets.Scripts.Terrain
 
         public Mesh BuildMesh()
         {
-            Debug.Log(vertices.Count);
             Mesh mesh = new Mesh();
             mesh.vertices = vertices.ToArray();
             mesh.uv = uv.ToArray();
