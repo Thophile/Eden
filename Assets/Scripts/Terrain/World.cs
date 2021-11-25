@@ -54,6 +54,7 @@ namespace Assets.Scripts.Terrain
                     }
                 }
             }
+            meshData.BuildColors();
             meshFilter.mesh = meshData.BuildMesh();
         }
 
