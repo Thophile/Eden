@@ -13,7 +13,7 @@ namespace Assets.Scripts.Terrain
         public List<Vector3> vertices = new List<Vector3>();
         public int[,] points;
         public List<Vector2> uv = new List<Vector2>();
-        public Color32[] colors = new Color32[5046];
+        public Color32[] colors;
         public List<int> triangles = new List<int>();
 
         public MeshData(int width, float height, int length, Biome[] biomes)
@@ -128,7 +128,9 @@ namespace Assets.Scripts.Terrain
 
         public void BuildColors()
         {
+            colors = new Color32[triangles.Count];
             Color32 color = new Color32();
+
             for (int i = 0; i < triangles.Count; i++)
             {
 
@@ -143,8 +145,11 @@ namespace Assets.Scripts.Terrain
                     color = GetBiomeColor(normal, height);
 
                 }
-                    colors[triangles[i]] = color;
+                colors[triangles[i]] = color;
             }
+            Debug.Log(triangles.Count);
+            Debug.Log(colors.Length);
+            Debug.Log(vertices.Count);
         }
 
         public Color32 GetBiomeColor(Vector3 normal, float y)
