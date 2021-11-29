@@ -7,19 +7,11 @@ namespace Assets.Scripts.Terrain
 {
     public class World : MonoBehaviour
     {
-        public int seed;
-        public int width;
+
         public float height;
-        public int length;
-        public int heightStep;
-        public float scale;
-        public int octaves;
-        public float persistance;
-        public float lacunarity;
-        public float fallof;
-        public float centerRadius;
-        public float fade;
         public bool autoUpdate;
+        public bool autoPreview;
+        public MapGenerator mapGenerator;
 
         public Biome[] biomes;
 
@@ -29,28 +21,17 @@ namespace Assets.Scripts.Terrain
 
         public void GenerateMap()
         {
-            float[,] heightMap = Noise.GenerateHeightMap(
-                width,
-                length,
-                fallof,
-                centerRadius,
-                fade,
-                height * heightStep,
-                scale,
-                octaves,
-                persistance,
-                lacunarity,
-                seed);
+            float[,] heightMap = mapGenerator.GenerateHeightMap();
 
-            MeshData meshData = new MeshData(width, height*heightStep, length, biomes);
-            for (int z = 0; z < length; z++)
+            MeshData meshData = new MeshData(mapGenerator.width, height, mapGenerator.length, biomes);
+            for (int z = 0; z < mapGenerator.length; z++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < mapGenerator.width; x++)
                 {
                     // Generate triangle associated with each point
-                    meshData.AddVertex(x, (float)Math.Round(heightMap[x,z])/(heightStep+1f), z);
+                    meshData.AddVertex(x, heightMap[x,z] * height, z);
 
-                    if ( (z < length - 1) && (x < width - 1))
+                    if ( (z < mapGenerator.length - 1) && (x < mapGenerator.width - 1))
                     {
                         meshData.CreateTriangles(x, z);
                     }
@@ -58,25 +39,27 @@ namespace Assets.Scripts.Terrain
             }
             meshData.BuildColors();
             meshFilter.mesh = meshData.BuildMesh();
+            meshRenderer.transform.localScale = new Vector3(10, 10, 10);
+            meshRenderer.transform.position = new Vector3(-mapGenerator.width*5, 0, -mapGenerator.length*5);
+
         }
 
-        public void DrawNoiseMap(float[,] noiseMap)
+        public void PreviewMap()
         {
-            int width = noiseMap.GetLength(0);
-            int height = noiseMap.GetLength(1);
+            float[,] heightMap = mapGenerator.GenerateHeightMap();
 
-            Texture2D texture = new Texture2D(width, height);
+            Texture2D texture = new Texture2D(mapGenerator.width, mapGenerator.length);
 
-            Color[] colors = new Color[width * height];
+            Color[] colors = new Color[mapGenerator.width * mapGenerator.length];
 
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < mapGenerator.length; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < mapGenerator.width; x++)
                 {
-                    colors[y * width + x] = Color.Lerp(
+                    colors[y * mapGenerator.width + x] = Color.Lerp(
                         Color.black, 
-                        Color.white, 
-                        noiseMap[x, y]
+                        Color.white,
+                        heightMap[x, y]
                     );
                 }
             }
@@ -84,68 +67,48 @@ namespace Assets.Scripts.Terrain
             texture.Apply();
 
             textureRenderer.sharedMaterial.mainTexture = texture;
-            textureRenderer.transform.localScale = new Vector3(width, 1, height);
+            textureRenderer.transform.localScale = new Vector3(mapGenerator.width, 1, mapGenerator.length);
         }
 
         private void OnValidate()
         {
-            if(width < 1)
+            if (mapGenerator.width < 1)
             {
-                width = 1;
+                mapGenerator.width = 1;
             }
-            if (width > 128)
+            if (mapGenerator.width > 256)
             {
-                width = 128;
+                mapGenerator.width = 256;
             }
-            if (length < 1)
+            if (mapGenerator.length < 1)
             {
-                length = 1;
+                mapGenerator.length = 1;
             }
-            if (length > 128)
+            if (mapGenerator.length > 256)
             {
-                length = 128;
+                mapGenerator.length = 256;
             }
-            if (scale < 1f)
+            if (mapGenerator.cellSize < 1)
             {
-                scale = 1f;
+                mapGenerator.cellSize = 1;
             }
-            if (scale > 5f)
+            if (mapGenerator.cellSize > mapGenerator.length)
             {
-                scale = 5f;
+                mapGenerator.cellSize = mapGenerator.length;
             }
-            if (octaves < 1)
+            if (mapGenerator.cellSize > mapGenerator.width)
             {
-                octaves = 1;
+                mapGenerator.cellSize = mapGenerator.width;
             }
-            if (octaves > 4)
+            if (mapGenerator.fallof < 0)
             {
-                octaves = 4;
+                mapGenerator.fallof = 0;
             }
-            if (persistance > 1)
+            if (mapGenerator.fallof > 1)
             {
-                persistance = 1;
+                mapGenerator.fallof = 1;
             }
-            if (persistance < 0)
-            {
-                persistance = 0;
-            }
-            if (lacunarity < 1)
-            {
-                lacunarity = 1;
-            }
-            if (lacunarity > 3)
-            {
-                lacunarity = 3;
-            }
-            if (fallof < 0)
-            {
-                fallof = 0;
-            }
-            if (fallof > 1)
-            {
-                fallof = 1;
-            }
-            foreach(var biome in biomes){
+            foreach (var biome in biomes){
                 if (biome.minHeight < 0) biome.minHeight = 0;
                 else if (biome.minHeight > 1) biome.minHeight = 1;
 

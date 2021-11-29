@@ -141,7 +141,7 @@ namespace Assets.Scripts.Terrain
                     Vector3 p2 = vertices[triangles[i + 2]];
 
                     Vector3 normal = Vector3.Cross(p1 - p0, p2 - p0).normalized;
-                    float height = (p0.y + p1.y + p2.y) / 3;
+                    float height = (p0.y + p1.y + p2.y) / (3 * this.height);
                     color = GetBiomeColor(normal, height);
 
                 }
@@ -155,7 +155,7 @@ namespace Assets.Scripts.Terrain
 
             foreach (var biome in biomes)
             {
-                if(steepness <= biome.steepness && y <= biome.maxHeight * this.height && y >= biome.minHeight * this.height)
+                if(steepness <= biome.steepness && y <= biome.maxHeight && y >= biome.minHeight)
                 {
                     return (Color32)biome.color;
                 }

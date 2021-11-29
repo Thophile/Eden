@@ -1,0 +1,94 @@
+﻿using System.Collections;
+using UnityEngine;
+
+namespace Assets.Scripts.Terrain
+{
+    [System.Serializable]
+    public class MapGenerator
+    {
+        [Header("General")]
+        public int width;
+        public int length;
+        public int seed = 0;
+        [Header("Fallof Settings")]
+        public float fallof;
+        public float centerRadius;
+        public float fade;
+        [Header("Noise Settings")]
+        public int cellSize;
+        public int heightStep;
+
+        public float[,] GenerateHeightMap()
+        {
+            if (seed == 0)
+            {
+                seed = Random.Range(int.MinValue, int.MaxValue);
+            }
+            Random.InitState(seed);
+
+            float[,] noiseMap = new float[width, length];
+            Vector3[,] nodes = GenerateNodes(width, length, cellSize);
+
+            for (int z = 0; z < length; z++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    noiseMap[x, z] = GetClosestNodeHeight(
+                        x,
+                        z,
+                        nodes)
+                        / (2*cellSize);
+                        
+                    noiseMap[x, z] *= GetFallof(x, z); 
+                        
+                }
+            }
+            
+            return noiseMap;
+        }
+
+        public float GetFallof(int x, int z)
+        {
+            Vector2 dist = (new Vector2(x, z) - new Vector2(width / 2, length / 2));
+            return 1 - Mathf.Clamp(
+                (fallof * (dist.magnitude - width / centerRadius)) / width * fade,
+                0f,
+                1f);
+        }
+
+        public Vector3[,] GenerateNodes(int width, int length, int cellSize)
+        {
+            Vector3[,] nodes = new Vector3[width/cellSize, length/cellSize];
+            for (int z = 0; z < length/cellSize; z++)
+            {
+                for (int x = 0; x < width/cellSize; x++)
+                {
+                    nodes[x,z] = new Vector3(Random.Range(x * (cellSize), (x + 1) * (cellSize)),
+                        Random.Range(1, heightStep) / (float)heightStep,
+                        Random.Range(z * (cellSize), (z + 1) * (cellSize)));
+                }
+            }
+            return nodes;
+        }
+
+        public float GetClosestNodeHeight(float x, float z, Vector3[,] nodes)
+        {
+            float minDist = float.MaxValue;
+            float value = 0;
+
+            for (int i = 0; i < nodes.GetLength(0); i++)
+            {
+                for (int j = 0; j < nodes.GetLength(1); j++)
+                {
+                    float dist = (new Vector3(x, z) - new Vector3(nodes[i, j].x, nodes[i, j].z)).magnitude;
+                    if (dist <= minDist)
+                    {
+                        minDist = dist;
+                        value = nodes[i, j].y;
+                    }
+                }
+            }
+            return value;
+        }
+    }
+}

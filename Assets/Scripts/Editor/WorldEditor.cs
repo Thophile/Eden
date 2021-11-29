@@ -16,6 +16,15 @@ namespace Assets.Scripts
                 {
                     world.GenerateMap();
                 }
+                if (world.autoPreview)
+                {
+                    world.PreviewMap();
+                }
+            }
+
+            if (GUILayout.Button("Preview"))
+            {
+                world.PreviewMap();
             }
 
             if (GUILayout.Button("Generate"))
