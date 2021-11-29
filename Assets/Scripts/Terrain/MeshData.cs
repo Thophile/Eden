@@ -8,7 +8,6 @@ namespace Assets.Scripts.Terrain
     {
         public int width;
         public float height;
-        public int length;
         public Biome[] biomes;
         public List<Vector3> vertices = new List<Vector3>();
         public int[,] points;
@@ -16,13 +15,12 @@ namespace Assets.Scripts.Terrain
         public Color32[] colors;
         public List<int> triangles = new List<int>();
 
-        public MeshData(int width, float height, int length, Biome[] biomes)
+        public MeshData(int width, float height, Biome[] biomes)
         {
             this.width = width;
             this.height = height;
-            this.length = length;
             this.biomes = biomes;
-            points = new int[width, length];
+            points = new int[width, width];
         }
 
         public void AddVertex(float x, float y, float z)
@@ -32,7 +30,7 @@ namespace Assets.Scripts.Terrain
             for (int i = 0; i < n; i++)
             {
                 vertices.Add(new Vector3(z, y, x));
-                uv.Add(new Vector2(x / (float)width, y / (float)length));
+                uv.Add(new Vector2(x / (float)width, y / (float)width));
             }
 
         }
@@ -77,7 +75,7 @@ namespace Assets.Scripts.Terrain
                 n = 2;
             }
             
-            if (z < length - 1 && z > 0)
+            if (z < width - 1 && z > 0)
             {
                 n *= 2;
             }
@@ -96,7 +94,7 @@ namespace Assets.Scripts.Terrain
 
             for (int i = 0; i < z; i++)
             {
-                if (i < length - 1 && i > 0)
+                if (i < width - 1 && i > 0)
                 {
                     rowOffset += 6 * (width - 1);
 
@@ -133,7 +131,6 @@ namespace Assets.Scripts.Terrain
 
             for (int i = 0; i < triangles.Count; i++)
             {
-
                 if ((i % 3) == 0)
                 {
                     Vector3 p0 = vertices[triangles[i + 0]];

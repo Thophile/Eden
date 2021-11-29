@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.Terrain
 {
     public class World : MonoBehaviour
     {
-
         public float height;
         public bool autoUpdate;
         public bool autoPreview;
@@ -23,15 +19,15 @@ namespace Assets.Scripts.Terrain
         {
             float[,] heightMap = mapGenerator.GenerateHeightMap();
 
-            MeshData meshData = new MeshData(mapGenerator.width, height, mapGenerator.length, biomes);
-            for (int z = 0; z < mapGenerator.length; z++)
+            MeshData meshData = new MeshData(mapGenerator.width, height, biomes);
+            for (int z = 0; z < mapGenerator.width; z++)
             {
                 for (int x = 0; x < mapGenerator.width; x++)
                 {
                     // Generate triangle associated with each point
                     meshData.AddVertex(x, heightMap[x,z] * height, z);
 
-                    if ( (z < mapGenerator.length - 1) && (x < mapGenerator.width - 1))
+                    if ( (z < mapGenerator.width - 1) && (x < mapGenerator.width - 1))
                     {
                         meshData.CreateTriangles(x, z);
                     }
@@ -40,7 +36,7 @@ namespace Assets.Scripts.Terrain
             meshData.BuildColors();
             meshFilter.mesh = meshData.BuildMesh();
             meshRenderer.transform.localScale = new Vector3(10, 10, 10);
-            meshRenderer.transform.position = new Vector3(-mapGenerator.width*5, 0, -mapGenerator.length*5);
+            meshRenderer.transform.position = new Vector3(- mapGenerator.width * 5, 0, - mapGenerator.width * 5);
 
         }
 
@@ -48,11 +44,11 @@ namespace Assets.Scripts.Terrain
         {
             float[,] heightMap = mapGenerator.GenerateHeightMap();
 
-            Texture2D texture = new Texture2D(mapGenerator.width, mapGenerator.length);
+            Texture2D texture = new Texture2D(mapGenerator.width, mapGenerator.width);
 
-            Color[] colors = new Color[mapGenerator.width * mapGenerator.length];
+            Color[] colors = new Color[mapGenerator.width * mapGenerator.width];
 
-            for (int y = 0; y < mapGenerator.length; y++)
+            for (int y = 0; y < mapGenerator.width; y++)
             {
                 for (int x = 0; x < mapGenerator.width; x++)
                 {
@@ -67,7 +63,7 @@ namespace Assets.Scripts.Terrain
             texture.Apply();
 
             textureRenderer.sharedMaterial.mainTexture = texture;
-            textureRenderer.transform.localScale = new Vector3(mapGenerator.width, 1, mapGenerator.length);
+            textureRenderer.transform.localScale = new Vector3(mapGenerator.width, 1, mapGenerator.width);
         }
 
         private void OnValidate()
@@ -80,21 +76,21 @@ namespace Assets.Scripts.Terrain
             {
                 mapGenerator.width = 256;
             }
-            if (mapGenerator.length < 1)
+            if (mapGenerator.width < 1)
             {
-                mapGenerator.length = 1;
+                mapGenerator.width = 1;
             }
-            if (mapGenerator.length > 256)
+            if (mapGenerator.width > 256)
             {
-                mapGenerator.length = 256;
+                mapGenerator.width = 256;
             }
             if (mapGenerator.cellSize < 1)
             {
                 mapGenerator.cellSize = 1;
             }
-            if (mapGenerator.cellSize > mapGenerator.length)
+            if (mapGenerator.cellSize > mapGenerator.width)
             {
-                mapGenerator.cellSize = mapGenerator.length;
+                mapGenerator.cellSize = mapGenerator.width;
             }
             if (mapGenerator.cellSize > mapGenerator.width)
             {
