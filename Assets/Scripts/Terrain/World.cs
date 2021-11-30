@@ -5,6 +5,7 @@ namespace Assets.Scripts.Terrain
     public class World : MonoBehaviour
     {
         public float height;
+        public int chunkSize;
         public bool autoUpdate;
         public bool autoPreview;
         public MapGenerator mapGenerator;
@@ -19,24 +20,40 @@ namespace Assets.Scripts.Terrain
         {
             float[,] heightMap = mapGenerator.GenerateHeightMap();
 
-            MeshData meshData = new MeshData(mapGenerator.width, height, biomes);
-            for (int z = 0; z < mapGenerator.width; z++)
+            int chunkNb = Mathf.CeilToInt(mapGenerator.width / (float)chunkSize);
+            // width = 10
+            // chunksize = 5
+            // chunkNb = 3
+            // chunkZ = [0,1]
+            for (int chunkZ = 0; chunkZ < chunkNb; chunkZ++)
             {
-                for (int x = 0; x < mapGenerator.width; x++)
+                for (int chunkX = 0; chunkX < chunkNb; chunkX++)
                 {
-                    // Generate triangle associated with each point
-                    meshData.AddVertex(x, heightMap[x,z] * height, z);
+                    int width = ((chunkZ + 1) * chunkSize);
+                    int length = ((chunkX + 1) * chunkSize);
 
-                    if ( (z < mapGenerator.width - 1) && (x < mapGenerator.width - 1))
+
+                    MeshData meshData = new MeshData(chunkSize, height, biomes);
+                    for (int z = 0; z < chunkSize; z++)
                     {
-                        meshData.CreateTriangles(x, z);
+                        for (int x = 0; x < chunkSize; x++)
+                        {
+                            // Generate triangle associated with each point
+                            meshData.AddVertex(x, heightMap[x,z] * height, z);
+
+                            if ( (z < (chunkSize - 1)) && (x < (chunkSize - 1)))
+                            {
+                                meshData.CreateTriangles(x, z);
+                            }
+                        }
                     }
+                    meshData.BuildColors();
+                    meshFilter.mesh = meshData.BuildMesh();
+                    meshRenderer.transform.localScale = new Vector3(10, 10, 10);
+                    meshRenderer.transform.position = new Vector3(- mapGenerator.width * 5, 0, - mapGenerator.width * 5);
                 }
             }
-            meshData.BuildColors();
-            meshFilter.mesh = meshData.BuildMesh();
-            meshRenderer.transform.localScale = new Vector3(10, 10, 10);
-            meshRenderer.transform.position = new Vector3(- mapGenerator.width * 5, 0, - mapGenerator.width * 5);
+
 
         }
 
@@ -72,17 +89,13 @@ namespace Assets.Scripts.Terrain
             {
                 mapGenerator.width = 1;
             }
-            if (mapGenerator.width > 256)
+            if (mapGenerator.width > 2048)
             {
-                mapGenerator.width = 256;
+                mapGenerator.width = 2048;
             }
-            if (mapGenerator.width < 1)
+            if ((mapGenerator.width / (float)chunkSize) != 0)
             {
-                mapGenerator.width = 1;
-            }
-            if (mapGenerator.width > 256)
-            {
-                mapGenerator.width = 256;
+                mapGenerator.width = ((mapGenerator.width / chunkSize) + 1 ) * chunkSize;
             }
             if (mapGenerator.cellSize < 1)
             {

@@ -59,7 +59,8 @@ namespace Assets.Scripts.Terrain
         }
         public int IndexAtPoint(int x, int z)
         {
-            int index = GetIndex(x, z) + points[x, z];
+            int index = GetIndex(x, z);
+            index += points[x, z];
             points[x, z]++;
             return index;
         }
@@ -126,7 +127,7 @@ namespace Assets.Scripts.Terrain
 
         public void BuildColors()
         {
-            colors = new Color32[triangles.Count];
+            colors = new Color32[vertices.Count];
             Color32 color = new Color32();
 
             for (int i = 0; i < triangles.Count; i++)
