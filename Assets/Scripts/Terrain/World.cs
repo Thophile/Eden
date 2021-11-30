@@ -30,8 +30,8 @@ namespace Assets.Scripts.Terrain
             {
                 for (int chunkX = 0; chunkX < chunkNb; chunkX++)
                 {
-                    int offsetZ = (chunkZ * chunkSize);
-                    int offsetX = (chunkX * chunkSize);
+                    int offsetZ = chunkZ * (chunkSize - 1);
+                    int offsetX = chunkX * (chunkSize - 1);
 
                     GameObject chunk = new GameObject();
                     chunk.name = String.Concat("Chunk.", chunkX, ".", chunkZ);
