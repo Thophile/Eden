@@ -5,6 +5,8 @@ namespace Assets.Scripts.Terrain
 {
     public class World : MonoBehaviour
     {
+        private int oldWidth = 128;
+
         public float height;
         public int chunkSize;
         public Material meshMaterial;
@@ -93,17 +95,28 @@ namespace Assets.Scripts.Terrain
 
         private void OnValidate()
         {
+            
+            if ((mapGenerator.width / (float)chunkSize) != 0)
+            {
+                float value = (mapGenerator.width / (float)chunkSize);
+                int nearest = Mathf.RoundToInt(value);
+                if (value > nearest)
+                {
+                    mapGenerator.width = (nearest + 1) * chunkSize;
+                }
+                else
+                {
+                    mapGenerator.width = (nearest - 1) * chunkSize;
+
+                }
+            }
             if (mapGenerator.width < 1)
             {
                 mapGenerator.width = 1;
             }
-            if (mapGenerator.width > 2048)
+            if (mapGenerator.width > 100*chunkSize)
             {
-                mapGenerator.width = 2048;
-            }
-            if ((mapGenerator.width / (float)chunkSize) != 0)
-            {
-                mapGenerator.width = (((mapGenerator.width - chunkSize) / chunkSize) + 1 ) * chunkSize;
+                mapGenerator.width = 100*chunkSize;
             }
             if (mapGenerator.cellSize < 1)
             {
