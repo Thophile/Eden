@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Assets.Scripts.Terrain
 {
@@ -6,6 +7,7 @@ namespace Assets.Scripts.Terrain
     {
         public float height;
         public int chunkSize;
+        public Material meshMaterial;
         public bool autoUpdate;
         public bool autoPreview;
         public MapGenerator mapGenerator;
@@ -13,35 +15,40 @@ namespace Assets.Scripts.Terrain
         public Biome[] biomes;
 
         public Renderer textureRenderer;
-        public MeshFilter meshFilter;
-        public MeshRenderer meshRenderer;
 
         public void GenerateMap()
         {
             float[,] heightMap = mapGenerator.GenerateHeightMap();
 
+            while (transform.childCount > 0)
+            {
+                DestroyImmediate(transform.GetChild(0).gameObject);
+            }
+
             int chunkNb = Mathf.CeilToInt(mapGenerator.width / (float)chunkSize);
-            // width = 10
-            // chunksize = 5
-            // chunkNb = 3
-            // chunkZ = [0,1]
             for (int chunkZ = 0; chunkZ < chunkNb; chunkZ++)
             {
                 for (int chunkX = 0; chunkX < chunkNb; chunkX++)
                 {
-                    int width = ((chunkZ + 1) * chunkSize);
-                    int length = ((chunkX + 1) * chunkSize);
+                    int offsetZ = (chunkZ * chunkSize);
+                    int offsetX = (chunkX * chunkSize);
 
-
+                    GameObject chunk = new GameObject();
+                    chunk.name = String.Concat("Chunk.", chunkX, ".", chunkZ);
+                    chunk.transform.parent = this.transform;
+                    chunk.transform.position = new Vector3(offsetZ, 0, offsetX);
+                    MeshFilter meshFilter = chunk.AddComponent<MeshFilter>();
+                    MeshRenderer meshRenderer = chunk.AddComponent<MeshRenderer>();
                     MeshData meshData = new MeshData(chunkSize, height, biomes);
+
                     for (int z = 0; z < chunkSize; z++)
                     {
                         for (int x = 0; x < chunkSize; x++)
                         {
                             // Generate triangle associated with each point
-                            meshData.AddVertex(x, heightMap[x,z] * height, z);
+                            meshData.AddVertex(x, heightMap[offsetX + x, offsetZ + z] * height, z);
 
-                            if ( (z < (chunkSize - 1)) && (x < (chunkSize - 1)))
+                            if ((z < (chunkSize - 1)) && (x < (chunkSize - 1)))
                             {
                                 meshData.CreateTriangles(x, z);
                             }
@@ -49,8 +56,9 @@ namespace Assets.Scripts.Terrain
                     }
                     meshData.BuildColors();
                     meshFilter.mesh = meshData.BuildMesh();
-                    meshRenderer.transform.localScale = new Vector3(10, 10, 10);
-                    meshRenderer.transform.position = new Vector3(- mapGenerator.width * 5, 0, - mapGenerator.width * 5);
+                    meshRenderer.sharedMaterial = meshMaterial;
+                    //meshRenderer.transform.localScale = new Vector3(10, 10, 10);
+                    //meshRenderer.transform.position = new Vector3(- width * 5, 0, - length * 5);
                 }
             }
 
@@ -95,7 +103,7 @@ namespace Assets.Scripts.Terrain
             }
             if ((mapGenerator.width / (float)chunkSize) != 0)
             {
-                mapGenerator.width = ((mapGenerator.width / chunkSize) + 1 ) * chunkSize;
+                mapGenerator.width = (((mapGenerator.width - chunkSize) / chunkSize) + 1 ) * chunkSize;
             }
             if (mapGenerator.cellSize < 1)
             {
