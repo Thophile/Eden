@@ -19,8 +19,8 @@ public class GameManager : MonoBehaviour
 
     float lastSaveTime = 0f;
 
-    float pheroDecayTimer = 0f;
-    readonly float pheroDecayDelay = 0.5f;
+    protected float pheroDecayTimer = 0f;
+    protected readonly float pheroDecayDelay = 0.5f;
 
 
 

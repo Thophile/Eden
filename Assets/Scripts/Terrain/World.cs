@@ -5,8 +5,6 @@ namespace Assets.Scripts.Terrain
 {
     public class World : MonoBehaviour
     {
-        private int oldWidth = 128;
-
         public float height;
         public int chunkSize;
         public Material meshMaterial;
