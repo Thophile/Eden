@@ -1,5 +1,4 @@
 ﻿using Assets.Scripts.Model;
-using Assets.Scripts.MonoBehaviours;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,12 +22,13 @@ namespace Assets.Scripts.Managers
         void Update()
         {
             float dt = Time.deltaTime;
-            GameManager.gameState.gameTime += Time.deltaTime;
-            if(GameManager.gameState.gameTime < 1f || dt < 0.034f){
-                frames.Add((activeAnts.Count, Time.deltaTime));
+            GameManager.gameState.gameTime += dt;
+            if (GameManager.gameState.gameTime < 2f) return;
+            if(dt < 0.034f){
+                frames.Add((activeAnts.Count, dt));
 
 
-                pheroDecayTimer += Time.deltaTime;
+                pheroDecayTimer += dt;
                 if (pheroDecayTimer > pheroDecayDelay)
                 {
                     pheroDecayTimer -= pheroDecayDelay;
@@ -70,8 +70,6 @@ namespace Assets.Scripts.Managers
                 else if (activeAnts[i] != null)
                 {
                     activeAnts[i].UpdateSelf();
-                    //UnityEngine.Debug.Log("Updating ant n° " + i);
-
                 }
             }
 
