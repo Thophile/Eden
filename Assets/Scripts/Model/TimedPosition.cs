@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Model
 {
     [System.Serializable]
-    public class PreviousPosition
+    public class TimedPosition
     {
 
         public Vector3 Position
@@ -25,13 +25,13 @@ namespace Assets.Scripts.Model
         public float z;
         public float time;
 
-        public PreviousPosition(Vector3 position, float time)
+        public TimedPosition(Vector3 position, float time)
         {
             this.Position = position;
             this.time = time;
         }
 
-        public PreviousPosition(Vector3 position)
+        public TimedPosition(Vector3 position)
         {
             this.Position = position;
             this.time = GameManager.gameState.gameTime;

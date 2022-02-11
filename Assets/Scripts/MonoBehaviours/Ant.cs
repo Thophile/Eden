@@ -42,7 +42,7 @@ namespace Assets.Scripts.MonoBehaviours
         GameObject _load = null;
         public Transform loadPos;
         public List<GameObject> Targets = new List<GameObject>();
-        public List<PreviousPosition> previousPositions;
+        public List<TimedPosition> previousPositions;
 
         Animator animator;
 
@@ -196,17 +196,17 @@ namespace Assets.Scripts.MonoBehaviours
                     else targetDir = right;
                     break;
                 case AntState.GoingHome:
-                    PreviousPosition oldestPos = null;
+                    TimedPosition oldestPos = null;
 
-                    List<PreviousPosition> inRanges = new List<PreviousPosition>();
-                    previousPositions.ForEach((PreviousPosition pos) =>
+                    List<TimedPosition> inRanges = new List<TimedPosition>();
+                    previousPositions.ForEach((TimedPosition pos) =>
                     {
                         if((pos.Position - transform.position).sqrMagnitude < previousPosDistance * previousPosDistance)
                         {
                             inRanges.Add(pos);
                         }
                     });
-                    inRanges.ForEach((PreviousPosition pos) =>
+                    inRanges.ForEach((TimedPosition pos) =>
                     {
                         if(oldestPos == null || pos.time < oldestPos.time)
                         {
@@ -249,7 +249,7 @@ namespace Assets.Scripts.MonoBehaviours
                 switch (state)
                 {
                     case AntState.Wandering:
-                        this.previousPositions.Add(new PreviousPosition(transform.position));
+                        this.previousPositions.Add(new TimedPosition(transform.position));
                         break;
                     case AntState.GoingHome:
                     GameManager.gameState.pheromonesMap.Mark(transform.position);

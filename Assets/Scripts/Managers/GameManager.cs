@@ -143,11 +143,11 @@ public class GameManager : MonoBehaviour
         // BuildWorld
         foreach (var ar in gameState.antsInfo)
         {
-            List<PreviousPosition> previousPositions = new List<PreviousPosition>();
+            List<TimedPosition> previousPositions = new List<TimedPosition>();
             foreach(var e in ar[8] as List<object[]>)
             {
                 previousPositions.Add(
-                    new PreviousPosition(
+                    new TimedPosition(
                         new Vector3((float)e[0], (float)e[1], (float)e[2]),
                         (float)e[3])
                     );
