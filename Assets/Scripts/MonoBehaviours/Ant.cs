@@ -198,21 +198,14 @@ namespace Assets.Scripts.MonoBehaviours
                 case AntState.GoingHome:
                     TimedPosition oldestPos = null;
 
-                    List<TimedPosition> inRanges = new List<TimedPosition>();
-                    previousPositions.ForEach((TimedPosition pos) =>
+                    foreach (TimedPosition pos in previousPositions)
                     {
-                        if((pos.Position - transform.position).sqrMagnitude < previousPosDistance * previousPosDistance)
-                        {
-                            inRanges.Add(pos);
-                        }
-                    });
-                    inRanges.ForEach((TimedPosition pos) =>
-                    {
-                        if(oldestPos == null || pos.time < oldestPos.time)
+                        if ((pos.Position - transform.position).sqrMagnitude < previousPosDistance * previousPosDistance)
                         {
                             oldestPos = pos;
+                            break;
                         }
-                    });
+                    }
                     targetDir = (oldestPos.Position - transform.position);
                     break;
             }
