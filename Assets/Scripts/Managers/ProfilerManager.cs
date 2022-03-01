@@ -16,46 +16,9 @@ namespace Assets.Scripts.Managers
         {
             GameManager.gameState = new GameState();
             isPaused = false;
+            StartCoroutine(nameof(UpdateAnts));
         }
 
-        void Update()
-        {
-            float dt = Time.deltaTime;
-            GameManager.gameState.gameTime += dt;
-            if (GameManager.gameState.gameTime < 2f) return;
-            if(dt < 0.050f){
-                int count = activeAnts.Count;
-
-                frames.Add((count, dt));
-                for (int i = 0; i < count; i++)
-                {
-                    activeAnts[i].UpdateSelf();
-                }
-
-                pheroDecayTimer += dt;
-                if (pheroDecayTimer > pheroDecayDelay)
-                {
-                    pheroDecayTimer -= pheroDecayDelay;
-                    gameState.pheromonesMap.DecayMarkers();
-                }
-            }
-            else
-            {
-                FileInfo fileInfo = new FileInfo(Application.persistentDataPath + savePath);
-                using (TextWriter writer = new StreamWriter(fileInfo.Open(FileMode.Truncate)))
-                {
-                    foreach (var tuple in frames)
-                    {
-                        writer.WriteLine(tuple.Item1 + ";" + tuple.Item2);
-                    }
-                }
-                UnityEditor.EditorApplication.isPlaying = false;
-            } 
-        }
-
-        /**
-         * Update used for coroutine algorythms
-         *
         void Update()
         {
             float dt = Time.deltaTime;
@@ -86,7 +49,19 @@ namespace Assets.Scripts.Managers
                 UnityEditor.EditorApplication.isPlaying = false;
             }
         }
-        */
+
+        public new IEnumerator UpdateAnts()
+        {
+            while (true)
+            {
+                for (int i = 0; i < activeAnts.Count; i++)
+                {
+                    activeAnts[i].UpdateSelf();
+                }
+                yield return null;
+            }
+            
+        }
 
         public IEnumerator UpdateAntsLimitedResources()
         {
