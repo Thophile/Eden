@@ -60,7 +60,21 @@ namespace Assets.Scripts.Managers
                 }
                 yield return null;
             }
-            
+        }
+
+        public IEnumerator UpdateAntsBatched()
+        {
+            int BATCH_NB = 5;
+            int batchOffset = 0;
+            while (true)
+            {
+                for (int i = 0; i < activeAnts.Count / BATCH_NB; i++)
+                {
+                    activeAnts[i * BATCH_NB + batchOffset].UpdateSelf();
+                }
+                batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, activeAnts.Count / BATCH_NB);
+                yield return null;
+            }
         }
 
         public IEnumerator UpdateAntsLimitedResources()
