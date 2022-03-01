@@ -10,13 +10,14 @@ namespace Assets.Scripts.Terrain
         [Header("General")]
         public int width;
         public int seed = 0;
-        [Header("Noise Settings")]
+        [Header("Perlin Noise Settings")]
         public float noiseRatio = 0;
+        public float noiseScale = 1;
         [Header("Fallof Settings")]
         public float fallof;
         public float centerRadius;
         public float fade;
-        [Header("Noise Settings")]
+        [Header("Cellular Noise Settings")]
         public int cellSize;
         public int heightStep;
         [Header("Blurr Settings")]
@@ -37,7 +38,7 @@ namespace Assets.Scripts.Terrain
             {
                 for (int x = 0; x < width; x++)
                 {
-                    noiseMap[x, z] = (1-noiseRatio)*GetClosestNodeHeight(x,z,nodes) + noiseRatio*GetPerlinNoise(x,z);
+                    noiseMap[x, z] = (1-noiseRatio)*GetClosestNodeHeight(x,z,nodes) + noiseRatio*GetPerlinNoise(x, z);
                 }
             }
             
@@ -85,7 +86,7 @@ namespace Assets.Scripts.Terrain
 
         public float GetPerlinNoise(int x, int z)
         {
-            return Mathf.PerlinNoise(x, z);
+            return Mathf.PerlinNoise((float)x / width * noiseScale, (float)z / width * noiseScale) * GetFallof(x,z);
         }
 
         public float GetFallof(int x, int z)
