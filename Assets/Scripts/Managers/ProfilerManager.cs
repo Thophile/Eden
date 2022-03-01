@@ -88,7 +88,7 @@ namespace Assets.Scripts.Managers
         }
         */
 
-        public new IEnumerator UpdateAntsLimitedResources()
+        public IEnumerator UpdateAntsLimitedResources()
         {
             Stopwatch watch = new Stopwatch();
             int MAX_MILLIS = 3;
@@ -108,6 +108,34 @@ namespace Assets.Scripts.Managers
                 else if (activeAnts[i] != null)
                 {
                     activeAnts[i].UpdateSelf();
+                }
+            }
+        }
+
+        public IEnumerator UpdateAntsLimitedResourcesWithMaxCall()
+        {
+            Stopwatch watch = new Stopwatch();
+            int MAX_MILLIS = 3;
+            int loopCounter = 0;
+            watch.Start();
+            for (int i = 0; ; i++)
+            {
+
+                if (watch.ElapsedMilliseconds > MAX_MILLIS || loopCounter >= activeAnts.Count)
+                {
+                    watch.Reset();
+                    yield return null;
+                    loopCounter = 0;
+                    watch.Start();
+                }
+                if (i > activeAnts.Count - 1)
+                {
+                    i = -1;
+                }
+                else if (activeAnts[i] != null)
+                {
+                    activeAnts[i].UpdateSelf();
+                    loopCounter += 1;
                 }
             }
 
