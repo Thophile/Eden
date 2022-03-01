@@ -26,7 +26,7 @@ namespace Assets.Scripts.Managers
             GameManager.gameState.gameTime += dt;
             if (GameManager.gameState.gameTime < 2f) return;
 
-            if (dt < 0.050f)
+            if (dt < 0.05f)
             {
                 frames.Add((activeAnts.Count, dt));
 
@@ -39,8 +39,9 @@ namespace Assets.Scripts.Managers
             }
             else
             {
+
                 FileInfo fileInfo = new FileInfo(Application.persistentDataPath + savePath);
-                using (TextWriter writer = new StreamWriter(fileInfo.Open(FileMode.Truncate)))
+                using (TextWriter writer = new StreamWriter(fileInfo.Open(FileMode.Create)))
                 {
                     foreach (var tuple in frames)
                     {

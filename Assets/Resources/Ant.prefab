@@ -97,7 +97,7 @@ MonoBehaviour:
   prefabName: Ant
   pheroDetectionRange: 1
   activationRadius: 0.2
-  downForce: 0.2
+  downForce: 0.01
   climbDist: 0.1
   damage: 10
   waterLayer:

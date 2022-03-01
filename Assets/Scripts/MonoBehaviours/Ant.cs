@@ -67,10 +67,20 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
-                // Setting rotation and velocity
-                float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
-                rb.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
-                rb.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
+                //Apply stickingForce if grounded else apply gravity
+                if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
+                {
+                    rb.AddForce(-surfaceNormal * downForce);
+                    // Setting rotation and velocity
+                    float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
+                    rb.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
+                    rb.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
+                }
+                else
+                {
+                    rb.AddForce(10 * downForce * -Vector3.up);
+                    targetRot = Quaternion.LookRotation(transform.forward, Vector3.up);
+                }
             }
             if (animator)
             {
@@ -94,16 +104,6 @@ namespace Assets.Scripts.MonoBehaviours
                     surfaceNormal = newNormal;
                     desiredDirection = newDirection;
                     targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal), surfaceNormal);
-                }
-                //Apply stickingForce if grounded else apply gravity
-                if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
-                {
-                    rb.AddForce(-surfaceNormal * downForce);
-                }
-                else
-                {
-                    rb.AddForce(10 * downForce * -Vector3.up);
-                    targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, Vector3.up), Vector3.up);
                 }
             }
         }
