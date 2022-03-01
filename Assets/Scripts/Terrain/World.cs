@@ -102,7 +102,7 @@ namespace Assets.Scripts.Terrain
                 {
                     mapGenerator.width = (nearest + 1) * chunkSize;
                 }
-                else
+                else if (value < nearest)
                 {
                     mapGenerator.width = (nearest - 1) * chunkSize;
 
@@ -119,10 +119,6 @@ namespace Assets.Scripts.Terrain
             if (mapGenerator.cellSize < 1)
             {
                 mapGenerator.cellSize = 1;
-            }
-            if (mapGenerator.cellSize > mapGenerator.width)
-            {
-                mapGenerator.cellSize = mapGenerator.width;
             }
             if (mapGenerator.cellSize > mapGenerator.width)
             {

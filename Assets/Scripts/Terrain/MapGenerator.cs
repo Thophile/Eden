@@ -37,9 +37,6 @@ namespace Assets.Scripts.Terrain
                         z,
                         nodes)
                         / (2*cellSize);
-                        
-                    noiseMap[x, z] *= GetFallof(x, z); 
-                        
                 }
             }
             
@@ -62,9 +59,12 @@ namespace Assets.Scripts.Terrain
             {
                 for (int x = 0; x < width/cellSize; x++)
                 {
+
                     nodes[x,z] = new Vector3(Random.Range(x * (cellSize), (x + 1) * (cellSize)),
                         Random.Range(1, heightStep) / (float)heightStep,
                         Random.Range(z * (cellSize), (z + 1) * (cellSize)));
+
+                    nodes[x, z].y *= GetFallof((int)nodes[x, z].x, (int)nodes[x, z].z);
                 }
             }
             return nodes;
