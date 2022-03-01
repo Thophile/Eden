@@ -25,7 +25,7 @@ namespace Assets.Scripts.MonoBehaviours
         public float previousPosDistance;
         private Vector3 previousMark;
         private Vector3 velocity;
-        
+
 
         public GameObject Load
         {
@@ -69,12 +69,12 @@ namespace Assets.Scripts.MonoBehaviours
             {
                 // Setting rotation and velocity
                 float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime);
-                rb.velocity= velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
+                rb.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
+                rb.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
             }
             if (animator)
             {
-                animator.SetFloat("velocity", 6 * (velocity.sqrMagnitude/(maxVelocity*maxVelocity)));
+                animator.SetFloat("velocity", 6 * (velocity.sqrMagnitude / (maxVelocity * maxVelocity)));
             }
         }
 
@@ -94,8 +94,6 @@ namespace Assets.Scripts.MonoBehaviours
                     surfaceNormal = newNormal;
                     desiredDirection = newDirection;
                     targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal), surfaceNormal);
-
-
                 }
                 //Apply stickingForce if grounded else apply gravity
                 if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
@@ -145,7 +143,7 @@ namespace Assets.Scripts.MonoBehaviours
                 var randomDir = GetRandomDir();
                 var targetDir = GetTargetDir();
 
-                return (wanderStrenght * GameManager.activeAnts.Count * randomDir / 200f) + targetDir * pheroStrenght;
+                return (wanderStrenght * randomDir) + targetDir * pheroStrenght;
             }
             else
             {
@@ -161,7 +159,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         Vector3 GetTargetDir()
         {
-            
+
 
             if (Targets.Count > 0)
             {
@@ -245,7 +243,7 @@ namespace Assets.Scripts.MonoBehaviours
                         this.previousPositions.Add(new TimedPosition(transform.position));
                         break;
                     case AntState.GoingHome:
-                    GameManager.gameState.pheromonesMap.Mark(transform.position);
+                        GameManager.gameState.pheromonesMap.Mark(transform.position);
                         break;
                 }
             }

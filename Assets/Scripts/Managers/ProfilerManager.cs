@@ -11,6 +11,8 @@ namespace Assets.Scripts.Managers
     {
         static readonly string savePath = "/Profiling.csv";
         public List<(int, float)> frames = new List<(int, float)>();
+        const int BATCH_NB = 5;
+        int batchOffset = 0;
 
         void Start()
         {
@@ -23,14 +25,18 @@ namespace Assets.Scripts.Managers
             float dt = Time.deltaTime;
             GameManager.gameState.gameTime += dt;
             if (GameManager.gameState.gameTime < 2f) return;
-            if(dt < 0.034f){
+            if (dt < 0.050f)
+            {
                 int count = activeAnts.Count;
 
                 frames.Add((count, dt));
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < count / BATCH_NB; i++)
                 {
-                    activeAnts[i].UpdateSelf();
+                    activeAnts[i * BATCH_NB + batchOffset].UpdateSelf();
                 }
+                //UnityEngine.Debug.Log("Count: " + count + "; Batch size:" + count / BATCH_NB + "; Batch: " + batchOffset + "/" + BATCH_NB);
+                batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, count / BATCH_NB);
+
 
                 pheroDecayTimer += dt;
                 if (pheroDecayTimer > pheroDecayDelay)
@@ -51,7 +57,7 @@ namespace Assets.Scripts.Managers
                 }
                 UnityEditor.EditorApplication.isPlaying = false;
             }
-            
+
         }
     }
 }
