@@ -9,14 +9,15 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string savePath = "/Profiling.csv";
+        static readonly string algorythm = nameof(UpdateAnts);
+        static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
         void Start()
         {
             GameManager.gameState = new GameState();
             isPaused = false;
-            StartCoroutine(nameof(UpdateAnts));
+            StartCoroutine(algorythm);
         }
 
         void Update()
