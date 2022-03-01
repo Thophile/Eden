@@ -35,8 +35,7 @@ namespace Assets.Scripts.Terrain
                     noiseMap[x, z] = GetClosestNodeHeight(
                         x,
                         z,
-                        nodes)
-                        / (2*cellSize);
+                        nodes);
                 }
             }
             
