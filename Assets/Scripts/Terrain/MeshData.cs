@@ -153,7 +153,7 @@ namespace Assets.Scripts.Terrain
 
             foreach (var biome in biomes)
             {
-                if(steepness <= biome.steepness && y <= biome.maxHeight && y >= biome.minHeight)
+                if(steepness <= biome.maxSteepness && y <= biome.maxHeight && y >= biome.minHeight)
                 {
                     return (Color32)biome.color;
                 }

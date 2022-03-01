@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Terrain
@@ -9,6 +10,8 @@ namespace Assets.Scripts.Terrain
         [Header("General")]
         public int width;
         public int seed = 0;
+        [Header("Noise Settings")]
+        public float noiseRatio = 0;
         [Header("Fallof Settings")]
         public float fallof;
         public float centerRadius;
@@ -16,6 +19,8 @@ namespace Assets.Scripts.Terrain
         [Header("Noise Settings")]
         public int cellSize;
         public int heightStep;
+        [Header("Blurr Settings")]
+        public int blurrReach = 1;
 
         public float[,] GenerateHeightMap()
         {
@@ -32,14 +37,55 @@ namespace Assets.Scripts.Terrain
             {
                 for (int x = 0; x < width; x++)
                 {
-                    noiseMap[x, z] = GetClosestNodeHeight(
-                        x,
-                        z,
-                        nodes);
+                    noiseMap[x, z] = (1-noiseRatio)*GetClosestNodeHeight(x,z,nodes) + noiseRatio*GetPerlinNoise(x,z);
                 }
             }
             
-            return noiseMap;
+
+            return BlurEffect(noiseMap);
+        }
+        public float[,] BlurEffect(float[,] noiseMap)
+        {
+            float[,] blurredNoiseMap = new float[width, width];
+            List<float> neighboors = new List<float>();
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int z = 0; z < width; z++)
+                {
+                    neighboors.Clear();
+                    for (int i = -blurrReach; i <= blurrReach; i++)
+                    {
+                        for (int j = -blurrReach; j <= blurrReach; j++)
+                        {
+                            if(x + i > 0 && x + i < width && z + j > 0 && z + j < width)
+                            {
+                                neighboors.Add(noiseMap[x + i, z + j]);
+                            }
+                        }
+                    }
+                    
+
+                    blurredNoiseMap[x,z] = GetAverage(neighboors);
+                }
+            }
+
+            return blurredNoiseMap;
+        }
+
+        public float GetAverage(List<float> values)
+        {
+            float sum = 0;
+            values.ForEach(value =>
+            {
+                sum += value;
+            });
+            return sum/values.Count;
+        }
+
+        public float GetPerlinNoise(int x, int z)
+        {
+            return Mathf.PerlinNoise(x, z);
         }
 
         public float GetFallof(int x, int z)

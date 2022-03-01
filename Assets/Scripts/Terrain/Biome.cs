@@ -7,7 +7,7 @@ namespace Assets.Scripts.Terrain
     public class Biome
     {
         public string name;
-        public float steepness;
+        public float maxSteepness;
         public float minHeight;
         public float maxHeight;
         public Color color;

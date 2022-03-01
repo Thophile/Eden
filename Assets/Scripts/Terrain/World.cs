@@ -139,8 +139,8 @@ namespace Assets.Scripts.Terrain
                 if (biome.maxHeight < 0) biome.maxHeight = 0;
                 else if (biome.maxHeight > 1) biome.maxHeight = 1;
 
-                if (biome.steepness < 0) biome.steepness = 0;
-                else if (biome.steepness > 1) biome.steepness = 1;
+                if (biome.maxSteepness < 0) biome.maxSteepness = 0;
+                else if (biome.maxSteepness > 1) biome.maxSteepness = 1;
             }
         }
     }
