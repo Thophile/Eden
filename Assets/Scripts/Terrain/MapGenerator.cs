@@ -65,9 +65,9 @@ namespace Assets.Scripts.Terrain
                             }
                         }
                     }
-                    
 
-                    blurredNoiseMap[x,z] = blurrRatio*GetAverage(neighboors) + (1-blurrRatio)*noiseMap[x, z];
+
+                    blurredNoiseMap[x, z] = blurrRatio * GetAverage(neighboors) + (1 - blurrRatio) * noiseMap[x, z];
                 }
             }
 
