@@ -21,6 +21,7 @@ namespace Assets.Scripts.Terrain
         public int heightStep;
         [Header("Blurr Settings")]
         public int blurrReach = 1;
+        public float blurrRatio = 1f;
 
         public float[,] GenerateHeightMap()
         {
@@ -66,7 +67,7 @@ namespace Assets.Scripts.Terrain
                     }
                     
 
-                    blurredNoiseMap[x,z] = GetAverage(neighboors);
+                    blurredNoiseMap[x,z] = blurrRatio*GetAverage(neighboors) + (1-blurrRatio)*noiseMap[x, z];
                 }
             }
 
