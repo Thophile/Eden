@@ -155,7 +155,7 @@ namespace Assets.Scripts.Terrain
             {
                 if(steepness <= biome.maxSteepness && y <= biome.maxHeight && y >= biome.minHeight)
                 {
-                    return (Color32)biome.color;
+                    return (Color32)Color.Lerp(biome.colorOne,biome.colorTwo,Random.Range(0, 5) / 5f);
                 }
             }
             return new Color32(255,255,255,255);

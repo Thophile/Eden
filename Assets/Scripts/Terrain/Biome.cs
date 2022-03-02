@@ -10,6 +10,7 @@ namespace Assets.Scripts.Terrain
         public float maxSteepness;
         public float minHeight;
         public float maxHeight;
-        public Color color;
+        public Color colorOne;
+        public Color colorTwo;
     }
 }
