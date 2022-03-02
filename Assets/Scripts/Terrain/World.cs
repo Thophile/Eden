@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Terrain
@@ -8,16 +9,17 @@ namespace Assets.Scripts.Terrain
         [Header("General")]
         public float height;
         public int chunkSize;
+        public LayerMask waterLayer;
+        public LayerMask groundLayer;
+        public LayerMask terrainLayers;
 
         [Header("Assets")]
         public int assetsCount;
         public int instantiationTries = 10;
-        public LayerMask waterLayer;
-        public GameObject[] terrainAssets;
+        public Asset[] assets;
 
         [Header("Generate")]
         public Material meshMaterial;
-        public LayerMask groundLayer;
         public bool autoUpdate;
         public MapGenerator mapGenerator;
         public Biome[] biomes;
@@ -50,6 +52,7 @@ namespace Assets.Scripts.Terrain
                     chunk.layer = 3;
                     MeshFilter meshFilter = chunk.AddComponent<MeshFilter>();
                     MeshRenderer meshRenderer = chunk.AddComponent<MeshRenderer>();
+                    MeshCollider meshCollider = chunk.AddComponent<MeshCollider>();
                     MeshData meshData = new MeshData(chunkSize, height, biomes);
 
                     for (int z = 0; z < chunkSize; z++)
@@ -68,6 +71,7 @@ namespace Assets.Scripts.Terrain
                     meshData.BuildColors();
                     meshFilter.mesh = meshData.BuildMesh();
                     meshRenderer.sharedMaterial = meshMaterial;
+                    meshCollider.sharedMesh = meshFilter.sharedMesh;
                 }
             }
         }
@@ -100,39 +104,70 @@ namespace Assets.Scripts.Terrain
 
         public void PlaceAssets()
         {
-            var assetObject = GameObject.Find("Assets");
-            while (assetObject.transform.childCount > 0)
+            var parent = GameObject.Find("Assets");
+            while (parent.transform.childCount > 0)
             {
-                DestroyImmediate(assetObject.transform.GetChild(0).gameObject);
+                DestroyImmediate(parent.transform.GetChild(0).gameObject);
+            }
+
+            List<(int, int)> weigthList = new List<(int, int)>();
+            int sum = 0;
+
+            for (int i = 0; i < assets.Length; i++)
+            {
+                sum += assets[i].probability;
+                weigthList.Add((i, sum));
             }
 
             for (int i = 0; i < assetsCount; i++)
             {
-                var rand = Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up);
-                var prefab = terrainAssets[UnityEngine.Random.Range(0, terrainAssets.Length)];
-                var pos = PickPosition(prefab);
-                if (pos.Equals(Vector3.zero))
+                float dice = UnityEngine.Random.Range(0, sum);
+                foreach (var tuple in weigthList)
                 {
-                    var obj = Instantiate(prefab, pos, Quaternion.LookRotation(rand, Vector3.up));
-                    obj.transform.parent = assetObject.transform;
+                    if (tuple.Item2 >= dice)
+                    {
+                        SpawnAsset(assets[tuple.Item1], parent);
+                        break;
+                    }
                 }
             }
         }
-        private Vector3 PickPosition(GameObject prefab)
+
+        public void SpawnAsset(Asset asset, GameObject parent)
         {
             for (int i = 0; i < instantiationTries; i++)
             {
-                RaycastHit hit;
+                RaycastHit zone;
                 int size = mapGenerator.width - (2 * mapGenerator.width / chunkSize);
                 float x = UnityEngine.Random.Range(-size / 2, +size / 2);
                 float z = UnityEngine.Random.Range(-size / 2, +size / 2);
-                Debug.DrawLine(new Vector3(x, 30, z), new Vector3(x, 30, z) - transform.up * 100);
-                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out hit, float.MaxValue, 3))
+
+                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out zone))
                 {
-                    return hit.point;
+                    if (zone.collider.gameObject.layer == 3)
+                    {
+                        //For each valid zone
+                        RaycastHit hit;
+                        for (int j = 0; j < asset.density; j++)
+                        {
+                            Vector3 origin = zone.point + Vector3.up * 10 + UnityEngine.Random.insideUnitSphere * asset.radius;
+                            if (Physics.Raycast(origin, -transform.up, out hit))
+                            {
+                                if (hit.collider.gameObject.layer == 3 && asset.prefabs.Length > 0)
+                                {
+                                    GameObject prefab = asset.prefabs[UnityEngine.Random.Range(0, asset.prefabs.Length)];
+                                    var obj = Instantiate(
+                                        prefab,
+                                        hit.point,
+                                        Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up));
+                                    obj.transform.parent = parent.transform;
+                                }
+                            }
+                        }
+                        return;
+                    }
                 }
             }
-            return Vector3.zero;
         }
 
         private void OnValidate()

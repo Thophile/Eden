@@ -101,7 +101,7 @@ namespace Assets.Scripts.Ui
             var old = hoverHeight;
             hoverHeight = minHeight + zoomLevel * heightStep;
 
-            RaycastHit hit = new RaycastHit();
+            RaycastHit hit;
             if (Physics.Raycast(transform.position, -Vector3.up, out hit, Mathf.Infinity, layerMask))
             {
                 return hoverHeight - hit.distance;
