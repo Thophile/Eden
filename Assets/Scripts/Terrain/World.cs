@@ -36,7 +36,7 @@ namespace Assets.Scripts.Terrain
                     GameObject chunk = new GameObject();
                     chunk.name = String.Concat("Chunk.", chunkX, ".", chunkZ);
                     chunk.transform.parent = this.transform;
-                    chunk.transform.position = new Vector3(offsetZ, 0, offsetX);
+                    chunk.transform.position = new Vector3(offsetZ - (mapGenerator.width / 2), 0, offsetX - (mapGenerator.width / 2));
                     MeshFilter meshFilter = chunk.AddComponent<MeshFilter>();
                     MeshRenderer meshRenderer = chunk.AddComponent<MeshRenderer>();
                     MeshData meshData = new MeshData(chunkSize, height, biomes);
