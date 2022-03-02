@@ -14,9 +14,8 @@ namespace Assets.Scripts.Terrain
         public float noiseRatio = 0;
         public float noiseScale = 1;
         [Header("Fallof Settings")]
-        public float fallof;
         public float centerRadius;
-        public float fade;
+        public float fallof;
         [Header("Cellular Noise Settings")]
         public int cellSize;
         public int heightStep;
@@ -92,10 +91,16 @@ namespace Assets.Scripts.Terrain
         public float GetFallof(int x, int z)
         {
             Vector2 dist = (new Vector2(x, z) - new Vector2(width / 2, width / 2));
-            return 1 - Mathf.Clamp(
-                (fallof * (dist.magnitude - width / centerRadius)) / width * fade,
+            if (dist.magnitude < (centerRadius * width / 2f)) return 1;
+            return Mathf.Clamp(
+                1 - fallof - ((dist.magnitude - (centerRadius * width / 2f)) / (centerRadius * width / 2f)),
                 0f,
                 1f);
+            
+            /*return 1 - Mathf.Clamp(
+                (fallof * (dist.magnitude - width / centerRadius)) / width * fade,
+                0f,
+                1f);*/
         }
 
         public Vector3[,] GenerateNodes(int width, int cellSize)

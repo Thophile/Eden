@@ -57,12 +57,8 @@ namespace Assets.Scripts.Terrain
                     meshData.BuildColors();
                     meshFilter.mesh = meshData.BuildMesh();
                     meshRenderer.sharedMaterial = meshMaterial;
-                    //meshRenderer.transform.localScale = new Vector3(10, 10, 10);
-                    //meshRenderer.transform.position = new Vector3(- width * 5, 0, - length * 5);
                 }
             }
-
-
         }
 
         public void PreviewMap()
@@ -124,13 +120,13 @@ namespace Assets.Scripts.Terrain
             {
                 mapGenerator.cellSize = mapGenerator.width;
             }
-            if (mapGenerator.fallof < 0)
+            if (mapGenerator.centerRadius < 0)
             {
-                mapGenerator.fallof = 0;
+                mapGenerator.centerRadius = 0;
             }
-            if (mapGenerator.fallof > 1)
+            if (mapGenerator.centerRadius > 1)
             {
-                mapGenerator.fallof = 1;
+                mapGenerator.centerRadius = 1;
             }
             foreach (var biome in biomes){
                 if (biome.minHeight < 0) biome.minHeight = 0;
