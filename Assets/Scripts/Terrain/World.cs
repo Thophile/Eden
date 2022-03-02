@@ -113,7 +113,6 @@ namespace Assets.Scripts.Terrain
                 var pos = PickPosition(prefab);
                 if (pos.Equals(Vector3.zero))
                 {
-                    Debug.Log(prefab + ";" + pos + ";" + rand);
                     var obj = Instantiate(prefab, pos, Quaternion.LookRotation(rand, Vector3.up));
                     obj.transform.parent = assetObject.transform;
                 }
