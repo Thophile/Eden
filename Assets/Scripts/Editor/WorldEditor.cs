@@ -31,6 +31,10 @@ namespace Assets.Scripts
             {
                 world.GenerateMap();
             }
+            if (GUILayout.Button("Place assets"))
+            {
+                world.PlaceAssets();
+            }
         }
     }
 }

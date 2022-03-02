@@ -5,15 +5,25 @@ namespace Assets.Scripts.Terrain
 {
     public class World : MonoBehaviour
     {
+        [Header("General")]
         public float height;
         public int chunkSize;
-        public Material meshMaterial;
-        public bool autoUpdate;
-        public bool autoPreview;
-        public MapGenerator mapGenerator;
 
+        [Header("Assets")]
+        public int assetsCount;
+        public int instantiationTries = 10;
+        public LayerMask waterLayer;
+        public GameObject[] terrainAssets;
+
+        [Header("Generate")]
+        public Material meshMaterial;
+        public LayerMask groundLayer;
+        public bool autoUpdate;
+        public MapGenerator mapGenerator;
         public Biome[] biomes;
 
+        [Header("Preview")]
+        public bool autoPreview;
         public Renderer textureRenderer;
 
         public void GenerateMap()
@@ -37,6 +47,7 @@ namespace Assets.Scripts.Terrain
                     chunk.name = String.Concat("Chunk.", chunkX, ".", chunkZ);
                     chunk.transform.parent = this.transform;
                     chunk.transform.position = new Vector3(offsetZ - (mapGenerator.width / 2), 0, offsetX - (mapGenerator.width / 2));
+                    chunk.layer = 3;
                     MeshFilter meshFilter = chunk.AddComponent<MeshFilter>();
                     MeshRenderer meshRenderer = chunk.AddComponent<MeshRenderer>();
                     MeshData meshData = new MeshData(chunkSize, height, biomes);
@@ -85,6 +96,44 @@ namespace Assets.Scripts.Terrain
 
             textureRenderer.sharedMaterial.mainTexture = texture;
             textureRenderer.transform.localScale = new Vector3(mapGenerator.width, 1, mapGenerator.width);
+        }
+
+        public void PlaceAssets()
+        {
+            var assetObject = GameObject.Find("Assets");
+            while (assetObject.transform.childCount > 0)
+            {
+                DestroyImmediate(assetObject.transform.GetChild(0).gameObject);
+            }
+
+            for (int i = 0; i < assetsCount; i++)
+            {
+                var rand = Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up);
+                var prefab = terrainAssets[UnityEngine.Random.Range(0, terrainAssets.Length)];
+                var pos = PickPosition(prefab);
+                if (pos.Equals(Vector3.zero))
+                {
+                    Debug.Log(prefab + ";" + pos + ";" + rand);
+                    var obj = Instantiate(prefab, pos, Quaternion.LookRotation(rand, Vector3.up));
+                    obj.transform.parent = assetObject.transform;
+                }
+            }
+        }
+        private Vector3 PickPosition(GameObject prefab)
+        {
+            for (int i = 0; i < instantiationTries; i++)
+            {
+                RaycastHit hit;
+                int size = mapGenerator.width - (2 * mapGenerator.width / chunkSize);
+                float x = UnityEngine.Random.Range(-size / 2, +size / 2);
+                float z = UnityEngine.Random.Range(-size / 2, +size / 2);
+                Debug.DrawLine(new Vector3(x, 30, z), new Vector3(x, 30, z) - transform.up * 100);
+                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out hit, float.MaxValue, 3))
+                {
+                    return hit.point;
+                }
+            }
+            return Vector3.zero;
         }
 
         private void OnValidate()
