@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Utils;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -121,15 +122,7 @@ namespace Assets.Scripts.Terrain
 
             for (int i = 0; i < assetsCount; i++)
             {
-                float dice = UnityEngine.Random.Range(0, sum);
-                foreach (var tuple in weigthList)
-                {
-                    if (tuple.Item2 >= dice)
-                    {
-                        SpawnAsset(assets[tuple.Item1], parent);
-                        break;
-                    }
-                }
+                SpawnAsset(assets[RandomUtils.WeightedRandom(weigthList, sum)], parent);
             }
         }
 
