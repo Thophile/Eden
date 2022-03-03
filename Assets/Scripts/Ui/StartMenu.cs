@@ -6,27 +6,34 @@ namespace Assets.Scripts.Ui
     public class StartMenu : MonoBehaviour
     {
         [Header("Menu elements")]
-        public GameObject mainMenuPanel;
-        public GameObject gameCreationPanel;
-        public GameObject gameSelectionPanel;        
+        public GameObject mainMenu;
+        public GameObject playSubMenu;
+        public GameObject optionsSubMenu;        
 
-        public void mainMenu()
+        public void rootMenu()
         {
-            mainMenuPanel.SetActive(true);
-            gameCreationPanel.SetActive(false);
-            gameSelectionPanel.SetActive(false);
+            playSubMenu.SetActive(false);
+            optionsSubMenu.SetActive(false);
         }
-        public void gameCreationMenu()
+        public void playMenu()
         {
-            mainMenuPanel.SetActive(false);
-            gameCreationPanel.SetActive(true);
-            gameSelectionPanel.SetActive(false);
+            playSubMenu.SetActive(true);
+            optionsSubMenu.SetActive(false);
         }
-        public void gameSelectionMenu()
+
+        public void StartGame()
         {
-            mainMenuPanel.SetActive(false);
-            gameCreationPanel.SetActive(false);
-            gameSelectionPanel.SetActive(true);
+
+        }
+
+        public void optionsMenu()
+        {
+            playSubMenu.SetActive(false);
+            optionsSubMenu.SetActive(true);
+        }
+        public void Quit()
+        {
+            Application.Quit();
         }
     }
 }
