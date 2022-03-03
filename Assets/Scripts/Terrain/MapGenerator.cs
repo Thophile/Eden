@@ -9,7 +9,6 @@ namespace Assets.Scripts.Terrain
     {
         [Header("General")]
         public int width;
-        public int seed = 0;
         [Header("Perlin Noise Settings")]
         public float noiseRatio = 0;
         public float noiseScale = 1;
@@ -23,7 +22,7 @@ namespace Assets.Scripts.Terrain
         public int blurrReach = 1;
         public float blurrRatio = 1f;
 
-        public float[,] GenerateHeightMap()
+        public float[,] GenerateHeightMap(int seed)
         {
             if (seed == 0)
             {

@@ -5,15 +5,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Assets.Scripts.MonoBehaviours;
+using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Ui
 {
     public class UserInterface : MonoBehaviour
     {
+        [Header("Menu elements")]
         public GameObject menuPanel;
         public GameObject mainMenu;
-        public GameObject playButtonText;
         public GameObject optionsMenu;
+        [Header("UI elements")]
         public GameObject gameTime;
         public GameObject antCount;
         public GameObject resourceInfo;
@@ -27,9 +29,7 @@ namespace Assets.Scripts.Ui
                 ToggleMenu();
             }
 
-            if(GameManager.isPaused){
-                playButtonText.GetComponent<TextMeshProUGUI>().text = (GameManager.gameState == null ? "Play" : "Resume") ;
-            }else{
+            if(!GameManager.isPaused){
                 UpdateUI();
             }
         }
@@ -69,11 +69,12 @@ namespace Assets.Scripts.Ui
                 GameManager.Load();
             }
         }
-        public void Reset(){
-            GameManager.Reset();
-        }
         public void Save(){
             GameManager.Save();
+        }
+        public void Quit()
+        {
+            SceneManager.LoadScene(0);
         }
         public void PlayPausePhysics(bool isGamePaused){
             Rigidbody[] rbs = GameObject.FindObjectsOfType<Rigidbody>();

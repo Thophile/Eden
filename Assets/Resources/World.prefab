@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3509784262928715604
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3509784262928715610}
+  - component: {fileID: 3509784262928715611}
+  m_Layer: 3
+  m_Name: World
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3509784262928715610
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3509784262928715604}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -128, y: 0, z: -128}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3509784262928715611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3509784262928715604}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ade5891bb126fbc4481676628ea3ae0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  height: 5
+  chunkSize: 64
+  waterLayer:
+    serializedVersion: 2
+    m_Bits: 16
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  terrainLayers:
+    serializedVersion: 2
+    m_Bits: 24
+  seed: 5
+  biomesCount: 100
+  instantiationTries: 10
+  biomes:
+  - name: Forest
+    assets:
+    - prefab: {fileID: 4385080170328260021, guid: ff62b58c5a9ea164fa8ddf8038e10cd1, type: 3}
+      probability: 10
+    - prefab: {fileID: 108507113624723981, guid: eebb56c82efbd8d4bb0eb6bd925a0e9d, type: 3}
+      probability: 10
+    - prefab: {fileID: 1493958779012120596, guid: b9de24523a11d714db3851b5f0f9d527, type: 3}
+      probability: 20
+    - prefab: {fileID: 2222111361404534124, guid: 88f2fd29f58b9734683512546acec310, type: 3}
+      probability: 30
+    - prefab: {fileID: 6941765000743290380, guid: c60edd51c065ceb46b345849a03bc106, type: 3}
+      probability: 30
+    radius: 20
+    density: 100
+    probability: 5
+  - name: Pine forest
+    assets:
+    - prefab: {fileID: 5440707293445505367, guid: 494f6d43e170e9145bc7865d243ee00b, type: 3}
+      probability: 5
+    - prefab: {fileID: 108507113624723981, guid: eebb56c82efbd8d4bb0eb6bd925a0e9d, type: 3}
+      probability: 10
+    - prefab: {fileID: 1493958779012120596, guid: b9de24523a11d714db3851b5f0f9d527, type: 3}
+      probability: 20
+    - prefab: {fileID: 4661435515762455780, guid: e289bf5debb17f6459818c207d781953, type: 3}
+      probability: 65
+    radius: 15
+    density: 100
+    probability: 5
+  - name: Field
+    assets:
+    - prefab: {fileID: 8903058273634794869, guid: f1fc5bb90ac285e4486771552d63bcb8, type: 3}
+      probability: 49
+    - prefab: {fileID: 3356751432538110193, guid: ffbddc4ef9676cc419e81e06aaa836d8, type: 3}
+      probability: 49
+    - prefab: {fileID: 4263922822445002727, guid: 3cdafb3c2f54d434894928d72d282874, type: 3}
+      probability: 1
+    - prefab: {fileID: 6239969156481229051, guid: b71b0f8d2f881c743a85228f3030d1cb, type: 3}
+      probability: 1
+    radius: 15
+    density: 500
+    probability: 15
+  - name: Rocky formation
+    assets:
+    - prefab: {fileID: 7405846476849542632, guid: c6308cb7062fac34e8e50600086b12a1, type: 3}
+      probability: 5
+    - prefab: {fileID: 5202732821079448320, guid: cebfacc247a640945a2c30b442202fca, type: 3}
+      probability: 50
+    - prefab: {fileID: 4680757731160225450, guid: 0fde05fa0f3321942a21896ff4f0856f, type: 3}
+      probability: 50
+    - prefab: {fileID: 8783306491908617939, guid: f02116c209ecd9e488fc4d2cd8996133, type: 3}
+      probability: 5
+    radius: 3
+    density: 60
+    probability: 15
+  meshMaterial: {fileID: 2100000, guid: d5258a4ce84d63a459d6bfdcdfdb30bc, type: 2}
+  autoUpdate: 0
+  mapGenerator:
+    width: 256
+    noiseRatio: 0.15
+    noiseScale: 50
+    centerRadius: 0.4
+    fallof: 0.2
+    cellSize: 12
+    heightStep: 16
+    blurrReach: 2
+    blurrRatio: 0.95
+  groundTypes:
+  - name: Sand
+    maxSteepness: 0.1
+    minHeight: 0
+    maxHeight: 0.1
+    colorOne: {r: 0.8584906, g: 0.7628124, b: 0.4008989, a: 0}
+    colorTwo: {r: 0.754717, g: 0.6706043, b: 0.35243857, a: 0}
+  - name: Grass
+    maxSteepness: 0.25
+    minHeight: 0.1
+    maxHeight: 1
+    colorOne: {r: 0.28337488, g: 0.6037736, b: 0.253471, a: 0}
+    colorTwo: {r: 0.24329843, g: 0.5, b: 0.21933961, a: 0}
+  - name: Rock
+    maxSteepness: 1
+    minHeight: 0
+    maxHeight: 1
+    colorOne: {r: 0.6698113, g: 0.5479454, b: 0.41389284, a: 0}
+    colorTwo: {r: 0.5660378, g: 0.46050963, b: 0.34442863, a: 0}
+  autoPreview: 0
+  textureRenderer: {fileID: 0}

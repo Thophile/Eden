@@ -14,6 +14,9 @@ namespace Assets.Scripts.Terrain
         public LayerMask groundLayer;
         public LayerMask terrainLayers;
 
+        [Header("Options")]
+        public int seed = 0;
+
         [Header("Assets")]
         public int biomesCount;
         public int instantiationTries = 10;
@@ -31,7 +34,7 @@ namespace Assets.Scripts.Terrain
 
         public void GenerateMap()
         {
-            float[,] heightMap = mapGenerator.GenerateHeightMap();
+            float[,] heightMap = mapGenerator.GenerateHeightMap(seed);
 
             while (transform.childCount > 0)
             {
@@ -79,7 +82,7 @@ namespace Assets.Scripts.Terrain
 
         public void PreviewMap()
         {
-            float[,] heightMap = mapGenerator.GenerateHeightMap();
+            float[,] heightMap = mapGenerator.GenerateHeightMap(seed);
 
             Texture2D texture = new Texture2D(mapGenerator.width, mapGenerator.width);
 
