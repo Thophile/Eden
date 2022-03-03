@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Terrain
 {
     [System.Serializable]
-    public class Biome
+    public class GroundType
     {
         public string name;
         public float maxSteepness;

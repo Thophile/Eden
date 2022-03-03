@@ -4,12 +4,19 @@ using UnityEngine;
 namespace Assets.Scripts.Terrain
 {
     [System.Serializable]
-    public class Asset
+    public class Zone
     {
         public string name;
-        public GameObject[] prefabs;
+        public Asset[] assets;
         public float radius;
         public float density;
+        public int probability;
+    }
+
+    [System.Serializable]
+    public class Asset
+    {
+        public GameObject prefab;
         public int probability;
     }
 
@@ -17,7 +24,7 @@ namespace Assets.Scripts.Terrain
     {
         public int Compare(object x, object y)
         {
-            return ((Asset)x).probability - ((Asset)y).probability;
+            return ((Zone)x).probability - ((Zone)y).probability;
         }
     }
 }

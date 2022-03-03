@@ -8,14 +8,14 @@ namespace Assets.Scripts.Terrain
     {
         public int width;
         public float height;
-        public Biome[] biomes;
+        public GroundType[] biomes;
         public List<Vector3> vertices = new List<Vector3>();
         public int[,] points;
         public List<Vector2> uv = new List<Vector2>();
         public Color32[] colors;
         public List<int> triangles = new List<int>();
 
-        public MeshData(int width, float height, Biome[] biomes)
+        public MeshData(int width, float height, GroundType[] biomes)
         {
             this.width = width;
             this.height = height;

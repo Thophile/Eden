@@ -15,15 +15,15 @@ namespace Assets.Scripts.Terrain
         public LayerMask terrainLayers;
 
         [Header("Assets")]
-        public int assetsCount;
+        public int zonesCount;
         public int instantiationTries = 10;
-        public Asset[] assets;
+        public Zone[] zones;
 
         [Header("Generate")]
         public Material meshMaterial;
         public bool autoUpdate;
         public MapGenerator mapGenerator;
-        public Biome[] biomes;
+        public GroundType[] groundTypes;
 
         [Header("Preview")]
         public bool autoPreview;
@@ -54,7 +54,7 @@ namespace Assets.Scripts.Terrain
                     MeshFilter meshFilter = chunk.AddComponent<MeshFilter>();
                     MeshRenderer meshRenderer = chunk.AddComponent<MeshRenderer>();
                     MeshCollider meshCollider = chunk.AddComponent<MeshCollider>();
-                    MeshData meshData = new MeshData(chunkSize, height, biomes);
+                    MeshData meshData = new MeshData(chunkSize, height, groundTypes);
 
                     for (int z = 0; z < chunkSize; z++)
                     {
@@ -90,7 +90,7 @@ namespace Assets.Scripts.Terrain
                 for (int x = 0; x < mapGenerator.width; x++)
                 {
                     colors[y * mapGenerator.width + x] = Color.Lerp(
-                        Color.black, 
+                        Color.black,
                         Color.white,
                         heightMap[x, y]
                     );
@@ -111,49 +111,61 @@ namespace Assets.Scripts.Terrain
                 DestroyImmediate(parent.transform.GetChild(0).gameObject);
             }
 
-            List<(int, int)> weigthList = new List<(int, int)>();
+            List<(Zone, int)> weigthList = new List<(Zone, int)>();
             int sum = 0;
 
-            for (int i = 0; i < assets.Length; i++)
+            foreach (Zone zone in zones)
             {
-                sum += assets[i].probability;
-                weigthList.Add((i, sum));
+                sum += zone.probability;
+                weigthList.Add((zone, sum));
             }
 
-            for (int i = 0; i < assetsCount; i++)
+            for (int i = 0; i < zonesCount; i++)
             {
-                SpawnAsset(assets[RandomUtils.WeightedRandom(weigthList, sum)], parent);
+                Zone zone = RandomUtils.WeightedRandom(weigthList, sum);
+                if(zone != default(Zone)) SpawnAsset(zone, parent);
             }
         }
 
-        public void SpawnAsset(Asset asset, GameObject parent)
+        public void SpawnAsset(Zone zone, GameObject parent)
         {
             for (int i = 0; i < instantiationTries; i++)
             {
-                RaycastHit zone;
+                RaycastHit zoneHit;
                 int size = mapGenerator.width - (2 * mapGenerator.width / chunkSize);
-                float x = UnityEngine.Random.Range(-size / 2, +size / 2);
-                float z = UnityEngine.Random.Range(-size / 2, +size / 2);
+                float x = UnityEngine.Random.Range(-size / 2, size / 2);
+                float z = UnityEngine.Random.Range(-size / 2, size / 2);
 
-                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out zone))
+                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out zoneHit))
                 {
-                    if (zone.collider.gameObject.layer == 3)
+                    if (zoneHit.collider.gameObject.layer == 3)
                     {
                         //For each valid zone
-                        RaycastHit hit;
-                        for (int j = 0; j < asset.density; j++)
+                        RaycastHit assetHit;
+                        for (int j = 0; j < zone.density; j++)
                         {
-                            Vector3 origin = zone.point + Vector3.up * 10 + UnityEngine.Random.insideUnitSphere * asset.radius;
-                            if (Physics.Raycast(origin, -transform.up, out hit))
+                            Vector3 origin = zoneHit.point + Vector3.up * 10 + UnityEngine.Random.insideUnitSphere * zone.radius;
+                            if (Physics.Raycast(origin, -transform.up, out assetHit))
                             {
-                                if (hit.collider.gameObject.layer == 3 && asset.prefabs.Length > 0)
+                                if (assetHit.collider.gameObject.layer == 3 && zone.assets.Length > 0)
                                 {
-                                    GameObject prefab = asset.prefabs[UnityEngine.Random.Range(0, asset.prefabs.Length)];
-                                    var obj = Instantiate(
-                                        prefab,
-                                        hit.point,
-                                        Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up));
-                                    obj.transform.parent = parent.transform;
+                                    List<(Asset, int)> weigthList = new List<(Asset, int)>();
+                                    int sum = 0;
+
+                                    foreach (Asset asset in zone.assets)
+                                    {
+                                        sum += asset.probability;
+                                        weigthList.Add((asset, sum));
+                                    }
+                                    Asset selectedAsset = RandomUtils.WeightedRandom(weigthList, sum);
+                                    if(selectedAsset != default(Asset))
+                                    {
+                                        var obj = Instantiate(
+                                            selectedAsset.prefab,
+                                            assetHit.point,
+                                            Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up));
+                                        obj.transform.parent = parent.transform;
+                                    }
                                 }
                             }
                         }
@@ -204,15 +216,15 @@ namespace Assets.Scripts.Terrain
             {
                 mapGenerator.centerRadius = 1;
             }
-            foreach (var biome in biomes){
-                if (biome.minHeight < 0) biome.minHeight = 0;
-                else if (biome.minHeight > 1) biome.minHeight = 1;
+            foreach (var groundType in groundTypes){
+                if (groundType.minHeight < 0) groundType.minHeight = 0;
+                else if (groundType.minHeight > 1) groundType.minHeight = 1;
 
-                if (biome.maxHeight < 0) biome.maxHeight = 0;
-                else if (biome.maxHeight > 1) biome.maxHeight = 1;
+                if (groundType.maxHeight < 0) groundType.maxHeight = 0;
+                else if (groundType.maxHeight > 1) groundType.maxHeight = 1;
 
-                if (biome.maxSteepness < 0) biome.maxSteepness = 0;
-                else if (biome.maxSteepness > 1) biome.maxSteepness = 1;
+                if (groundType.maxSteepness < 0) groundType.maxSteepness = 0;
+                else if (groundType.maxSteepness > 1) groundType.maxSteepness = 1;
             }
         }
     }
