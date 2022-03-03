@@ -1,6 +1,7 @@
 using Assets.Scripts.Model;
 using Assets.Scripts.MonoBehaviours;
 using Assets.Scripts.Ui;
+using Assets.Scripts.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,7 +12,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    static readonly string savePath = "/GameState.cln";
+    public static string saveName = SaveUtils.savePath + "newgame.cln";
     public static bool isPaused = true;
     public static GameState gameState = null;
     public static List<Ant> activeAnts = new List<Ant>();
@@ -22,9 +23,8 @@ public class GameManager : MonoBehaviour
     protected float pheroDecayTimer = 0f;
     protected readonly float pheroDecayDelay = 0.5f;
 
-
-
     void Start(){
+        Load();
         StartCoroutine(nameof(UpdateAnts));
     }
 
@@ -121,7 +121,7 @@ public class GameManager : MonoBehaviour
 
 
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Create (Application.persistentDataPath + savePath);
+            FileStream file = File.Create (saveName);
             bf.Serialize(file, gameState);
             file.Close();
 
@@ -129,9 +129,9 @@ public class GameManager : MonoBehaviour
     }
 
     public static void Load() {
-        if(File.Exists(Application.persistentDataPath + savePath)) {
+        if(File.Exists(saveName)) {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Application.persistentDataPath + savePath, FileMode.Open);
+            FileStream file = File.Open(saveName, FileMode.Open);
             gameState = (GameState)bf.Deserialize(file);
             file.Close();
         }else{
@@ -172,20 +172,6 @@ public class GameManager : MonoBehaviour
         }   
         
 
-    }
-
-    public static void Reset(){
-        File.Delete(Application.persistentDataPath + savePath);
-        gameState = null;
-        AntSpawner.antsInfo.Clear();
-        activeAnts.Clear();
-        ResourceSpawner.resourceInfo.Clear();
-        var keepAlives = GameObject.FindObjectsOfType<KeepAlive>();
-        foreach (var item in keepAlives)
-        {
-            if(item.baseSceneName == SceneManager.GetActiveScene().name) Destroy(item.gameObject);
-        }
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     void OnApplicationQuit()
