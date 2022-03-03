@@ -15,9 +15,9 @@ namespace Assets.Scripts.Terrain
         public LayerMask terrainLayers;
 
         [Header("Assets")]
-        public int zonesCount;
+        public int biomesCount;
         public int instantiationTries = 10;
-        public Zone[] zones;
+        public Biome[] biomes;
 
         [Header("Generate")]
         public Material meshMaterial;
@@ -111,48 +111,48 @@ namespace Assets.Scripts.Terrain
                 DestroyImmediate(parent.transform.GetChild(0).gameObject);
             }
 
-            List<(Zone, int)> weigthList = new List<(Zone, int)>();
+            List<(Biome, int)> weigthList = new List<(Biome, int)>();
             int sum = 0;
 
-            foreach (Zone zone in zones)
+            foreach (Biome biome in biomes)
             {
-                sum += zone.probability;
-                weigthList.Add((zone, sum));
+                sum += biome.probability;
+                weigthList.Add((biome, sum));
             }
 
-            for (int i = 0; i < zonesCount; i++)
+            for (int i = 0; i < biomesCount; i++)
             {
-                Zone zone = RandomUtils.WeightedRandom(weigthList, sum);
-                if(zone != default(Zone)) SpawnAsset(zone, parent);
+                Biome biome = RandomUtils.WeightedRandom(weigthList, sum);
+                if(biome != default(Biome)) SpawnAsset(biome, parent);
             }
         }
 
-        public void SpawnAsset(Zone zone, GameObject parent)
+        public void SpawnAsset(Biome biome, GameObject parent)
         {
             for (int i = 0; i < instantiationTries; i++)
             {
-                RaycastHit zoneHit;
+                RaycastHit biomeHit;
                 int size = mapGenerator.width - (2 * mapGenerator.width / chunkSize);
                 float x = UnityEngine.Random.Range(-size / 2, size / 2);
                 float z = UnityEngine.Random.Range(-size / 2, size / 2);
 
-                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out zoneHit))
+                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out biomeHit))
                 {
-                    if (zoneHit.collider.gameObject.layer == 3)
+                    if (biomeHit.collider.gameObject.layer == 3)
                     {
-                        //For each valid zone
+                        //For each valid biome
                         RaycastHit assetHit;
-                        for (int j = 0; j < zone.density; j++)
+                        for (int j = 0; j < biome.density; j++)
                         {
-                            Vector3 origin = zoneHit.point + Vector3.up * 10 + UnityEngine.Random.insideUnitSphere * zone.radius;
+                            Vector3 origin = biomeHit.point + Vector3.up * 10 + UnityEngine.Random.insideUnitSphere * biome.radius;
                             if (Physics.Raycast(origin, -transform.up, out assetHit))
                             {
-                                if (assetHit.collider.gameObject.layer == 3 && zone.assets.Length > 0)
+                                if (assetHit.collider.gameObject.layer == 3 && biome.assets.Length > 0)
                                 {
                                     List<(Asset, int)> weigthList = new List<(Asset, int)>();
                                     int sum = 0;
 
-                                    foreach (Asset asset in zone.assets)
+                                    foreach (Asset asset in biome.assets)
                                     {
                                         sum += asset.probability;
                                         weigthList.Add((asset, sum));

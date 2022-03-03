@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Assets.Scripts.Terrain
 {
     [System.Serializable]
-    public class Zone
+    public class Biome
     {
         public string name;
         public Asset[] assets;
@@ -18,13 +18,5 @@ namespace Assets.Scripts.Terrain
     {
         public GameObject prefab;
         public int probability;
-    }
-
-    class ProbabilityComparer : IComparer
-    {
-        public int Compare(object x, object y)
-        {
-            return ((Zone)x).probability - ((Zone)y).probability;
-        }
     }
 }
