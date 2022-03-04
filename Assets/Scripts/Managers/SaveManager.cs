@@ -62,7 +62,6 @@ namespace Assets.Scripts.Managers
                 GameManager.gameState = (GameState)bf.Deserialize(file);
                 file.Close();
             }
-            Debug.Log(name);
             SceneManager.LoadScene(1);
         }
 

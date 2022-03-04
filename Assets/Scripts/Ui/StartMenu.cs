@@ -21,11 +21,6 @@ namespace Assets.Scripts.Ui
             optionsSubMenu.SetActive(false);
         }
 
-        public void StartGame()
-        {
-
-        }
-
         public void optionsMenu()
         {
             playSubMenu.SetActive(false);

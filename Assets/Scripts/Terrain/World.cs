@@ -14,9 +14,10 @@ namespace Assets.Scripts.Terrain
         public LayerMask groundLayer;
         public LayerMask terrainLayers;
         public GameObject colony;
+        public GameObject playerCamera;
 
         [Header("Options")]
-        public int seed = 0;
+        public static int seed = 0;
 
         [Header("Assets")]
         public int biomesCount;
@@ -139,7 +140,7 @@ namespace Assets.Scripts.Terrain
 
         public void PlaceColony()
         {
-            for (int i = 0; i < instantiationTries; i++)
+            for (int i = 0; i < instantiationTries*10; i++)
             {
                 RaycastHit hit;
                 int size = mapGenerator.width - (2 * mapGenerator.width / chunkSize);
@@ -155,6 +156,7 @@ namespace Assets.Scripts.Terrain
                             hit.point,
                             Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up))
                             .transform.SetParent(GameObject.Find("Assets").transform);
+                        playerCamera.transform.position = hit.point;
                         return;
                     }
                 }
