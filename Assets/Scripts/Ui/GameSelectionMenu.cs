@@ -3,27 +3,27 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameSelectionMenu : MonoBehaviour
 {
     public GameObject content;
-    public GameObject scrollElementTemplate;
+    public GameObject saveTemplate;
     // Start is called before the first frame update
     void OnEnable()
     {
+        while (content.transform.childCount > 1)
+        {
+            DestroyImmediate(content.transform.GetChild(1).gameObject);
+        }
         foreach (var save in SaveManager.GetSavesList())
         {
-            var element = Instantiate(scrollElementTemplate) as GameObject;
-            element.transform.parent = content.transform;
-            element.GetComponent<TextMeshProUGUI>().text = save;
-
+            var element = Instantiate(saveTemplate) as GameObject;
+            element.transform.SetParent(content.transform);
+            element.GetComponentInChildren<TextMeshProUGUI>().text = SaveManager.GetVerboseName(save);
+            element.GetComponentInChildren<Button>().onClick.AddListener(delegate { SaveManager.LoadGame(save); });
         }
         
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }

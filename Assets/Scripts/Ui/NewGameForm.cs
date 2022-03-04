@@ -1,4 +1,5 @@
-﻿using Assets.Scripts.Model;
+﻿using Assets.Scripts.Managers;
+using Assets.Scripts.Model;
 using Assets.Scripts.Utils;
 using System.Collections;
 using TMPro;
@@ -27,8 +28,7 @@ namespace Assets.Scripts.Ui
 
         public void LaunchNewGame()
         {
-            GameManager.saveName = SaveUtils.GetFileName(inputText.GetComponent<TextMeshProUGUI>().text);
-            SceneManager.LoadScene(1);
+            SaveManager.LoadGame(SaveManager.GetFileName(inputText.GetComponent<TextMeshProUGUI>().text));
         }
 
     }

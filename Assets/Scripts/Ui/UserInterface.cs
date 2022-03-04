@@ -21,7 +21,6 @@ namespace Assets.Scripts.Ui
         public GameObject resourceInfo;
         public GameObject uiPanel;
 
-        // Update is called once per frame
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -37,7 +36,7 @@ namespace Assets.Scripts.Ui
         // UI part
         public void UpdateUI(){
             resourceInfo.GetComponentInChildren<TextMeshProUGUI>().text = GameManager.gameState.resources.ToString();
-            antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameManager.gameState.antNb - AntSpawner.antsInfo.Count).ToString() + "/" + GameManager.gameState.antNb.ToString();
+            antCount.GetComponentInChildren<TextMeshProUGUI>().text = (AntSpawner.antsInfo.Count).ToString() + "/" + GameManager.gameState.antNb.ToString();
             gameTime.GetComponentInChildren<TextMeshProUGUI>().text = TimeSpan.FromSeconds(GameManager.gameState.gameTime).Hours.ToString() + ":" + TimeSpan.FromSeconds(GameManager.gameState.gameTime).Minutes.ToString("00");
         }
 
@@ -63,17 +62,12 @@ namespace Assets.Scripts.Ui
             optionsMenu.SetActive(false);
         }
 
-        public void Play(){
-            ToggleMenu();
-            if (GameManager.gameState == null){
-                GameManager.Load();
-            }
-        }
         public void Save(){
             GameManager.Save();
         }
         public void Quit()
         {
+            GameManager.Save();
             SceneManager.LoadScene(0);
         }
         public void PlayPausePhysics(bool isGamePaused){

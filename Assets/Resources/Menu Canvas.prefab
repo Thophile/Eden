@@ -188,8 +188,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 331, y: -20}
-  m_SizeDelta: {x: 642, y: 30}
+  m_AnchoredPosition: {x: 270.5, y: -20}
+  m_SizeDelta: {x: 521, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2679202108282749619
 MonoBehaviour:
@@ -277,10 +277,10 @@ RectTransform:
   m_Father: {fileID: 9071329235288103180}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 289.79636, y: -15}
-  m_SizeDelta: {x: 579.5927, y: 30}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1973470767420155247
 CanvasRenderer:
@@ -909,8 +909,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'New Game
-'
+  m_text: 'New Game '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
   m_sharedMaterial: {fileID: 7261928890157246734, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
@@ -1929,8 +1928,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Play
-'
+  m_text: 'Play '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
   m_sharedMaterial: {fileID: 7261928890157246734, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
@@ -2633,8 +2631,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '>
-'
+  m_text: '> '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
   m_sharedMaterial: {fileID: 7261928890157246734, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
@@ -2790,8 +2787,9 @@ GameObject:
   - component: {fileID: 5443843188862257059}
   - component: {fileID: 6947822120037585511}
   - component: {fileID: 1982127690617282542}
+  - component: {fileID: 3834580180877354372}
   m_Layer: 5
-  m_Name: Game Selection Scroll View
+  m_Name: Game Selection Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2886,6 +2884,20 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3834580180877354372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6468189490052400885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af52f526b4636d344ae2e58e4418115f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  content: {fileID: 2471011246243680464}
+  saveTemplate: {fileID: 1789373527938470426, guid: c23ba1c3c91ff91498e7ec4ab32e78e5, type: 3}
 --- !u!1 &7179913734633704514
 GameObject:
   m_ObjectHideFlags: 0
@@ -3160,8 +3172,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Quit
-'
+  m_text: 'Quit '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
   m_sharedMaterial: {fileID: 7261928890157246734, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
@@ -3315,10 +3326,10 @@ RectTransform:
   m_Father: {fileID: 9071329235288103180}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 613.2963, y: -15}
-  m_SizeDelta: {x: 57.407272, y: 30}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2020279514177457103
 CanvasRenderer:
@@ -3512,7 +3523,7 @@ GameObject:
   - component: {fileID: 8894040082724981581}
   - component: {fileID: 8846650799454464089}
   m_Layer: 5
-  m_Name: Options Scroll View
+  m_Name: Options Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3672,8 +3683,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Options
-'
+  m_text: 'Options '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b81a0292be11d2c428dba598dc28378b, type: 2}
   m_sharedMaterial: {fileID: 7261928890157246734, guid: b81a0292be11d2c428dba598dc28378b, type: 2}

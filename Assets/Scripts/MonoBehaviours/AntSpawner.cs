@@ -20,7 +20,7 @@ namespace Assets.Scripts.MonoBehaviours
                 time += Time.deltaTime;
                 if (time > spawnDelay){
                     time-=spawnDelay;
-                    if ((10*antsInfo.Count)/GameManager.gameState.antNb <= 8){
+                    if (GameManager.activeAnts.Count < GameManager.gameState.antNb){
                         var rand = Vector3.ProjectOnPlane(Random.insideUnitSphere, Vector3.up);
                         SpawnAnt(exit.position, Quaternion.LookRotation(rand, Vector3.up), ant);
                     }

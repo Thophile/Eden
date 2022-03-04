@@ -1,3 +1,4 @@
+using Assets.Scripts.Managers;
 using Assets.Scripts.Model;
 using Assets.Scripts.MonoBehaviours;
 using Assets.Scripts.Ui;
@@ -12,8 +13,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static string saveName = SaveUtils.savePath + "newgame.cln";
-    public static bool isPaused = true;
+    public static bool isPaused;
     public static GameState gameState = null;
     public static List<Ant> activeAnts = new List<Ant>();
     public int autoSaveTime;
@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     void Start(){
         Load();
         StartCoroutine(nameof(UpdateAnts));
+        isPaused = false;
     }
 
     void Update(){
@@ -76,29 +77,32 @@ public class GameManager : MonoBehaviour
             if(AntSpawner.antsInfo.Count >0 ){
                 foreach (var item in AntSpawner.antsInfo)
                 {
-                    List<object[]> previousPositions = new List<object[]>();
-                    foreach(var pos in item.GetComponent<Ant>().previousPositions)
+                    if(item != null)
                     {
-                        previousPositions.Add(new object[] {
-                            pos.x,
-                            pos.y,
-                            pos.z,
-                            pos.time
-                        });
+                        List<object[]> previousPositions = new List<object[]>();
+                        foreach(var pos in item.GetComponent<Ant>().previousPositions)
+                        {
+                            previousPositions.Add(new object[] {
+                                pos.x,
+                                pos.y,
+                                pos.z,
+                                pos.time
+                            });
+                        }
+
+
+                        gameState.antsInfo.Add(new object[] {
+                            item.transform.position.x,
+                            item.transform.position.y,
+                            item.transform.position.z,
+                            item.transform.rotation.eulerAngles.x,
+                            item.transform.rotation.eulerAngles.y,
+                            item.transform.rotation.eulerAngles.z,
+                            item.GetComponent<Ant>().prefabName,
+                            item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<Carryable>().prefabName,
+                            previousPositions
+                            });
                     }
-
-
-                    gameState.antsInfo.Add(new object[] {
-                        item.transform.position.x,
-                        item.transform.position.y,
-                        item.transform.position.z,
-                        item.transform.rotation.eulerAngles.x,
-                        item.transform.rotation.eulerAngles.y,
-                        item.transform.rotation.eulerAngles.z,
-                        item.GetComponent<Ant>().prefabName,
-                        item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<Carryable>().prefabName,
-                        previousPositions
-                        });
                 }
             }
 
@@ -119,28 +123,13 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Create (saveName);
-            bf.Serialize(file, gameState);
-            file.Close();
-
+            SaveManager.SaveGame();
         }
     }
 
     public static void Load() {
-        if(File.Exists(saveName)) {
-            BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(saveName, FileMode.Open);
-            gameState = (GameState)bf.Deserialize(file);
-            file.Close();
-        }else{
-            gameState = new GameState();
-            Save();
-
-        }
-
         // BuildWorld
+        AntSpawner.antsInfo.Clear();
         foreach (var ar in gameState.antsInfo)
         {
             List<TimedPosition> previousPositions = new List<TimedPosition>();
@@ -160,7 +149,9 @@ public class GameManager : MonoBehaviour
                 previousPositions
 
             );
-        }      
+        }
+
+        ResourceSpawner.resourceInfo.Clear();
         foreach (var ar in gameState.resourceInfo)
         {
             ResourceSpawner.SpawnResource(
@@ -170,8 +161,6 @@ public class GameManager : MonoBehaviour
                 (int) ar[7]
             );
         }   
-        
-
     }
 
     void OnApplicationQuit()
