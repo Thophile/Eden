@@ -11,7 +11,7 @@ namespace Assets.Scripts.Ui
         public LayerMask layerMask;
 
         // Zoom level
-        public static float zoomLevel = 4;
+        public float zoomLevel = 4;
         const float minZoom = 0;
         const float maxZoom = 9;
 

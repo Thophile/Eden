@@ -16,9 +16,6 @@ namespace Assets.Scripts.Terrain
         public GameObject colony;
         public GameObject playerCamera;
 
-        [Header("Options")]
-        public static int seed = 0;
-
         [Header("Assets")]
         public int biomesCount;
         public int instantiationTries = 10;
@@ -34,15 +31,22 @@ namespace Assets.Scripts.Terrain
         public bool autoPreview;
         public Renderer textureRenderer;
 
-        private void Start()
+        public void BuildWorld()
         {
+            if (GameManager.gameState.seed == null)
+            {
+                GameManager.gameState.seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+
+            }
+            UnityEngine.Random.InitState((int)GameManager.gameState.seed);
             GenerateMap();
             PlaceAssets();
+            PlaceColony();
         }
 
         public void GenerateMap()
         {
-            float[,] heightMap = mapGenerator.GenerateHeightMap(seed);
+            float[,] heightMap = mapGenerator.GenerateHeightMap();
 
             while (transform.childCount > 0)
             {
@@ -90,7 +94,7 @@ namespace Assets.Scripts.Terrain
 
         public void PreviewMap()
         {
-            float[,] heightMap = mapGenerator.GenerateHeightMap(seed);
+            float[,] heightMap = mapGenerator.GenerateHeightMap();
 
             Texture2D texture = new Texture2D(mapGenerator.width, mapGenerator.width);
 
@@ -156,7 +160,10 @@ namespace Assets.Scripts.Terrain
                             hit.point,
                             Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up))
                             .transform.SetParent(GameObject.Find("Assets").transform);
-                        playerCamera.transform.position = hit.point;
+                        if (GameManager.gameState.cameraInfo == default(object[]))
+                        {
+                            playerCamera.transform.position = hit.point;
+                        }
                         return;
                     }
                 }

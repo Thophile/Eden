@@ -22,14 +22,8 @@ namespace Assets.Scripts.Terrain
         public int blurrReach = 1;
         public float blurrRatio = 1f;
 
-        public float[,] GenerateHeightMap(int seed)
+        public float[,] GenerateHeightMap()
         {
-            if (seed == 0)
-            {
-                seed = Random.Range(int.MinValue, int.MaxValue);
-            }
-            Random.InitState(seed);
-
             float[,] noiseMap = new float[width, width];
             Vector3[,] nodes = GenerateNodes(width, cellSize);
 

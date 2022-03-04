@@ -1,6 +1,7 @@
 using Assets.Scripts.Managers;
 using Assets.Scripts.Model;
 using Assets.Scripts.MonoBehaviours;
+using Assets.Scripts.Terrain;
 using Assets.Scripts.Ui;
 using Assets.Scripts.Utils;
 using System.Collections;
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviour
     public static GameState gameState = null;
     public static List<Ant> activeAnts = new List<Ant>();
     public int autoSaveTime;
+    public World world;
 
     float lastSaveTime = 0f;
 
@@ -24,6 +26,7 @@ public class GameManager : MonoBehaviour
     protected readonly float pheroDecayDelay = 0.5f;
 
     void Start(){
+        world.BuildWorld();
         Load();
         StartCoroutine(nameof(UpdateAnts));
         isPaused = false;
@@ -123,6 +126,19 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            var camera = GameObject.Find("Camera");
+            gameState.cameraInfo = new object[]
+            {
+                camera.transform.position.x,
+                camera.transform.position.y,
+                camera.transform.position.z,
+                camera.transform.rotation.x,
+                camera.transform.rotation.y,
+                camera.transform.rotation.z,
+                camera.transform.rotation.w,
+                camera.GetComponent<CameraController>().zoomLevel
+            };
+
             SaveManager.SaveGame();
         }
     }
@@ -160,7 +176,22 @@ public class GameManager : MonoBehaviour
                 Resources.Load((string)ar[6]) as GameObject,
                 (int) ar[7]
             );
-        }   
+        }
+
+        if(gameState.cameraInfo != default(object[]))
+        {
+            var camera = GameObject.Find("Camera");
+            camera.transform.position = new Vector3(
+                (float)gameState.cameraInfo[0], 
+                (float)gameState.cameraInfo[1], 
+                (float)gameState.cameraInfo[2]);
+            camera.transform.rotation = new Quaternion(
+                (float)gameState.cameraInfo[3], 
+                (float)gameState.cameraInfo[4], 
+                (float)gameState.cameraInfo[5], 
+                (float)gameState.cameraInfo[6]);
+            camera.GetComponent<CameraController>().zoomLevel = (float)gameState.cameraInfo[7];
+        }
     }
 
     void OnApplicationQuit()
