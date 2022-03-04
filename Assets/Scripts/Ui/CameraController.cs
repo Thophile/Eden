@@ -13,7 +13,7 @@ namespace Assets.Scripts.Ui
         // Zoom level
         public float zoomLevel = 4;
         const float minZoom = 0;
-        const float maxZoom = 9;
+        const float maxZoom = 15;
 
         // Drag
         private Vector3 dragOriginT;
