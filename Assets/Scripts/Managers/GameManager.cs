@@ -64,7 +64,7 @@ public class GameManager : MonoBehaviour
                     i = -1;
                 } else if(activeAnts[i] != null) {
                     activeAnts[i].UpdateSelf();
-                    UnityEngine.Debug.Log("Updating ant n° " + i);
+                    //UnityEngine.Debug.Log("Updating ant n° " + i);
 
                 }
             } else {
