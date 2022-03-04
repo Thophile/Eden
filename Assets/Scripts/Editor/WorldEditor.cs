@@ -16,13 +16,13 @@ namespace Assets.Scripts
                 {
                     world.GenerateMap();
                 }
-                if (world.autoPreview)
+                if (world.autoPreview && world.textureRenderer != null)
                 {
                     world.PreviewMap();
                 }
             }
 
-            if (GUILayout.Button("Preview"))
+            if (world.textureRenderer != null&& GUILayout.Button("Preview"))
             {
                 world.PreviewMap();
             }
@@ -34,6 +34,14 @@ namespace Assets.Scripts
             if (GUILayout.Button("Place assets"))
             {
                 world.PlaceAssets();
+            }
+            if (GUILayout.Button("Place colony"))
+            {
+                world.PlaceColony();
+            }
+            if (GUILayout.Button("Clear"))
+            {
+                world.Clear();
             }
         }
     }

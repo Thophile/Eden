@@ -54,7 +54,8 @@ MonoBehaviour:
   terrainLayers:
     serializedVersion: 2
     m_Bits: 24
-  seed: 5
+  colony: {fileID: 2022680362278642573, guid: 1aff64ccdf35fcd4392ca1e959a755a7, type: 3}
+  seed: 0
   biomesCount: 100
   instantiationTries: 10
   biomes:

@@ -13,6 +13,7 @@ namespace Assets.Scripts.Terrain
         public LayerMask waterLayer;
         public LayerMask groundLayer;
         public LayerMask terrainLayers;
+        public GameObject colony;
 
         [Header("Options")]
         public int seed = 0;
@@ -31,6 +32,12 @@ namespace Assets.Scripts.Terrain
         [Header("Preview")]
         public bool autoPreview;
         public Renderer textureRenderer;
+
+        private void Start()
+        {
+            GenerateMap();
+            PlaceAssets();
+        }
 
         public void GenerateMap()
         {
@@ -126,7 +133,45 @@ namespace Assets.Scripts.Terrain
             for (int i = 0; i < biomesCount; i++)
             {
                 Biome biome = RandomUtils.WeightedRandom(weigthList, sum);
-                if(biome != default(Biome)) SpawnAsset(biome, parent);
+                if (biome != default(Biome)) SpawnAsset(biome, parent);
+            }
+        }
+
+        public void PlaceColony()
+        {
+            for (int i = 0; i < instantiationTries; i++)
+            {
+                RaycastHit hit;
+                int size = mapGenerator.width - (2 * mapGenerator.width / chunkSize);
+                float x = UnityEngine.Random.Range(-size / 2, size / 2);
+                float z = UnityEngine.Random.Range(-size / 2, size / 2);
+
+                if (Physics.Raycast(new Vector3(x, 30, z), -transform.up, out hit))
+                {
+                    if (hit.collider.gameObject.layer == 3)
+                    {
+                        Instantiate(
+                            colony,
+                            hit.point,
+                            Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up))
+                            .transform.SetParent(GameObject.Find("Assets").transform);
+                        return;
+                    }
+                }
+            }
+        }
+
+        public void Clear()
+        {
+            while (transform.childCount > 0)
+            {
+                DestroyImmediate(transform.GetChild(0).gameObject);
+            }
+
+            var parent = GameObject.Find("Assets");
+            while (parent.transform.childCount > 0)
+            {
+                DestroyImmediate(parent.transform.GetChild(0).gameObject);
             }
         }
 
@@ -161,7 +206,7 @@ namespace Assets.Scripts.Terrain
                                         weigthList.Add((asset, sum));
                                     }
                                     Asset selectedAsset = RandomUtils.WeightedRandom(weigthList, sum);
-                                    if(selectedAsset != default(Asset))
+                                    if (selectedAsset != default(Asset))
                                     {
                                         var obj = Instantiate(
                                             selectedAsset.prefab,
@@ -180,7 +225,7 @@ namespace Assets.Scripts.Terrain
 
         private void OnValidate()
         {
-            
+
             if ((mapGenerator.width / (float)chunkSize) != 0)
             {
                 float value = (mapGenerator.width / (float)chunkSize);
@@ -199,9 +244,9 @@ namespace Assets.Scripts.Terrain
             {
                 mapGenerator.width = 1;
             }
-            if (mapGenerator.width > 100*chunkSize)
+            if (mapGenerator.width > 100 * chunkSize)
             {
-                mapGenerator.width = 100*chunkSize;
+                mapGenerator.width = 100 * chunkSize;
             }
             if (mapGenerator.cellSize < 1)
             {
@@ -219,7 +264,8 @@ namespace Assets.Scripts.Terrain
             {
                 mapGenerator.centerRadius = 1;
             }
-            foreach (var groundType in groundTypes){
+            foreach (var groundType in groundTypes)
+            {
                 if (groundType.minHeight < 0) groundType.minHeight = 0;
                 else if (groundType.minHeight > 1) groundType.minHeight = 1;
 
