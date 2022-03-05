@@ -9,6 +9,7 @@ namespace Assets.Scripts.Ui
         public static bool isActivated = false;
         // Parameters
         public LayerMask layerMask;
+        public int boundary;
 
         // Zoom level
         public float zoomLevel = 4;
@@ -66,6 +67,12 @@ namespace Assets.Scripts.Ui
                 dragOriginT = Input.mousePosition;
             }
             transform.Translate(new Vector3(move.x, ZoomCamera(), move.y));
+            transform.position = new Vector3(
+                Mathf.Clamp(transform.position.x, -boundary, boundary),
+                transform.position.y,
+                Mathf.Clamp(transform.position.z, -boundary, boundary)
+                );
+
         }
 
         void RotateCamera()

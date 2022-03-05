@@ -65,5 +65,13 @@ namespace Assets.Scripts.Managers
             SceneManager.LoadScene(1);
         }
 
+        public static void DeleteGame(string name)
+        {
+            var savePath = basePath + name;
+            if (File.Exists(savePath))
+            {
+                File.Delete(savePath);
+            }
+        }
     }
 }

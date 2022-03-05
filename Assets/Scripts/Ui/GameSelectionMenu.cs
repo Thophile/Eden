@@ -12,6 +12,11 @@ public class GameSelectionMenu : MonoBehaviour
     // Start is called before the first frame update
     void OnEnable()
     {
+        RefreshGamesList();
+    }
+
+    public void RefreshGamesList()
+    {
         while (content.transform.childCount > 1)
         {
             DestroyImmediate(content.transform.GetChild(1).gameObject);
@@ -20,10 +25,11 @@ public class GameSelectionMenu : MonoBehaviour
         {
             var element = Instantiate(saveTemplate) as GameObject;
             element.transform.SetParent(content.transform);
+            element.transform.localScale = new Vector3(1, 1, 1);
             element.GetComponentInChildren<TextMeshProUGUI>().text = SaveManager.GetVerboseName(save);
-            element.GetComponentInChildren<Button>().onClick.AddListener(delegate { SaveManager.LoadGame(save); });
+            var buttons = element.GetComponentsInChildren<Button>();
+            buttons[0].onClick.AddListener(delegate { SaveManager.DeleteGame(save); this.RefreshGamesList(); });
+            buttons[1].onClick.AddListener(delegate { SaveManager.LoadGame(save); });
         }
-        
     }
-    
 }
