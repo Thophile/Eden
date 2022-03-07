@@ -40,22 +40,22 @@ namespace Assets.Scripts.Model
         {
             RaycastHit hit;
             //ClimbCheck
-            climbCheckL = ParallelUtils.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(-5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
+            climbCheckL = Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(-5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
             climbNormalL = hit.normal;
-            climbCheckR = ParallelUtils.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
+            climbCheckR = Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
             climbNormalR = hit.normal;
 
             //SurfaceNormalCheck
-            surfaceCheck = ParallelUtils.Raycast(ant.transform.position - ant.transform.up * 0.02f + ant.transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -ant.transform.up, out hit, Mathf.Infinity, ~7);
+            surfaceCheck = Physics.Raycast(ant.transform.position - ant.transform.up * 0.02f + ant.transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -ant.transform.up, out hit, Mathf.Infinity, ~7);
             surfaceNormal = hit.normal;
 
             //DryPathCheck
             DryPathVectorL = Quaternion.Euler(0, -30, 0) * ant.transform.forward * 0.3f;
-            DryPathCheckL= ParallelUtils.Raycast(ant.transform.position + DryPathVectorL + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+            DryPathCheckL= Physics.Raycast(ant.transform.position + DryPathVectorL + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
             DryPathLayerL = hit.collider.gameObject.layer;
 
             DryPathVectorR = Quaternion.Euler(0, 30, 0) * ant.transform.forward * 0.3f;
-            DryPathCheckR = ParallelUtils.Raycast(ant.transform.position + DryPathVectorR + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+            DryPathCheckR = Physics.Raycast(ant.transform.position + DryPathVectorR + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
             DryPathLayerR = hit.collider.gameObject.layer;
 
             //targeting

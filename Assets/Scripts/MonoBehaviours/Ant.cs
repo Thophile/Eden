@@ -26,7 +26,7 @@ namespace Assets.Scripts.MonoBehaviours
         public float previousPosDistance;
         private Vector3 previousMark;
         private Vector3 velocity;
-        private AntProxy proxy;
+        public AntProxy proxy;
 
 
         public GameObject Load
@@ -70,7 +70,6 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
-                proxy.Init(this);
                 //Apply stickingForce if grounded else apply gravity
                 if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
                 {

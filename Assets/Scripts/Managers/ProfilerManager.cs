@@ -10,7 +10,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAntsMT);
+        static readonly string algorythm = nameof(UpdateAntsBatchedMT);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -57,7 +57,29 @@ namespace Assets.Scripts.Managers
         {
             while (true)
             {
+                for (int i = 0; i < activeAnts.Count; i++)
+                {
+                    var ant = activeAnts[i];
+                    ant.proxy.Init(ant);
+                }
                 ParallelUtils.For(0, activeAnts.Count, delegate (int index) { activeAnts[index].UpdateSelf(); });
+                yield return null;
+            }
+        }
+
+        public IEnumerator UpdateAntsBatchedMT()
+        {
+            int BATCH_NB = 5;
+            int batchOffset = 0;
+            while (true)
+            {
+                for (int i = 0; i < activeAnts.Count / BATCH_NB; i++)
+                {
+                    var ant = activeAnts[i * BATCH_NB + batchOffset];
+                    ant.proxy.Init(ant);
+                }
+                ParallelUtils.For(0, activeAnts.Count / BATCH_NB, delegate (int index) { activeAnts[index * BATCH_NB + batchOffset].UpdateSelf(); });
+                batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, activeAnts.Count / BATCH_NB);
                 yield return null;
             }
         }
