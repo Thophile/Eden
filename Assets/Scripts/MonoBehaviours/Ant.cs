@@ -123,9 +123,9 @@ namespace Assets.Scripts.MonoBehaviours
 
         Vector3 GetTargetSurfaceNormal(AntProxy proxy)
         {
-            if (proxy.climbCheckL.collider != null) return proxy.climbCheckL.normal;
-            if (proxy.climbCheckR.collider != null) return proxy.climbCheckR.normal;
-            if (proxy.surfaceNormalCheck.collider != null) return proxy.surfaceNormalCheck.normal;
+            if (proxy.climbCheckL) return proxy.climbNormalL;
+            if (proxy.climbCheckR) return proxy.climbNormalR;
+            if (proxy.surfaceCheck) return proxy.surfaceNormal;
             return surfaceNormal;
         }
 
@@ -134,8 +134,8 @@ namespace Assets.Scripts.MonoBehaviours
             Vector3 dryPathDir = GetDryPathDir(proxy);
             if (dryPathDir == Vector3.zero)
             {
-                MarkPath();
-                var randomDir = GetRandomDir();
+                MarkPath(proxy);
+                var randomDir = GetRandomDir(proxy);
                 var targetDir = GetTargetDir(proxy);
 
                 return (wanderStrenght * randomDir) + targetDir * pheroStrenght;
@@ -146,16 +146,19 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        Vector3 GetRandomDir()
+        Vector3 GetRandomDir(AntProxy proxy)
         {
-            Vector2 random = Random.insideUnitCircle;
-            return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
+            return Vector3.ProjectOnPlane(new Vector3(proxy.random.x, 0, proxy.random.y), surfaceNormal);
         }
 
         Vector3 GetTargetDir(AntProxy proxy)
         {
 
+            if(proxy.target != null && TryInteract(proxy))
+            {
 
+                return (proxy.target.transform.position - proxy.position).normalized;
+            }
             /*if (Targets.Count > 0)
             {
                 //TODO proxy target calc
@@ -209,16 +212,13 @@ namespace Assets.Scripts.MonoBehaviours
         Vector3 GetDryPathDir(AntProxy proxy)
         {
             // Obstacle Avoidance
-            var right = Quaternion.Euler(0, 30, 0) * proxy.forward * 0.3f;
-            var left = Quaternion.Euler(0, -30, 0) * proxy.forward * 0.3f;
-
-            if (proxy.DryPathCheckL.collider != null && proxy.DryPathCheckL.transform.gameObject.layer == 4)
+            if (proxy.DryPathCheckL && proxy.DryPathLayerL == 4)
             {
-                return -left;
+                return -proxy.DryPathVectorL;
             }
-            else if (proxy.DryPathCheckR.collider != null && proxy.DryPathCheckR.transform.gameObject.layer == 4)
+            else if (proxy.DryPathCheckR && proxy.DryPathLayerR == 4)
             {
-                return -right;
+                return -proxy.DryPathVectorR;
             }
             else
             {
@@ -226,36 +226,35 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        void MarkPath()
+        void MarkPath(AntProxy proxy)
         {
-            if (previousMark == null || (previousMark - transform.position).sqrMagnitude > markingDistance * markingDistance)
+            if (previousMark == null || (previousMark - proxy.position).sqrMagnitude > markingDistance * markingDistance)
             {
-                previousMark = transform.position;
+                previousMark = proxy.position;
 
                 switch (state)
                 {
                     case AntState.Wandering:
-                        this.previousPositions.Add(new TimedPosition(transform.position));
+                        this.previousPositions.Add(new TimedPosition(proxy.position));
                         break;
                     case AntState.GoingHome:
-                        GameManager.gameState.pheromonesMap.Mark(transform.position);
+                        GameManager.gameState.pheromonesMap.Mark(proxy.position);
                         break;
                 }
             }
         }
 
-        bool TryInteract(GameObject target)
+        bool TryInteract(AntProxy proxy)
         {
-
-            if (target != null && Vector3.Magnitude(target.transform.position - transform.position) < activationRadius)
+            if (proxy.target != null && Vector3.Magnitude(proxy.targetPosition - proxy.position) < activationRadius)
             {
-                target.GetComponent<Interactable>().Interact(this);
+                proxy.targetInteractable.Interact(this);
                 return true;
             }
             return false;
         }
 
-        GameObject PickTarget()
+        public GameObject PickTarget()
         {
             float? minDist = null;
             GameObject closest = null;

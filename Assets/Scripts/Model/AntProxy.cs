@@ -8,13 +8,28 @@ namespace Assets.Scripts.Model
     public class AntProxy
     {
         float[] array;
-        public RaycastHit climbCheckL;
-        public RaycastHit climbCheckR;
+        public bool climbCheckL;
+        public Vector3 climbNormalL;
+        public bool climbCheckR;
+        public Vector3 climbNormalR;
 
-        public RaycastHit surfaceNormalCheck;
 
-        public RaycastHit DryPathCheckL;
-        public RaycastHit DryPathCheckR;
+        public bool surfaceCheck;
+        public Vector3 surfaceNormal;
+
+        public bool DryPathCheckL;
+        public int DryPathLayerL;
+        public Vector3 DryPathVectorL;
+
+        public bool DryPathCheckR;
+        public int DryPathLayerR;
+        public Vector3 DryPathVectorR;
+
+        public GameObject target = null;
+        public Interactable targetInteractable;
+        public Vector3 targetPosition;
+
+        public Vector2 random;
         public AntProxy(Ant ant)
         {
             Init(ant);
@@ -23,19 +38,32 @@ namespace Assets.Scripts.Model
 
         public void Init(Ant ant)
         {
+            RaycastHit hit;
             //ClimbCheck
-            Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(-5, ant.transform.up) * ant.transform.forward, out this.climbCheckL, ant.climbDist, ~7);
-            Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(5, ant.transform.up) * ant.transform.forward, out this.climbCheckR, ant.climbDist, ~7);
+            climbCheckL = ParallelUtils.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(-5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
+            climbNormalL = hit.normal;
+            climbCheckR = ParallelUtils.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
+            climbNormalR = hit.normal;
 
             //SurfaceNormalCheck
-            Physics.Raycast(ant.transform.position - ant.transform.up * 0.02f + ant.transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -ant.transform.up, out this.surfaceNormalCheck, Mathf.Infinity, ~7);
+            surfaceCheck = ParallelUtils.Raycast(ant.transform.position - ant.transform.up * 0.02f + ant.transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -ant.transform.up, out hit, Mathf.Infinity, ~7);
+            surfaceNormal = hit.normal;
 
             //DryPathCheck
-            var right = Quaternion.Euler(0, 30, 0) * ant.transform.forward * 0.3f;
-            var left = Quaternion.Euler(0, -30, 0) * ant.transform.forward * 0.3f;
-            Physics.Raycast(ant.transform.position + left + Vector3.up, -Vector3.up, out DryPathCheckL, Mathf.Infinity, ~7);
-            Physics.Raycast(ant.transform.position + right + Vector3.up, -Vector3.up, out DryPathCheckR, Mathf.Infinity, ~7);
-            
+            DryPathVectorL = Quaternion.Euler(0, -30, 0) * ant.transform.forward * 0.3f;
+            DryPathCheckL= ParallelUtils.Raycast(ant.transform.position + DryPathVectorL + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+            DryPathLayerL = hit.collider.gameObject.layer;
+
+            DryPathVectorR = Quaternion.Euler(0, 30, 0) * ant.transform.forward * 0.3f;
+            DryPathCheckR = ParallelUtils.Raycast(ant.transform.position + DryPathVectorR + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+            DryPathLayerR = hit.collider.gameObject.layer;
+
+            //targeting
+            target = ant.PickTarget();
+            targetPosition = target ? target.transform.position : default(Vector3);
+
+            //random
+            random = Random.insideUnitCircle;
 
             this.array = new float[]
             {
