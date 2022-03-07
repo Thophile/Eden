@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Model;
+using Assets.Scripts.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -49,6 +50,15 @@ namespace Assets.Scripts.Managers
                     }
                 }
                 UnityEditor.EditorApplication.isPlaying = false;
+            }
+        }
+
+        public IEnumerator UpdateAntsMT()
+        {
+            while (true)
+            {
+                ParallelUtils.For(0, activeAnts.Count, delegate (int index) { activeAnts[index].UpdateSelf(); });
+                yield return null;
             }
         }
 
