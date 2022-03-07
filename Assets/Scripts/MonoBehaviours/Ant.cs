@@ -1,4 +1,5 @@
 using Assets.Scripts.Model;
+using Assets.Scripts.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,6 +26,7 @@ namespace Assets.Scripts.MonoBehaviours
         public float previousPosDistance;
         private Vector3 previousMark;
         private Vector3 velocity;
+        private AntProxy proxy;
 
 
         public GameObject Load
@@ -59,6 +61,7 @@ namespace Assets.Scripts.MonoBehaviours
             desiredDirection = transform.forward;
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
+            proxy = new AntProxy(this);
 
             Physics.IgnoreLayerCollision(7, 7);
         }
@@ -67,6 +70,7 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
+                proxy.Init(this);
                 //Apply stickingForce if grounded else apply gravity
                 if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
                 {
@@ -93,10 +97,10 @@ namespace Assets.Scripts.MonoBehaviours
             if (!GameManager.isPaused)
             {
                 // Surface alignement
-                Vector3 newNormal = GetTargetSurfaceNormal();
+                Vector3 newNormal = GetTargetSurfaceNormal(proxy);
 
                 // New direction choice
-                Vector3 newDirection = GetDesiredDir();
+                Vector3 newDirection = GetDesiredDir(proxy);
 
                 // Recalculate rotation
                 if (surfaceNormal != newNormal || newDirection != desiredDirection)
@@ -117,31 +121,22 @@ namespace Assets.Scripts.MonoBehaviours
             head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2f * Time.deltaTime);
         }
 
-        Vector3 GetTargetSurfaceNormal()
+        Vector3 GetTargetSurfaceNormal(AntProxy proxy)
         {
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position - transform.up * 0.01f, Quaternion.AngleAxis(-5, transform.up) * transform.forward, out hit, climbDist, ~antLayer) || Physics.Raycast(transform.position - transform.up * 0.06f, Quaternion.AngleAxis(5, transform.up) * transform.forward, out hit, climbDist, ~antLayer))
-            {
-                return hit.normal;
-            }
-            else if (Physics.Raycast(transform.position - transform.up * 0.02f + transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity, ~antLayer))
-            {
-                return hit.normal;
-            }
-            else
-            {
-                return surfaceNormal;
-            }
+            if (proxy.climbCheckL.collider != null) return proxy.climbCheckL.normal;
+            if (proxy.climbCheckR.collider != null) return proxy.climbCheckR.normal;
+            if (proxy.surfaceNormalCheck.collider != null) return proxy.surfaceNormalCheck.normal;
+            return surfaceNormal;
         }
 
-        Vector3 GetDesiredDir()
+        Vector3 GetDesiredDir(AntProxy proxy)
         {
-            Vector3 dryPathDir = GetDryPathDir();
+            Vector3 dryPathDir = GetDryPathDir(proxy);
             if (dryPathDir == Vector3.zero)
             {
                 MarkPath();
                 var randomDir = GetRandomDir();
-                var targetDir = GetTargetDir();
+                var targetDir = GetTargetDir(proxy);
 
                 return (wanderStrenght * randomDir) + targetDir * pheroStrenght;
             }
@@ -157,37 +152,38 @@ namespace Assets.Scripts.MonoBehaviours
             return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
         }
 
-        Vector3 GetTargetDir()
+        Vector3 GetTargetDir(AntProxy proxy)
         {
 
 
-            if (Targets.Count > 0)
+            /*if (Targets.Count > 0)
             {
+                //TODO proxy target calc
                 var target = PickTarget();
 
                 if (target != null && !TryInteract(target))
                 {
-                    return (target.transform.position - transform.position).normalized;
+                    return (target.transform.position - proxy.position).normalized;
                 }
-            }
+            }*/
 
-            Vector3 targetDir = transform.forward;
+            Vector3 targetDir = proxy.forward;
 
             switch (state)
             {
                 case AntState.Wandering:
                     const float magnitude = 0.5f;
-                    Vector3 center = transform.forward * magnitude;
-                    Vector3 left = Quaternion.AngleAxis(-30, transform.up) * transform.forward * magnitude;
-                    Vector3 right = Quaternion.AngleAxis(30, transform.up) * transform.forward * magnitude;
+                    Vector3 center = proxy.forward * magnitude;
+                    Vector3 left = Quaternion.AngleAxis(-30, proxy.up) * proxy.forward * magnitude;
+                    Vector3 right = Quaternion.AngleAxis(30, proxy.up) * proxy.forward * magnitude;
 
-                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(transform.position + center, pheroDetectionRange);
-                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(transform.position + left, pheroDetectionRange);
-                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(transform.position + right, pheroDetectionRange);
+                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + center, pheroDetectionRange);
+                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + left, pheroDetectionRange);
+                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + right, pheroDetectionRange);
 
-                    Debug.DrawLine(transform.position + center, transform.position + center + Vector3.up * centerPhero, Color.white, 1f);
-                    Debug.DrawLine(transform.position + left, transform.position + left + Vector3.up * leftPhero, Color.white, 1f);
-                    Debug.DrawLine(transform.position + right, transform.position + right + Vector3.up * rightPhero, Color.white, 1f);
+                    //Debug.DrawLine(proxy.position + center, proxy.position + center + Vector3.up * centerPhero, Color.white, 1f);
+                    //Debug.DrawLine(proxy.position + left, proxy.position + left + Vector3.up * leftPhero, Color.white, 1f);
+                    //Debug.DrawLine(proxy.position + right, proxy.position + right + Vector3.up * rightPhero, Color.white, 1f);
 
                     if (centerPhero >= leftPhero && centerPhero >= rightPhero) targetDir = center;
                     else if (leftPhero >= centerPhero && leftPhero >= rightPhero) targetDir = left;
@@ -198,30 +194,29 @@ namespace Assets.Scripts.MonoBehaviours
 
                     foreach (TimedPosition pos in previousPositions)
                     {
-                        if ((pos.Position - transform.position).sqrMagnitude < previousPosDistance * previousPosDistance)
+                        if ((pos.Position - proxy.position).sqrMagnitude < previousPosDistance * previousPosDistance)
                         {
                             oldestPos = pos;
                             break;
                         }
                     }
-                    targetDir = (oldestPos.Position - transform.position);
+                    targetDir = (oldestPos.Position - proxy.position);
                     break;
             }
             return targetDir;
         }
 
-        Vector3 GetDryPathDir()
+        Vector3 GetDryPathDir(AntProxy proxy)
         {
             // Obstacle Avoidance
-            var right = Quaternion.Euler(0, 30, 0) * transform.forward * 0.3f;
-            var left = Quaternion.Euler(0, -30, 0) * transform.forward * 0.3f;
+            var right = Quaternion.Euler(0, 30, 0) * proxy.forward * 0.3f;
+            var left = Quaternion.Euler(0, -30, 0) * proxy.forward * 0.3f;
 
-            RaycastHit hit;
-            if (Physics.Raycast(transform.position + left + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water"))
+            if (proxy.DryPathCheckL.collider != null && proxy.DryPathCheckL.transform.gameObject.layer == 4)
             {
                 return -left;
             }
-            else if (Physics.Raycast(transform.position + right + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water"))
+            else if (proxy.DryPathCheckR.collider != null && proxy.DryPathCheckR.transform.gameObject.layer == 4)
             {
                 return -right;
             }
