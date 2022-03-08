@@ -28,6 +28,7 @@ namespace Assets.Scripts.MonoBehaviours
         public float updateDelay;
         public float updateWindow;
         private float timestamp;
+        public AntProxy proxy;
 
 
         public GameObject Load
