@@ -114,7 +114,7 @@ MonoBehaviour:
   markingDistance: 0.5
   groundDistance: 0.03
   previousPosDistance: 3
-  updateDelay: 1.5
+  updateDelay: 0.5
   updateWindow: 0.3
   loadPos: {fileID: 4237965919035242033}
   Targets: []
