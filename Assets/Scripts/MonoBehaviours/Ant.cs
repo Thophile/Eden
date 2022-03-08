@@ -173,16 +173,11 @@ namespace Assets.Scripts.MonoBehaviours
 
         Vector3 GetTargetDir(AntProxy proxy)
         {
-
-
-            if (Targets.Count > 0)
+            var target = PickTarget(proxy);
+            if (target != null && TryInteract(target))
             {
-                var target = PickTarget(proxy);
 
-                if (target != null && !TryInteract(target))
-                {
-                    return (target.transform.position - proxy.position).normalized;
-                }
+                return (target.transform.position - proxy.position).normalized;
             }
 
             Vector3 targetDir = proxy.forward;
