@@ -30,10 +30,10 @@ namespace Assets.Scripts.Model
         public Vector3 targetPosition;
 
         public Vector2 random;
+
         public AntProxy(Ant ant)
         {
             Init(ant);
-
         }
 
         public void Init(Ant ant)
@@ -42,8 +42,11 @@ namespace Assets.Scripts.Model
             //ClimbCheck
             climbCheckL = Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(-5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
             climbNormalL = hit.normal;
-            climbCheckR = Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
-            climbNormalR = hit.normal;
+            if (!climbCheckL)
+            {
+                climbCheckR = Physics.Raycast(ant.transform.position - ant.transform.up * 0.01f, Quaternion.AngleAxis(5, ant.transform.up) * ant.transform.forward, out hit, ant.climbDist, ~7);
+                climbNormalR = hit.normal;
+            }
 
             //SurfaceNormalCheck
             surfaceCheck = Physics.Raycast(ant.transform.position - ant.transform.up * 0.02f + ant.transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -ant.transform.up, out hit, Mathf.Infinity, ~7);
@@ -54,15 +57,18 @@ namespace Assets.Scripts.Model
             DryPathCheckL= Physics.Raycast(ant.transform.position + DryPathVectorL + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
             DryPathLayerL = hit.collider.gameObject.layer;
 
-            DryPathVectorR = Quaternion.Euler(0, 30, 0) * ant.transform.forward * 0.3f;
-            DryPathCheckR = Physics.Raycast(ant.transform.position + DryPathVectorR + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
-            DryPathLayerR = hit.collider.gameObject.layer;
+            if (!DryPathCheckL)
+            {
+                DryPathVectorR = Quaternion.Euler(0, 30, 0) * ant.transform.forward * 0.3f;
+                DryPathCheckR = Physics.Raycast(ant.transform.position + DryPathVectorR + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+                DryPathLayerR = hit.collider.gameObject.layer;
+            }
 
-            //targeting
+            //Targeting
             target = ant.PickTarget();
             targetPosition = target ? target.transform.position : default(Vector3);
 
-            //random
+            //Random
             random = Random.insideUnitCircle;
 
             this.array = new float[]

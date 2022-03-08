@@ -13,10 +13,6 @@ namespace Assets.Scripts.Model
         public List<object[]> resourceInfo;
         public ResourceProperties resources;
         public PheromonesMap pheromonesMap;
-        // To save :
-        // seed -> hmap, assets, colony position
-        // + reuse for game loading
-
 
         public GameState() {
             gameTime = 0f;

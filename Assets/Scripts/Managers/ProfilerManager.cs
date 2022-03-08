@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Model;
+using Assets.Scripts.MonoBehaviours;
 using Assets.Scripts.Utils;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAntsBatchedMT);
+        static readonly string algorythm = nameof(UpdateAntsSTQueue);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -50,6 +51,33 @@ namespace Assets.Scripts.Managers
                     }
                 }
                 UnityEditor.EditorApplication.isPlaying = false;
+            }
+        }
+
+        public IEnumerator UpdateAntsSTQueue()
+        {
+            while (true)
+            {
+                foreach (Ant ant in antsToUpdate)
+                {
+                    ant.proxy.Init(ant);
+                    ant.UpdateSelf();
+                }
+                antsToUpdate.Clear();
+                yield return null;
+            }
+        }
+        public IEnumerator UpdateAntsMTQueue()
+        {
+            while (true)
+            {
+                foreach(Ant ant in antsToUpdate)
+                {
+                    ant.proxy.Init(ant);
+                }
+                ParallelUtils.For(0, antsToUpdate.Count, delegate (int index) { antsToUpdate[index].UpdateSelf(); });
+                antsToUpdate.Clear();
+                yield return null;
             }
         }
 

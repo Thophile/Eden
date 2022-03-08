@@ -27,7 +27,9 @@ namespace Assets.Scripts.MonoBehaviours
         private Vector3 previousMark;
         private Vector3 velocity;
         public AntProxy proxy;
-
+        public float updateDelay;
+        public float updateWindow;
+        public float timeStamp;
 
         public GameObject Load
         {
@@ -62,7 +64,7 @@ namespace Assets.Scripts.MonoBehaviours
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
             proxy = new AntProxy(this);
-
+            timeStamp = GameManager.gameState.gameTime;
             Physics.IgnoreLayerCollision(7, 7);
         }
 
@@ -83,6 +85,12 @@ namespace Assets.Scripts.MonoBehaviours
                 {
                     rb.AddForce(10 * downForce * -Vector3.up);
                     targetRot = Quaternion.LookRotation(transform.forward, Vector3.up);
+                }
+                //Register for updates
+                if(GameManager.gameState.gameTime - timeStamp > Random.Range(updateDelay - updateWindow, updateDelay + updateWindow))
+                {
+                    GameManager.antsToUpdate.Add(this);
+                    timeStamp = GameManager.gameState.gameTime;
                 }
             }
             if (animator)
