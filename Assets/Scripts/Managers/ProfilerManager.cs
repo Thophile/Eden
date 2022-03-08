@@ -10,7 +10,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAntsQueued);
+        static readonly string algorythm = nameof(UpdateAnts);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -57,9 +57,9 @@ namespace Assets.Scripts.Managers
         {
             while (true)
             {
-                for (int i = 0; i < activeAnts.Count; i++)
+                foreach (Ant ant in activeAnts)
                 {
-                    activeAnts[i].UpdateSelf();
+                    ant.UpdateSelf();
                 }
                 yield return null;
             }
