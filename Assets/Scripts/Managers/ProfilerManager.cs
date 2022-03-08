@@ -10,7 +10,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAnts);
+        static readonly string algorythm = nameof(UpdateAntsProxiedQueued);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -53,7 +53,7 @@ namespace Assets.Scripts.Managers
             }
         }
 
-        public new IEnumerator UpdateAnts()
+        public IEnumerator UpdateAntsProxied()
         {
             while (true)
             {
@@ -65,7 +65,7 @@ namespace Assets.Scripts.Managers
             }
         }
 
-        public IEnumerator UpdateAntsQueued()
+        public IEnumerator UpdateAntsProxiedQueued()
         {
             while (true)
             {
@@ -76,74 +76,6 @@ namespace Assets.Scripts.Managers
                 antsToUpdate.Clear();
                 yield return null;
             }
-        }
-
-        public IEnumerator UpdateAntsBatched()
-        {
-            int BATCH_NB = 5;
-            int batchOffset = 0;
-            while (true)
-            {
-                for (int i = 0; i < activeAnts.Count / BATCH_NB; i++)
-                {
-                    activeAnts[i * BATCH_NB + batchOffset].UpdateSelf();
-                }
-                batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, activeAnts.Count / BATCH_NB);
-                yield return null;
-            }
-        }
-
-        public IEnumerator UpdateAntsLimitedResources()
-        {
-            Stopwatch watch = new Stopwatch();
-            int MAX_MILLIS = 3;
-            watch.Start();
-            for (int i = 0; ; i++)
-            {
-                if (watch.ElapsedMilliseconds > MAX_MILLIS)
-                {
-                    watch.Reset();
-                    yield return null;
-                    watch.Start();
-                }
-                if (i > activeAnts.Count - 1)
-                {
-                    i = -1;
-                }
-                else if (activeAnts[i] != null)
-                {
-                    activeAnts[i].UpdateSelf();
-                }
-            }
-        }
-
-        public IEnumerator UpdateAntsLimitedResourcesWithMaxCall()
-        {
-            Stopwatch watch = new Stopwatch();
-            int MAX_MILLIS = 3;
-            int loopCounter = 0;
-            watch.Start();
-            for (int i = 0; ; i++)
-            {
-
-                if (watch.ElapsedMilliseconds > MAX_MILLIS || loopCounter >= activeAnts.Count)
-                {
-                    watch.Reset();
-                    yield return null;
-                    loopCounter = 0;
-                    watch.Start();
-                }
-                if (i > activeAnts.Count - 1)
-                {
-                    i = -1;
-                }
-                else if (activeAnts[i] != null)
-                {
-                    activeAnts[i].UpdateSelf();
-                    loopCounter += 1;
-                }
-            }
-
         }
     }
 }

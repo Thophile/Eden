@@ -65,6 +65,7 @@ namespace Assets.Scripts.MonoBehaviours
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
             timestamp = GameManager.gameState.gameTime;
+            proxy = new AntProxy(this);
             Physics.IgnoreLayerCollision(7, 7);
         }
 
