@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public static bool isPaused;
     public static GameState gameState = null;
     public static List<Ant> activeAnts = new List<Ant>();
+    public static List<Ant> antsToUpdate = new List<Ant>();
     public int autoSaveTime;
     public World world;
 

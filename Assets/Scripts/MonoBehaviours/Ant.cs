@@ -25,6 +25,9 @@ namespace Assets.Scripts.MonoBehaviours
         public float previousPosDistance;
         private Vector3 previousMark;
         private Vector3 velocity;
+        public float updateDelay;
+        public float updateWindow;
+        private float timestamp;
 
 
         public GameObject Load
@@ -59,7 +62,7 @@ namespace Assets.Scripts.MonoBehaviours
             desiredDirection = transform.forward;
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
-
+            timestamp = GameManager.gameState.gameTime;
             Physics.IgnoreLayerCollision(7, 7);
         }
 
@@ -81,6 +84,13 @@ namespace Assets.Scripts.MonoBehaviours
                     rb.AddForce(10 * downForce * -Vector3.up);
                     targetRot = Quaternion.LookRotation(transform.forward, Vector3.up);
                 }
+                //Register to queue
+                if (GameManager.gameState.gameTime - timestamp > Random.Range(updateDelay - updateWindow, updateDelay + updateWindow))
+                {
+                    timestamp = GameManager.gameState.gameTime;
+                    GameManager.antsToUpdate.Add(this);
+                }
+
             }
             if (animator)
             {

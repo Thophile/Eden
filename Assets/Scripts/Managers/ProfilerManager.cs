@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Model;
+using Assets.Scripts.MonoBehaviours;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +10,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAnts);
+        static readonly string algorythm = nameof(UpdateAntsQueued);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -60,6 +61,19 @@ namespace Assets.Scripts.Managers
                 {
                     activeAnts[i].UpdateSelf();
                 }
+                yield return null;
+            }
+        }
+
+        public IEnumerator UpdateAntsQueued()
+        {
+            while (true)
+            {
+                foreach (Ant ant in antsToUpdate)
+                {
+                    ant.UpdateSelf();
+                }
+                antsToUpdate.Clear();
                 yield return null;
             }
         }
