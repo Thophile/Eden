@@ -11,7 +11,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAntsSTQueue);
+        static readonly string algorythm = nameof(UpdateAntsST);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -51,6 +51,19 @@ namespace Assets.Scripts.Managers
                     }
                 }
                 UnityEditor.EditorApplication.isPlaying = false;
+            }
+        }
+
+        public IEnumerator UpdateAntsST()
+        {
+            while (true)
+            {
+                foreach (Ant ant in activeAnts)
+                {
+                    ant.proxy.Init(ant);
+                    ant.UpdateSelf();
+                }
+                yield return null;
             }
         }
 
