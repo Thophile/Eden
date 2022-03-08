@@ -11,7 +11,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAntsST);
+        static readonly string algorythm = nameof(UpdateAntsMT);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -67,6 +67,20 @@ namespace Assets.Scripts.Managers
             }
         }
 
+        public IEnumerator UpdateAntsMT()
+        {
+            while (true)
+            {
+                for (int i = 0; i < activeAnts.Count; i++)
+                {
+                    var ant = activeAnts[i];
+                    ant.proxy.Init(ant);
+                }
+                ParallelUtils.For(0, activeAnts.Count, delegate (int index) { activeAnts[index].UpdateSelf(); });
+                yield return null;
+            }
+        }
+
         public IEnumerator UpdateAntsSTQueue()
         {
             while (true)
@@ -94,19 +108,24 @@ namespace Assets.Scripts.Managers
             }
         }
 
-        public IEnumerator UpdateAntsMT()
+        public IEnumerator UpdateAntsBatchedST()
         {
+            int BATCH_NB = 5;
+            int batchOffset = 0;
             while (true)
             {
-                for (int i = 0; i < activeAnts.Count; i++)
+                for (int i = 0; i < activeAnts.Count / BATCH_NB; i++)
                 {
-                    var ant = activeAnts[i];
+                    var ant = activeAnts[i * BATCH_NB + batchOffset];
                     ant.proxy.Init(ant);
+                    ant.UpdateSelf();
                 }
-                ParallelUtils.For(0, activeAnts.Count, delegate (int index) { activeAnts[index].UpdateSelf(); });
+                batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, activeAnts.Count / BATCH_NB);
                 yield return null;
             }
         }
+
+
 
         public IEnumerator UpdateAntsBatchedMT()
         {
@@ -123,86 +142,6 @@ namespace Assets.Scripts.Managers
                 batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, activeAnts.Count / BATCH_NB);
                 yield return null;
             }
-        }
-
-        public new IEnumerator UpdateAnts()
-        {
-            while (true)
-            {
-                for (int i = 0; i < activeAnts.Count; i++)
-                {
-                    activeAnts[i].UpdateSelf();
-                }
-                yield return null;
-            }
-        }
-
-        public IEnumerator UpdateAntsBatched()
-        {
-            int BATCH_NB = 5;
-            int batchOffset = 0;
-            while (true)
-            {
-                for (int i = 0; i < activeAnts.Count / BATCH_NB; i++)
-                {
-                    activeAnts[i * BATCH_NB + batchOffset].UpdateSelf();
-                }
-                batchOffset = Mathf.Min((batchOffset + 1) % BATCH_NB, activeAnts.Count / BATCH_NB);
-                yield return null;
-            }
-        }
-
-        public IEnumerator UpdateAntsLimitedResources()
-        {
-            Stopwatch watch = new Stopwatch();
-            int MAX_MILLIS = 3;
-            watch.Start();
-            for (int i = 0; ; i++)
-            {
-                if (watch.ElapsedMilliseconds > MAX_MILLIS)
-                {
-                    watch.Reset();
-                    yield return null;
-                    watch.Start();
-                }
-                if (i > activeAnts.Count - 1)
-                {
-                    i = -1;
-                }
-                else if (activeAnts[i] != null)
-                {
-                    activeAnts[i].UpdateSelf();
-                }
-            }
-        }
-
-        public IEnumerator UpdateAntsLimitedResourcesWithMaxCall()
-        {
-            Stopwatch watch = new Stopwatch();
-            int MAX_MILLIS = 3;
-            int loopCounter = 0;
-            watch.Start();
-            for (int i = 0; ; i++)
-            {
-
-                if (watch.ElapsedMilliseconds > MAX_MILLIS || loopCounter >= activeAnts.Count)
-                {
-                    watch.Reset();
-                    yield return null;
-                    loopCounter = 0;
-                    watch.Start();
-                }
-                if (i > activeAnts.Count - 1)
-                {
-                    i = -1;
-                }
-                else if (activeAnts[i] != null)
-                {
-                    activeAnts[i].UpdateSelf();
-                    loopCounter += 1;
-                }
-            }
-
         }
     }
 }
