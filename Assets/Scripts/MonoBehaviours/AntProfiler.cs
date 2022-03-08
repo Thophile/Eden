@@ -49,12 +49,12 @@ namespace Assets.Scripts.MonoBehaviours
             }
 
             antsInfo.Add(obj);
-            ProfilerManager.activeAnts.Add(antComponent);
+            GameProfiler.activeAnts.Add(antComponent);
         }
         public void DespawnAnt(GameObject ant)
         {
             antsInfo.Remove(ant);
-            ProfilerManager.activeAnts.Remove(ant.GetComponent<Ant>());
+            GameProfiler.activeAnts.Remove(ant.GetComponent<Ant>());
             Destroy(ant);
         }
     }

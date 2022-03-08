@@ -28,9 +28,7 @@ namespace Assets.Scripts.MonoBehaviours
         private Vector3 velocity;
         public float updateDelay;
         public float updateWindow;
-        private float timestamp;
         public AntProxy proxy;
-
 
         public GameObject Load
         {
@@ -51,6 +49,7 @@ namespace Assets.Scripts.MonoBehaviours
 
         Animator animator;
 
+        float timestamp;
         Vector3 surfaceNormal;
         Vector3 desiredDirection;
         Quaternion targetRot;

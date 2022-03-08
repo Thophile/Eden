@@ -2,13 +2,12 @@
 using Assets.Scripts.MonoBehaviours;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 
 namespace Assets.Scripts.Managers
 {
-    public class ProfilerManager : GameManager
+    public class GameProfiler : GameManager
     {
         static readonly string algorythm = nameof(UpdateAntsProxiedQueued);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
