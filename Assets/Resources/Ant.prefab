@@ -104,12 +104,12 @@ MonoBehaviour:
   antLayer:
     serializedVersion: 2
     m_Bits: 128
-  updateDelay: 0.5
-  updateWindow: 0.3
+  updateDelay: 0.3
+  updateWindow: 0.1
   groundDist: 0.08
   climbDist: 0.1
   maxVelocity: 1
-  downForce: 0.01
+  downForce: 0.1
   wanderStrenght: 0.4
   pheroStrenght: 0.6
   pheroRange: 2
@@ -117,6 +117,7 @@ MonoBehaviour:
   memoryRange: 1.5
   activationRadius: 0.2
   damage: 10
+  grounded: 0
   state: 0
   Targets: []
   previousPositions: []

@@ -34,7 +34,7 @@ namespace Assets.Scripts.MonoBehaviours
         public float activationRadius;
         public int damage;
 
-
+        [HideInInspector] public bool grounded = false;
         [HideInInspector] public AntProxy proxy;
         [HideInInspector] public AntState state;
         [HideInInspector] public List<GameObject> Targets = new List<GameObject>();
@@ -80,21 +80,18 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
-                //Apply stickingForce if grounded else apply gravity
-                if (Physics.Raycast(transform.position, -transform.up, out _, groundDist, ~antLayer))
+                //Apply down force
+                rb.AddForce(downForce * -surfaceNormal);
+
+                if (grounded)
                 {
-                    rb.AddForce(-surfaceNormal * downForce);
                     // Setting rotation and velocity
                     float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
                     rb.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
                     rb.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
                 }
-                else
-                {
-                    rb.AddForce(10 * downForce * -Vector3.up);
-                    targetRot = Quaternion.LookRotation(transform.forward, Vector3.up);
-                }
-                //Register to queue
+
+                //Register for update
                 if (GameManager.gameState.gameTime - timestamp > Random.Range(updateDelay - updateWindow, updateDelay + updateWindow))
                 {
                     timestamp = GameManager.gameState.gameTime;
@@ -133,7 +130,7 @@ namespace Assets.Scripts.MonoBehaviours
         {
             var angle = Vector3.SignedAngle(proxy.forward, desiredDirection, proxy.up);
             var targetRot = Quaternion.Euler(head.localEulerAngles.x, head.localEulerAngles.y, angle);
-            head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2f * Time.deltaTime);
+            head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2 * Time.deltaTime);
         }
 
         Vector3 GetTargetSurfaceNormal(AntProxy proxy)
@@ -143,13 +140,15 @@ namespace Assets.Scripts.MonoBehaviours
             {
                 return hit.normal;
             }
-            else if (Physics.Raycast(proxy.position - proxy.up * 0.01f + proxy.forward * 0.02f, Quaternion.Euler(30, 0, 0) * -proxy.up, out hit, Mathf.Infinity, ~antLayer))
+            else if (Physics.Raycast(proxy.position - proxy.up * 0.01f + proxy.forward * 0.02f, Quaternion.Euler(30, 0, 0) * -proxy.up, out hit, 0.06f, ~antLayer))
             {
+                grounded = true;
                 return hit.normal;
             }
             else
             {
-                return surfaceNormal;
+                grounded = false;
+                return Vector3.up;
             }
         }
 
