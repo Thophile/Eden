@@ -61,8 +61,10 @@ namespace Assets.Scripts.Terrain
                     int offsetZ = chunkZ * (chunkSize - 1);
                     int offsetX = chunkX * (chunkSize - 1);
 
-                    GameObject chunk = new GameObject();
-                    chunk.name = String.Concat("Chunk.", chunkX, ".", chunkZ);
+                    GameObject chunk = new GameObject
+                    {
+                        name = String.Concat("Chunk.", chunkX, ".", chunkZ)
+                    };
                     chunk.transform.parent = this.transform;
                     chunk.transform.position = new Vector3(offsetZ - (mapGenerator.width / 2), 0, offsetX - (mapGenerator.width / 2));
                     chunk.layer = 3;
@@ -92,6 +94,7 @@ namespace Assets.Scripts.Terrain
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "UNT0017:SetPixels invocation is slow", Justification = "<Developpment only>")]
         public void PreviewMap()
         {
             float[,] heightMap = mapGenerator.GenerateHeightMap();

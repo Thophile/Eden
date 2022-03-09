@@ -61,7 +61,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1.9
+  m_Radius: 2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!95 &1326394649850419092
 Animator:
@@ -95,28 +95,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: Ant
-  pheroDetectionRange: 2
-  activationRadius: 0.2
-  downForce: 0.01
-  climbDist: 0.1
-  damage: 10
+  rb: {fileID: 405757102476171647}
+  head: {fileID: 4912828174815185103}
+  loadPos: {fileID: 4237965919035242033}
   waterLayer:
     serializedVersion: 2
     m_Bits: 16
   antLayer:
     serializedVersion: 2
     m_Bits: 128
-  rb: {fileID: 405757102476171647}
-  state: 0
-  maxVelocity: 1
-  wanderStrenght: 0.5
-  pheroStrenght: 0.8
-  markingDistance: 0.5
-  groundDistance: 0.03
-  previousPosDistance: 3
   updateDelay: 0.5
   updateWindow: 0.3
-  loadPos: {fileID: 4237965919035242033}
+  groundDist: 0.08
+  climbDist: 0.1
+  maxVelocity: 1
+  downForce: 0.01
+  wanderStrenght: 0.4
+  pheroStrenght: 0.6
+  pheroRange: 2
+  markingRange: 1
+  memoryRange: 1.5
+  activationRadius: 0.2
+  damage: 10
+  state: 0
   Targets: []
   previousPositions: []
 --- !u!54 &405757102476171647
