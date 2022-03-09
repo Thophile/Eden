@@ -1,5 +1,6 @@
 using Assets.Scripts.Model;
 using Assets.Scripts.Proxies;
+using Assets.Scripts.Ui;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -99,10 +100,11 @@ namespace Assets.Scripts.MonoBehaviours
                 }
 
             }
-            if (animator)
+            if (animator.isActiveAndEnabled)
             {
                 animator.SetFloat("velocity", 4 * (velocity.sqrMagnitude / (maxVelocity * maxVelocity)));
             }
+
         }
 
         public void UpdateSelf()
