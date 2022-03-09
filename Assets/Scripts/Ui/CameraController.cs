@@ -6,7 +6,7 @@ namespace Assets.Scripts.Ui
     public class CameraController : MonoBehaviour
     {
         public static GameObject camObject;
-        public static bool isActivated = false;
+
         // Parameters
         public LayerMask layerMask;
         public int boundary;

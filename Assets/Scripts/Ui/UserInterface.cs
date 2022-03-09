@@ -43,10 +43,8 @@ namespace Assets.Scripts.Ui
         // Menu part
         public void ToggleMenu(){
             GameManager.isPaused = !GameManager.isPaused;
-        
+            
             PlayPausePhysics(GameManager.isPaused);
-            CameraController.isActivated = !GameManager.isPaused;
-
             menuPanel.SetActive(GameManager.isPaused);
             if (GameManager.isPaused) MainMenu();
         

@@ -26,7 +26,7 @@ namespace Assets.Scripts.Managers
             GameManager.gameState.gameTime += dt;
             if (GameManager.gameState.gameTime < 2f) return;
 
-            if (dt < 0.05f)
+            if (activeAnts.Count < 1500)
             {
                 frames.Add((activeAnts.Count, dt));
 

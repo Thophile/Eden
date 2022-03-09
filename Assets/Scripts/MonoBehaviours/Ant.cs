@@ -1,5 +1,6 @@
 using Assets.Scripts.Model;
 using Assets.Scripts.Proxies;
+using Assets.Scripts.Ui;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,27 +9,44 @@ namespace Assets.Scripts.MonoBehaviours
     public class Ant : MonoBehaviour
     {
         // Parameters
+        [Header("General")]
         public string prefabName;
-        public int pheroDetectionRange;
-        public float activationRadius;
-        public float downForce;
-        public float climbDist;
-        public int damage;
+        [Header("References")]
+        public Rigidbody rb;
+        public Transform head;
+        public Transform loadPos;
         public LayerMask waterLayer;
         public LayerMask antLayer;
-        public Rigidbody rb;
-        public AntState state;
-        public float maxVelocity;
-        public float wanderStrenght;
-        public float pheroStrenght;
-        public float markingDistance;
-        public float groundDistance;
-        public float previousPosDistance;
-        private Vector3 previousMark;
-        private Vector3 velocity;
+
+        [Header("Movement")]
         public float updateDelay;
         public float updateWindow;
-        public AntProxy proxy;
+        public float groundDist;
+        public float climbDist;
+        public float maxVelocity;
+        public float downForce;
+        public float wanderStrenght;
+        public float pheroStrenght;
+        public int pheroRange;
+        public float markingRange;
+        public float memoryRange;
+
+        [Header("Interactions")]
+        public float activationRadius;
+        public int damage;
+
+        [HideInInspector] public bool grounded = false;
+        [HideInInspector] public AntProxy proxy;
+        [HideInInspector] public AntState state;
+        [HideInInspector] public List<GameObject> Targets = new List<GameObject>();
+        [HideInInspector] public List<TimedPosition> previousPositions;
+        private float timestamp;
+        private Vector3 velocity;
+        private Vector3 previousMark;
+        private Vector3 surfaceNormal;
+        private Vector3 desiredDirection;
+        private Quaternion targetRot;
+        Animator animator;
 
         public GameObject Load
         {
@@ -43,16 +61,6 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
         GameObject _load = null;
-        public Transform loadPos;
-        public List<GameObject> Targets = new List<GameObject>();
-        public List<TimedPosition> previousPositions;
-
-        Animator animator;
-
-        float timestamp;
-        Vector3 surfaceNormal;
-        Vector3 desiredDirection;
-        Quaternion targetRot;
 
         void Start()
         {
@@ -72,21 +80,18 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
-                //Apply stickingForce if grounded else apply gravity
-                if (Physics.Raycast(transform.position, -transform.up, out _, groundDistance, ~antLayer))
+                //Apply down force
+                rb.AddForce(downForce * -surfaceNormal);
+
+                if (grounded)
                 {
-                    rb.AddForce(-surfaceNormal * downForce);
                     // Setting rotation and velocity
                     float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
                     rb.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
                     rb.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
                 }
-                else
-                {
-                    rb.AddForce(10 * downForce * -Vector3.up);
-                    targetRot = Quaternion.LookRotation(transform.forward, Vector3.up);
-                }
-                //Register to queue
+
+                //Register for update
                 if (GameManager.gameState.gameTime - timestamp > Random.Range(updateDelay - updateWindow, updateDelay + updateWindow))
                 {
                     timestamp = GameManager.gameState.gameTime;
@@ -94,10 +99,11 @@ namespace Assets.Scripts.MonoBehaviours
                 }
 
             }
-            if (animator)
+            if (animator.isActiveAndEnabled)
             {
-                animator.SetFloat("velocity", 6 * (velocity.sqrMagnitude / (maxVelocity * maxVelocity)));
+                animator.SetFloat("velocity", 4 * (velocity.sqrMagnitude / (maxVelocity * maxVelocity)));
             }
+
         }
 
         public void UpdateSelf()
@@ -123,28 +129,27 @@ namespace Assets.Scripts.MonoBehaviours
 
         void LateUpdate()
         {
-
-            var head = transform.Find("Body/Armature/Main/Head").transform;
-            var angle = Vector3.SignedAngle(transform.forward, desiredDirection, transform.up);
+            var angle = Vector3.SignedAngle(proxy.forward, desiredDirection, proxy.up);
             var targetRot = Quaternion.Euler(head.localEulerAngles.x, head.localEulerAngles.y, angle);
-            head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2f * Time.deltaTime);
+            head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2 * Time.deltaTime);
         }
 
         Vector3 GetTargetSurfaceNormal(AntProxy proxy)
         {
             RaycastHit hit;
-            if (Physics.Raycast(proxy.position - proxy.up * 0.01f, Quaternion.AngleAxis(-5, proxy.up) * proxy.forward, out hit, climbDist, ~antLayer) 
-                || Physics.Raycast(proxy.position - proxy.up * 0.01f, Quaternion.AngleAxis(5, proxy.up) * proxy.forward, out hit, climbDist, ~antLayer))
+            if (Physics.Raycast(proxy.position - proxy.up * 0.02f, proxy.forward, out hit, climbDist, ~antLayer))
             {
                 return hit.normal;
             }
-            else if (Physics.Raycast(proxy.position - proxy.up * 0.02f + proxy.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -proxy.up, out hit, Mathf.Infinity, ~antLayer))
+            else if (Physics.Raycast(proxy.position - proxy.up * 0.01f + proxy.forward * 0.02f, Quaternion.Euler(30, 0, 0) * -proxy.up, out hit, 0.06f, ~antLayer))
             {
+                grounded = true;
                 return hit.normal;
             }
             else
             {
-                return surfaceNormal;
+                grounded = false;
+                return Vector3.up;
             }
         }
 
@@ -153,7 +158,7 @@ namespace Assets.Scripts.MonoBehaviours
             Vector3 dryPathDir = GetDryPathDir(proxy);
             if (dryPathDir == Vector3.zero)
             {
-                MarkPath();
+                MarkPath(proxy);
                 var randomDir = GetRandomDir();
                 var targetDir = GetTargetDir(proxy);
 
@@ -190,9 +195,9 @@ namespace Assets.Scripts.MonoBehaviours
                     Vector3 left = Quaternion.AngleAxis(-30, proxy.up) * proxy.forward * magnitude;
                     Vector3 right = Quaternion.AngleAxis(30, proxy.up) * proxy.forward * magnitude;
 
-                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + center, pheroDetectionRange);
-                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + left, pheroDetectionRange);
-                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + right, pheroDetectionRange);
+                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + center, pheroRange);
+                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + left, pheroRange);
+                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + right, pheroRange);
 
                     Debug.DrawLine(proxy.position + center, proxy.position + center + Vector3.up * centerPhero, Color.white, 1f);
                     Debug.DrawLine(proxy.position + left, proxy.position + left + Vector3.up * leftPhero, Color.white, 1f);
@@ -207,7 +212,7 @@ namespace Assets.Scripts.MonoBehaviours
 
                     foreach (TimedPosition pos in previousPositions)
                     {
-                        if ((pos.Position - proxy.position).sqrMagnitude < previousPosDistance * previousPosDistance)
+                        if ((pos.Position - proxy.position).sqrMagnitude < memoryRange * memoryRange)
                         {
                             oldestPos = pos;
                             break;
@@ -240,19 +245,19 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        void MarkPath()
+        void MarkPath(AntProxy proxy)
         {
-            if (previousMark == null || (previousMark - transform.position).sqrMagnitude > markingDistance * markingDistance)
+            if (previousMark == null || (previousMark - proxy.position).sqrMagnitude > markingRange * markingRange)
             {
-                previousMark = transform.position;
+                previousMark = proxy.position;
 
                 switch (state)
                 {
                     case AntState.Wandering:
-                        this.previousPositions.Add(new TimedPosition(transform.position));
+                        this.previousPositions.Add(new TimedPosition(proxy.position));
                         break;
                     case AntState.GoingHome:
-                        GameManager.gameState.pheromonesMap.Mark(transform.position);
+                        GameManager.gameState.pheromonesMap.Mark(proxy.position);
                         break;
                 }
             }

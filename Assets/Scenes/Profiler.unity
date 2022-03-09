@@ -358,6 +358,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   autoSaveTime: 0
+  world: {fileID: 0}
 --- !u!1 &1048166731
 GameObject:
   m_ObjectHideFlags: 0
@@ -651,6 +652,10 @@ PrefabInstance:
     - target: {fileID: 1001699118404330955, guid: 197e2d7511fa00742b80649b83ed12d7, type: 3}
       propertyPath: m_Name
       value: Camera
+      objectReference: {fileID: 0}
+    - target: {fileID: 1001699118404330996, guid: 197e2d7511fa00742b80649b83ed12d7, type: 3}
+      propertyPath: boundary
+      value: 256
       objectReference: {fileID: 0}
     - target: {fileID: 1001699118404330997, guid: 197e2d7511fa00742b80649b83ed12d7, type: 3}
       propertyPath: m_RootOrder
