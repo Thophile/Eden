@@ -51,27 +51,18 @@ public class GameManager : MonoBehaviour
     }
 
     public IEnumerator UpdateAnts(){
-        Stopwatch watch = new Stopwatch();
-        int MAX_MILLIS = 3;
-        watch.Start();
-        for(int i = 0;; i++){
-            if (!isPaused) {
-                if (watch.ElapsedMilliseconds > MAX_MILLIS) {
-                    watch.Reset();
-                    yield return null;
-                    watch.Start();
+        while (true)
+        {
+            foreach (Ant ant in antsToUpdate)
+            {
+                if (ant)
+                {
+                ant.UpdateSelf();
                 }
-                if(i > activeAnts.Count - 1) {
-                    i = -1;
-                } else if(activeAnts[i] != null) {
-                    activeAnts[i].UpdateSelf();
-                    //UnityEngine.Debug.Log("Updating ant n° " + i);
-
-                }
-            } else {
-                yield return null;
             }
-        }       
+            antsToUpdate.Clear();
+            yield return null;
+        }
 
     }
 

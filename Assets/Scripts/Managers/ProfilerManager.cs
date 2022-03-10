@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Assets.Scripts.Managers

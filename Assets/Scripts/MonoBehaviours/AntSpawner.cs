@@ -8,10 +8,16 @@ namespace Assets.Scripts.MonoBehaviours
     {
         public Transform exit;
         public GameObject ant;
+        public static Transform gameManager;
     
         public int spawnDelay;
         float time = 0;
         public static List<GameObject> antsInfo = new List<GameObject>();
+
+        private void Start()
+        {
+            gameManager = GameObject.Find("GameManager").transform;
+        }
 
         // Update is called once per frame
         void Update()
@@ -27,9 +33,10 @@ namespace Assets.Scripts.MonoBehaviours
                 }
             }
         }
+
         public static void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null, List<TimedPosition> previousPositions = null){
             var obj = Instantiate(ant, pos, rot);
-            obj.transform.parent = GameObject.Find("GameManager").transform;
+            obj.transform.parent = gameManager;
             var antComponent = obj.GetComponent<Ant>();
             antComponent.prefabName = ant.name;
             if(load != null) {

@@ -76,7 +76,6 @@ namespace Assets.Scripts.MonoBehaviours
             targetRot = transform.rotation;
             timestamp = GameManager.gameState.gameTime;
             proxy = new TransformProxy(transform);
-            Physics.IgnoreLayerCollision(7, 7);
         }
 
         void Update()
