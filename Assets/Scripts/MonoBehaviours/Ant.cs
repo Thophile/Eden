@@ -21,8 +21,6 @@ namespace Assets.Scripts.MonoBehaviours
         [Header("Movement")]
         public float updateDelay;
         public float updateWindow;
-        public float groundDist;
-        public float climbDist;
         public float maxVelocity;
         public float downForce;
         public float wanderStrenght;
@@ -142,7 +140,7 @@ namespace Assets.Scripts.MonoBehaviours
         Vector3 GetTargetSurfaceNormal(TransformProxy proxy)
         {
             RaycastHit hit;
-            if (Physics.Raycast(proxy.position - proxy.up * 0.02f, proxy.forward, out hit, climbDist, ~antLayer))
+            if (Physics.Raycast(proxy.position - proxy.up * 0.02f, proxy.forward, out hit, 0.05f, ~antLayer))
             {
                 return hit.normal;
             }
