@@ -1,28 +1,29 @@
-using Assets.Scripts.MonoBehaviours;
+﻿using Assets.Scripts.MonoBehaviours;
+using System.Collections;
 using UnityEngine;
 
 namespace Assets.Scripts.Proxies
 {
-    public class AntProxy
+    public class TransformProxy
     {
         float[] array;
 
-        public AntProxy(Ant ant)
+        public TransformProxy(Transform ant)
         {
             Init(ant);
         }
 
-        public void Init(Ant ant)
+        public void Init(Transform ant)
         {
             this.array = new float[]
             {
-                    ant.transform.position.x,
-                    ant.transform.position.y,
-                    ant.transform.position.z,
-                    ant.transform.rotation.x,
-                    ant.transform.rotation.y,
-                    ant.transform.rotation.z,
-                    ant.transform.rotation.w
+                ant.position.x,
+                ant.position.y,
+                ant.position.z,
+                ant.rotation.x,
+                ant.rotation.y,
+                ant.rotation.z,
+                ant.rotation.w
             };
         }
 

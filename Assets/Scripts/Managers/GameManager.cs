@@ -50,11 +50,15 @@ public class GameManager : MonoBehaviour
         {
             foreach (Ant ant in antsToUpdate)
             {
+                if (ant)
+                {
                 ant.UpdateSelf();
+                }
             }
             antsToUpdate.Clear();
             yield return null;
         }
+
     }
 
     public static void Save() {

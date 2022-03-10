@@ -3,13 +3,14 @@ using Assets.Scripts.MonoBehaviours;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Assets.Scripts.Managers
 {
     public class GameProfiler : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAntsProxiedQueued);
+        static readonly string algorythm = nameof(UpdateAntsOpti);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -64,7 +65,7 @@ namespace Assets.Scripts.Managers
             }
         }
 
-        public IEnumerator UpdateAntsProxiedQueued()
+        public IEnumerator UpdateAntsOpti()
         {
             while (true)
             {
