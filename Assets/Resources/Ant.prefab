@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabName: Ant
-  rb: {fileID: 405757102476171647}
+  rigidbodyRef: {fileID: 0}
   head: {fileID: 4912828174815185103}
   loadPos: {fileID: 4237965919035242033}
   waterLayer:
@@ -106,10 +106,8 @@ MonoBehaviour:
     m_Bits: 128
   updateDelay: 0.3
   updateWindow: 0.1
-  groundDist: 0.08
-  climbDist: 0.1
-  maxVelocity: 1
-  downForce: 0.1
+  maxVelocity: 0.8
+  downForce: 1
   wanderStrenght: 0.4
   pheroStrenght: 0.6
   pheroRange: 2
@@ -119,7 +117,7 @@ MonoBehaviour:
   damage: 10
   grounded: 0
   state: 0
-  Targets: []
+  targets: []
   previousPositions: []
 --- !u!54 &405757102476171647
 Rigidbody:

@@ -34,16 +34,16 @@ namespace Assets.Scripts.MonoBehaviours
         public int damage;
 
         [HideInInspector] public bool grounded = false;
-        [HideInInspector] public TransformProxy proxy;
+        [HideInInspector] public TransformProxy transformProxy;
         [HideInInspector] public AntState state;
         [HideInInspector] public List<GameObject> targets = new List<GameObject>();
         [HideInInspector] public List<TimedPosition> previousPositions;
         private float timestamp;
         private Vector3 velocity;
         private Vector3 previousMark;
-        private Vector3 surfaceNormal;
-        private Vector3 desiredDirection;
-        private Quaternion targetRot;
+        private Vector3 newNormal;
+        private Vector3 newDirection;
+        private Quaternion newRotation;
         Animator animatorRef;
         Renderer rendererRef;
 
@@ -69,11 +69,11 @@ namespace Assets.Scripts.MonoBehaviours
             rigidbodyRef = gameObject.GetComponent<Rigidbody>();
 
             rigidbodyRef.isKinematic = GameManager.isPaused;
-            desiredDirection = transform.forward;
-            surfaceNormal = Vector3.up;
-            targetRot = transform.rotation;
+            newDirection = transform.forward;
+            newNormal = Vector3.up;
+            newRotation = transform.rotation;
             timestamp = GameManager.gameState.gameTime;
-            proxy = new TransformProxy(transform);
+            transformProxy = new TransformProxy(transform);
         }
 
         void Update()
@@ -81,13 +81,13 @@ namespace Assets.Scripts.MonoBehaviours
             if (!GameManager.isPaused)
             {
                 //Apply down force
-                rigidbodyRef.AddForce(downForce * -surfaceNormal);
+                rigidbodyRef.AddForce(downForce * -newNormal, ForceMode.Acceleration);
 
                 if (grounded)
                 {
                     // Setting rotation and velocity
-                    float turnRatio = 1 - (Vector3.Angle(desiredDirection, velocity) / 180);
-                    rigidbodyRef.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
+                    float turnRatio = 1 - (Vector3.Angle(newDirection, velocity) / 180);
+                    rigidbodyRef.MoveRotation(Quaternion.Lerp(transform.rotation, newRotation, 10f * Time.deltaTime));
                     rigidbodyRef.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
                 }
 
@@ -107,7 +107,7 @@ namespace Assets.Scripts.MonoBehaviours
         void LateUpdate()
         {
             if(Time.frameCount % 3 == 0 && rendererRef.isVisible){
-                var angle = Vector3.SignedAngle(proxy.forward, desiredDirection, proxy.up);
+                var angle = Vector3.SignedAngle(transformProxy.forward, newDirection, transformProxy.up);
                 var localEuler = head.localEulerAngles;
                 head.localRotation = Quaternion.Lerp(head.localRotation,
                                                      Quaternion.Euler(localEuler.x, localEuler.y, angle),
@@ -119,32 +119,32 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
-                proxy.Init(transform);
+                transformProxy.Init(transform);
                 // Surface alignement
-                Vector3 newNormal = GetTargetSurfaceNormal(proxy);
+                Vector3 surfaceNormal = GetTargetSurfaceNormal(transformProxy);
 
                 // New direction choice
-                Vector3 newDirection = GetDesiredDir(proxy);
+                Vector3 desiredDirection = GetDesiredDir(transformProxy);
 
                 // Recalculate rotation
-                if (surfaceNormal != newNormal || newDirection != desiredDirection)
+                if (surfaceNormal != newNormal || desiredDirection != newDirection)
                 {
-                    surfaceNormal = newNormal;
-                    desiredDirection = newDirection;
-                    targetRot = Quaternion.LookRotation(Vector3.ProjectOnPlane(desiredDirection, surfaceNormal), surfaceNormal);
+                    newNormal = surfaceNormal;
+                    newDirection = desiredDirection;
+                    newRotation = Quaternion.LookRotation(Vector3.ProjectOnPlane(newDirection, newNormal), newNormal);
                 }
             }
         }
 
 
-        Vector3 GetTargetSurfaceNormal(TransformProxy proxy)
+        Vector3 GetTargetSurfaceNormal(TransformProxy transformProxy)
         {
             RaycastHit hit;
-            if (Physics.Raycast(proxy.position - proxy.up * 0.02f, proxy.forward, out hit, 0.05f, ~antLayer))
+            if (Physics.Raycast(transformProxy.position - transformProxy.up * 0.02f, transformProxy.forward, out hit, 0.06f, ~antLayer))
             {
                 return hit.normal;
             }
-            else if (Physics.Raycast(proxy.position - proxy.up * 0.01f + proxy.forward * 0.02f, Quaternion.Euler(30, 0, 0) * -proxy.up, out hit, 0.06f, ~antLayer))
+            else if (Physics.Raycast(transformProxy.position + transformProxy.forward * 0.02f, Quaternion.Euler(10, 0, 0) * -transformProxy.up, out hit, 0.06f, ~antLayer))
             {
                 grounded = true;
                 return hit.normal;
@@ -156,14 +156,14 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        Vector3 GetDesiredDir(TransformProxy proxy)
+        Vector3 GetDesiredDir(TransformProxy transformProxy)
         {
-            Vector3 dryPathDir = GetDryPathDir(proxy);
+            Vector3 dryPathDir = GetDryPathDir(transformProxy);
             if (dryPathDir == Vector3.zero)
             {
-                MarkPath(proxy);
+                MarkPath(transformProxy);
                 var randomDir = GetRandomDir();
-                var targetDir = GetTargetDir(proxy);
+                var targetDir = GetTargetDir(transformProxy);
 
                 return (wanderStrenght * randomDir) + targetDir * pheroStrenght;
             }
@@ -176,35 +176,31 @@ namespace Assets.Scripts.MonoBehaviours
         Vector3 GetRandomDir()
         {
             Vector2 random = Random.insideUnitCircle;
-            return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
+            return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), newNormal);
         }
 
-        Vector3 GetTargetDir(TransformProxy proxy)
+        Vector3 GetTargetDir(TransformProxy transformProxy)
         {
-            var target = PickTarget(proxy);
+            var target = PickTarget(transformProxy);
             if (target != null && TryInteract(target))
             {
 
-                return (target.transform.position - proxy.position).normalized;
+                return (target.transform.position - transformProxy.position).normalized;
             }
 
-            Vector3 targetDir = proxy.forward;
+            Vector3 targetDir = transformProxy.forward;
 
             switch (state)
             {
                 case AntState.Wandering:
                     const float magnitude = 0.5f;
-                    Vector3 center = proxy.forward * magnitude;
-                    Vector3 left = Quaternion.AngleAxis(-30, proxy.up) * proxy.forward * magnitude;
-                    Vector3 right = Quaternion.AngleAxis(30, proxy.up) * proxy.forward * magnitude;
+                    Vector3 center = transformProxy.forward * magnitude;
+                    Vector3 left = Quaternion.AngleAxis(-30, transformProxy.up) * transformProxy.forward * magnitude;
+                    Vector3 right = Quaternion.AngleAxis(30, transformProxy.up) * transformProxy.forward * magnitude;
 
-                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + center, pheroRange);
-                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + left, pheroRange);
-                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(proxy.position + right, pheroRange);
-
-                    Debug.DrawLine(proxy.position + center, proxy.position + center + Vector3.up * centerPhero, Color.white, 1f);
-                    Debug.DrawLine(proxy.position + left, proxy.position + left + Vector3.up * leftPhero, Color.white, 1f);
-                    Debug.DrawLine(proxy.position + right, proxy.position + right + Vector3.up * rightPhero, Color.white, 1f);
+                    var centerPhero = GameManager.gameState.pheromonesMap.ComputeZone(transformProxy.position + center, pheroRange);
+                    var leftPhero = GameManager.gameState.pheromonesMap.ComputeZone(transformProxy.position + left, pheroRange);
+                    var rightPhero = GameManager.gameState.pheromonesMap.ComputeZone(transformProxy.position + right, pheroRange);
 
                     if (centerPhero >= leftPhero && centerPhero >= rightPhero) targetDir = center;
                     else if (leftPhero >= centerPhero && leftPhero >= rightPhero) targetDir = left;
@@ -215,30 +211,30 @@ namespace Assets.Scripts.MonoBehaviours
 
                     foreach (TimedPosition pos in previousPositions)
                     {
-                        if ((pos.Position - proxy.position).sqrMagnitude < memoryRange * memoryRange)
+                        if ((pos.Position - transformProxy.position).sqrMagnitude < memoryRange * memoryRange)
                         {
                             oldestPos = pos;
                             break;
                         }
                     }
-                    targetDir = (oldestPos.Position - proxy.position);
+                    targetDir = (oldestPos.Position - transformProxy.position);
                     break;
             }
             return targetDir;
         }
 
-        Vector3 GetDryPathDir(TransformProxy proxy)
+        Vector3 GetDryPathDir(TransformProxy transformProxy)
         {
             // Obstacle Avoidance
-            var right = Quaternion.Euler(0, 30, 0) * proxy.forward * 0.3f;
-            var left = Quaternion.Euler(0, -30, 0) * proxy.forward * 0.3f;
+            var right = Quaternion.Euler(0, 30, 0) * transformProxy.forward * 0.3f;
+            var left = Quaternion.Euler(0, -30, 0) * transformProxy.forward * 0.3f;
 
             RaycastHit hit;
-            if (Physics.Raycast(proxy.position + left + Vector3.up, -Vector3.up, out hit) && hit.collider.gameObject.layer == 4)
+            if (Physics.Raycast(transformProxy.position + left + Vector3.up, -Vector3.up, out hit) && hit.collider.gameObject.layer == 4)
             {
                 return -left;
             }
-            else if (Physics.Raycast(proxy.position + right + Vector3.up, -Vector3.up, out hit) && hit.collider.gameObject.layer == 4)
+            else if (Physics.Raycast(transformProxy.position + right + Vector3.up, -Vector3.up, out hit) && hit.collider.gameObject.layer == 4)
             {
                 return -right;
             }
@@ -248,19 +244,19 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        void MarkPath(TransformProxy proxy)
+        void MarkPath(TransformProxy transformProxy)
         {
-            if (previousMark == null || (previousMark - proxy.position).sqrMagnitude > markingRange * markingRange)
+            if (previousMark == null || (previousMark - transformProxy.position).sqrMagnitude > markingRange * markingRange)
             {
-                previousMark = proxy.position;
+                previousMark = transformProxy.position;
 
                 switch (state)
                 {
                     case AntState.Wandering:
-                        this.previousPositions.Add(new TimedPosition(proxy.position));
+                        this.previousPositions.Add(new TimedPosition(transformProxy.position));
                         break;
                     case AntState.GoingHome:
-                        GameManager.gameState.pheromonesMap.Mark(proxy.position);
+                        GameManager.gameState.pheromonesMap.Mark(transformProxy.position);
                         break;
                 }
             }
@@ -277,7 +273,7 @@ namespace Assets.Scripts.MonoBehaviours
             return false;
         }
 
-        public GameObject PickTarget(TransformProxy proxy)
+        public GameObject PickTarget(TransformProxy transformProxy)
         {
             float? minDist = null;
             GameObject closest = null;
@@ -286,9 +282,9 @@ namespace Assets.Scripts.MonoBehaviours
                 if (item == null) continue;
                 if (item.GetComponent<Exit>() && state == AntState.Wandering) continue;
                 if (item.GetComponent<Resource>() && Load != null) continue;
-                if (minDist == null || (proxy.position - item.transform.position).sqrMagnitude < minDist)
+                if (minDist == null || (transformProxy.position - item.transform.position).sqrMagnitude < minDist)
                 {
-                    minDist = (proxy.position - item.transform.position).sqrMagnitude;
+                    minDist = (transformProxy.position - item.transform.position).sqrMagnitude;
                     closest = item;
                 }
             }
