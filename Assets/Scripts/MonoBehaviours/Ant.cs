@@ -12,7 +12,7 @@ namespace Assets.Scripts.MonoBehaviours
         [Header("General")]
         public string prefabName;
         [Header("References")]
-        public Rigidbody rb;
+        public Rigidbody rigidbodyRef;
         public Transform head;
         public Transform loadPos;
         public LayerMask waterLayer;
@@ -46,7 +46,8 @@ namespace Assets.Scripts.MonoBehaviours
         private Vector3 surfaceNormal;
         private Vector3 desiredDirection;
         private Quaternion targetRot;
-        Animator animator;
+        Animator animatorRef;
+        Renderer rendererRef;
 
 
         public GameObject Load
@@ -65,10 +66,11 @@ namespace Assets.Scripts.MonoBehaviours
 
         void Start()
         {
-            animator = gameObject.GetComponent<Animator>();
-            rb = gameObject.GetComponent<Rigidbody>();
+            animatorRef = gameObject.GetComponent<Animator>();
+            rendererRef = gameObject.GetComponentInChildren<Renderer>();
+            rigidbodyRef = gameObject.GetComponent<Rigidbody>();
 
-            rb.isKinematic = GameManager.isPaused;
+            rigidbodyRef.isKinematic = GameManager.isPaused;
             desiredDirection = transform.forward;
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
@@ -82,14 +84,14 @@ namespace Assets.Scripts.MonoBehaviours
             if (!GameManager.isPaused)
             {
                 //Apply down force
-                rb.AddForce(downForce * -surfaceNormal);
+                rigidbodyRef.AddForce(downForce * -surfaceNormal);
 
                 if (grounded)
                 {
                     // Setting rotation and velocity
-                    float turnRatio = 1 - (Vector3.Angle(desiredDirection, rb.velocity) / 180);
-                    rb.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
-                    rb.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
+                    float turnRatio = 1 - (Vector3.Angle(desiredDirection, velocity) / 180);
+                    rigidbodyRef.MoveRotation(Quaternion.Lerp(transform.rotation, targetRot, 3f * Time.deltaTime));
+                    rigidbodyRef.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
                 }
 
                 //Register for update
@@ -98,13 +100,22 @@ namespace Assets.Scripts.MonoBehaviours
                     timestamp = GameManager.gameState.gameTime;
                     GameManager.antsToUpdate.Add(this);
                 }
-
             }
-            if (animator.isActiveAndEnabled)
+            if (animatorRef)
             {
-                animator.SetFloat("velocity", 4 * (velocity.sqrMagnitude / (maxVelocity * maxVelocity)));
+                animatorRef.SetFloat("velocity", 6 * (velocity.sqrMagnitude / (maxVelocity * maxVelocity)));
             }
 
+        }
+        void LateUpdate()
+        {
+            if(rendererRef.isVisible){
+                var angle = Vector3.SignedAngle(proxy.forward, desiredDirection, proxy.up);
+                var localEuler = head.localEulerAngles;
+                head.localRotation = Quaternion.Lerp(head.localRotation,
+                                                     Quaternion.Euler(localEuler.x, localEuler.y, angle),
+                                                     2 * Time.deltaTime);
+            }
         }
 
         public void UpdateSelf()
@@ -128,12 +139,6 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        void LateUpdate()
-        {
-            var angle = Vector3.SignedAngle(proxy.forward, desiredDirection, proxy.up);
-            var targetRot = Quaternion.Euler(head.localEulerAngles.x, head.localEulerAngles.y, angle);
-            head.localRotation = Quaternion.Lerp(head.localRotation, targetRot, 2 * Time.deltaTime);
-        }
 
         Vector3 GetTargetSurfaceNormal(AntProxy proxy)
         {
@@ -232,11 +237,11 @@ namespace Assets.Scripts.MonoBehaviours
             var left = Quaternion.Euler(0, -30, 0) * proxy.forward * 0.3f;
 
             RaycastHit hit;
-            if (Physics.Raycast(proxy.position + left + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water"))
+            if (Physics.Raycast(proxy.position + left + Vector3.up, -Vector3.up, out hit) && hit.collider.gameObject.layer == 4)
             {
                 return -left;
             }
-            else if (Physics.Raycast(proxy.position + right + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~antLayer) && hit.transform.gameObject.layer == LayerMask.NameToLayer("Water"))
+            else if (Physics.Raycast(proxy.position + right + Vector3.up, -Vector3.up, out hit) && hit.collider.gameObject.layer == 4)
             {
                 return -right;
             }
