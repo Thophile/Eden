@@ -36,9 +36,9 @@ namespace Assets.Scripts.MonoBehaviours
         public int damage;
 
         [HideInInspector] public bool grounded = false;
-        [HideInInspector] public AntProxy proxy;
+        [HideInInspector] public TransformProxy proxy;
         [HideInInspector] public AntState state;
-        [HideInInspector] public List<GameObject> Targets = new List<GameObject>();
+        [HideInInspector] public List<GameObject> targets = new List<GameObject>();
         [HideInInspector] public List<TimedPosition> previousPositions;
         private float timestamp;
         private Vector3 velocity;
@@ -75,7 +75,7 @@ namespace Assets.Scripts.MonoBehaviours
             surfaceNormal = Vector3.up;
             targetRot = transform.rotation;
             timestamp = GameManager.gameState.gameTime;
-            proxy = new AntProxy(this);
+            proxy = new TransformProxy(transform);
             Physics.IgnoreLayerCollision(7, 7);
         }
 
@@ -122,7 +122,7 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
-                proxy.Init(this);
+                proxy.Init(transform);
                 // Surface alignement
                 Vector3 newNormal = GetTargetSurfaceNormal(proxy);
 
@@ -140,7 +140,7 @@ namespace Assets.Scripts.MonoBehaviours
         }
 
 
-        Vector3 GetTargetSurfaceNormal(AntProxy proxy)
+        Vector3 GetTargetSurfaceNormal(TransformProxy proxy)
         {
             RaycastHit hit;
             if (Physics.Raycast(proxy.position - proxy.up * 0.02f, proxy.forward, out hit, climbDist, ~antLayer))
@@ -159,7 +159,7 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        Vector3 GetDesiredDir(AntProxy proxy)
+        Vector3 GetDesiredDir(TransformProxy proxy)
         {
             Vector3 dryPathDir = GetDryPathDir(proxy);
             if (dryPathDir == Vector3.zero)
@@ -182,7 +182,7 @@ namespace Assets.Scripts.MonoBehaviours
             return Vector3.ProjectOnPlane(new Vector3(random.x, 0, random.y), surfaceNormal);
         }
 
-        Vector3 GetTargetDir(AntProxy proxy)
+        Vector3 GetTargetDir(TransformProxy proxy)
         {
             var target = PickTarget(proxy);
             if (target != null && TryInteract(target))
@@ -230,7 +230,7 @@ namespace Assets.Scripts.MonoBehaviours
             return targetDir;
         }
 
-        Vector3 GetDryPathDir(AntProxy proxy)
+        Vector3 GetDryPathDir(TransformProxy proxy)
         {
             // Obstacle Avoidance
             var right = Quaternion.Euler(0, 30, 0) * proxy.forward * 0.3f;
@@ -251,7 +251,7 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        void MarkPath(AntProxy proxy)
+        void MarkPath(TransformProxy proxy)
         {
             if (previousMark == null || (previousMark - proxy.position).sqrMagnitude > markingRange * markingRange)
             {
@@ -280,11 +280,11 @@ namespace Assets.Scripts.MonoBehaviours
             return false;
         }
 
-        GameObject PickTarget(AntProxy proxy)
+        public GameObject PickTarget(TransformProxy proxy)
         {
             float? minDist = null;
             GameObject closest = null;
-            foreach (var item in Targets)
+            foreach (var item in targets)
             {
                 if (item == null) continue;
                 if (item.GetComponent<Exit>() && state == AntState.Wandering) continue;
@@ -302,7 +302,7 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (other.gameObject.GetComponent<Interactable>())
             {
-                Targets.Add(other.gameObject);
+                targets.Add(other.gameObject);
             }
         }
 
@@ -310,7 +310,7 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (other.gameObject.GetComponent<Interactable>())
             {
-                Targets.Remove(other.gameObject);
+                targets.Remove(other.gameObject);
             }
         }
     }

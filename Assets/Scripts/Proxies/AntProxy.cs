@@ -1,3 +1,4 @@
+using Assets.Scripts.Model;
 using Assets.Scripts.MonoBehaviours;
 using UnityEngine;
 
@@ -5,32 +6,80 @@ namespace Assets.Scripts.Proxies
 {
     public class AntProxy
     {
+        TransformProxy transform;
         float[] array;
+        public bool climbCheckL;
+        public Vector3 climbNormalL;
+        public bool climbCheckR;
+        public Vector3 climbNormalR;
+
+
+        public bool surfaceCheck;
+        public Vector3 surfaceNormal;
+
+        public bool DryPathCheckL;
+        public int DryPathLayerL;
+        public Vector3 DryPathVectorL;
+
+        public bool DryPathCheckR;
+        public int DryPathLayerR;
+        public Vector3 DryPathVectorR;
+
+        public GameObject target = null;
+        public Interactable targetInteractable;
+        public Vector3 targetPosition;
+
+        public Vector2 random;
 
         public AntProxy(Ant ant)
         {
+            this.transform = new TransformProxy(ant.transform);
             Init(ant);
         }
 
         public void Init(Ant ant)
         {
-            this.array = new float[]
+            transform.Init(ant.transform);
+
+            RaycastHit hit;
+            //ClimbCheck
+            climbCheckL = Physics.Raycast(transform.position - transform.up * 0.01f, Quaternion.AngleAxis(-5, transform.up) * transform.forward, out hit, ant.climbDist, ~7);
+            climbNormalL = hit.normal;
+            if (!climbCheckL)
             {
-                    ant.transform.position.x,
-                    ant.transform.position.y,
-                    ant.transform.position.z,
-                    ant.transform.rotation.x,
-                    ant.transform.rotation.y,
-                    ant.transform.rotation.z,
-                    ant.transform.rotation.w
-            };
+                climbCheckR = Physics.Raycast(transform.position - transform.up * 0.01f, Quaternion.AngleAxis(5, transform.up) * transform.forward, out hit, ant.climbDist, ~7);
+                climbNormalR = hit.normal;
+            }
+
+            //SurfaceNormalCheck
+            surfaceCheck = Physics.Raycast(transform.position - transform.up * 0.02f + transform.forward * 0.01f, Quaternion.Euler(15, 0, 0) * -transform.up, out hit, Mathf.Infinity, ~7);
+            surfaceNormal = hit.normal;
+
+            //DryPathCheck
+            DryPathVectorL = Quaternion.Euler(0, -30, 0) * transform.forward * 0.3f;
+            DryPathCheckL = Physics.Raycast(transform.position + DryPathVectorL + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+            DryPathLayerL = hit.collider.gameObject.layer;
+
+            if (!DryPathCheckL)
+            {
+                DryPathVectorR = Quaternion.Euler(0, 30, 0) * transform.forward * 0.3f;
+                DryPathCheckR = Physics.Raycast(transform.position + DryPathVectorR + Vector3.up, -Vector3.up, out hit, Mathf.Infinity, ~7);
+                DryPathLayerR = hit.collider.gameObject.layer;
+            }
+
+            //Targeting
+            target = ant.PickTarget(transform);
+            targetPosition = target ? target.transform.position : default(Vector3);
+
+            //Random
+            random = Random.insideUnitCircle;
         }
 
         public Vector3 position
         {
             get
             {
-                return new Vector3(array[0], array[1], array[2]);
+                return transform.position;
             }
         }
 
@@ -38,7 +87,7 @@ namespace Assets.Scripts.Proxies
         {
             get
             {
-                return new Quaternion(array[3], array[4], array[5], array[6]);
+                return transform.rotation;
             }
         }
 
@@ -46,7 +95,7 @@ namespace Assets.Scripts.Proxies
         {
             get
             {
-                return rotation * Vector3.up;
+                return transform.up;
             }
         }
 
@@ -54,7 +103,7 @@ namespace Assets.Scripts.Proxies
         {
             get
             {
-                return rotation * Vector3.forward;
+                return transform.forward;
             }
         }
     }
