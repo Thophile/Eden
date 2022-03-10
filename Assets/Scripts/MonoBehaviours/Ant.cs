@@ -109,7 +109,7 @@ namespace Assets.Scripts.MonoBehaviours
         }
         void LateUpdate()
         {
-            if(rendererRef.isVisible){
+            if(Time.frameCount % 3 == 0 && rendererRef.isVisible){
                 var angle = Vector3.SignedAngle(proxy.forward, desiredDirection, proxy.up);
                 var localEuler = head.localEulerAngles;
                 head.localRotation = Quaternion.Lerp(head.localRotation,
