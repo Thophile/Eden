@@ -106,10 +106,10 @@ MonoBehaviour:
     m_Bits: 128
   updateDelay: 0.3
   updateWindow: 0.1
-  maxVelocity: 0.8
-  downForce: 1
-  wanderStrenght: 0.4
-  pheroStrenght: 0.6
+  maxVelocity: 1
+  downForce: 0.1
+  wanderStrenght: 0.3
+  pheroStrenght: 0.7
   pheroRange: 2
   markingRange: 1
   memoryRange: 1.5

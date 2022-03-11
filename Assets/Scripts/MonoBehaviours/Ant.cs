@@ -39,6 +39,7 @@ namespace Assets.Scripts.MonoBehaviours
         [HideInInspector] public List<GameObject> targets = new List<GameObject>();
         [HideInInspector] public List<TimedPosition> previousPositions;
         private float timestamp;
+        private int instantiationFrame;
         private Vector3 velocity;
         private Vector3 previousMark;
         private Vector3 newNormal;
@@ -68,10 +69,13 @@ namespace Assets.Scripts.MonoBehaviours
             rigidbodyRef = gameObject.GetComponent<Rigidbody>();
 
             rigidbodyRef.isKinematic = GameManager.isPaused;
+
             newDirection = transform.forward;
             newNormal = Vector3.up;
             newRotation = transform.rotation;
+
             timestamp = GameManager.gameState.gameTime;
+            instantiationFrame = Time.frameCount;
             transformProxy = new TransformProxy(transform);
         }
 
@@ -79,15 +83,19 @@ namespace Assets.Scripts.MonoBehaviours
         {
             if (!GameManager.isPaused)
             {
+                rigidbodyRef.MoveRotation(Quaternion.Lerp(transform.rotation, newRotation, 12 * Time.deltaTime));
+                
                 //Apply down force
-                rigidbodyRef.AddForce(downForce * -newNormal, ForceMode.Acceleration);
+                rigidbodyRef.AddForce((-downForce * newNormal) - Vector3.Project(rigidbodyRef.velocity, newNormal), ForceMode.VelocityChange);
 
                 if (grounded)
                 {
                     // Setting rotation and velocity
-                    float turnRatio = 1 - (Vector3.Angle(newDirection, velocity) / 180);
-                    rigidbodyRef.MoveRotation(Quaternion.Lerp(transform.rotation, newRotation, 10f * Time.deltaTime));
-                    rigidbodyRef.velocity = velocity = ((maxVelocity * turnRatio * turnRatio * transform.forward + velocity * 2) / 3f);
+                    float turnRatio = 1 - (Vector3.Angle(newDirection, rigidbodyRef.velocity) / 180);
+                    rigidbodyRef.AddForce(
+                        ((maxVelocity * turnRatio * turnRatio * transform.forward  + rigidbodyRef.velocity * 2) / 3f) 
+                        - Vector3.ProjectOnPlane(rigidbodyRef.velocity, newNormal),
+                        ForceMode.VelocityChange);
                 }
 
                 //Register for update
@@ -105,12 +113,12 @@ namespace Assets.Scripts.MonoBehaviours
         }
         void LateUpdate()
         {
-            if(Time.frameCount % 3 == 0 && rendererRef.isVisible){
+            if((Time.frameCount - instantiationFrame) % 3 == 0 && rendererRef.isVisible){
                 var angle = Vector3.SignedAngle(transformProxy.forward, newDirection, transformProxy.up);
                 var localEuler = head.localEulerAngles;
                 head.localRotation = Quaternion.Lerp(head.localRotation,
                                                      Quaternion.Euler(localEuler.x, localEuler.y, angle),
-                                                     2 * Time.deltaTime);
+                                                     5 * Time.deltaTime);
             }
         }
 
