@@ -1,5 +1,5 @@
-# Colony
+# Eden
 
-Colony aim to be a scientificly accurate ants simulation game.
+Eden aim to be a scientificly accurate ants simulation game.
 
 Work in progress.
