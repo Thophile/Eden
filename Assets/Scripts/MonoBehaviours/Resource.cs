@@ -29,10 +29,10 @@ namespace Assets.Scripts.MonoBehaviours
                 Destroy(gameObject);
             }
             if (resourcePiece!= null){
-                var load = Instantiate(resourcePiece, ant.loadPos.position, Quaternion.identity);
-                load.transform.parent = ant.loadPos;
-                load.GetComponent<Carryable>().resourceValue = ant.damage * baseValues;
-                ant.Load = load;
+                var shipement = Instantiate(resourcePiece, ant.loadPos.position, Quaternion.identity);
+                shipement.transform.parent = ant.loadPos;
+                shipement.GetComponent<Carryable>().resourceValue = ant.damage * baseValues;
+                ant.Shipement = shipement;
             }
         }
 

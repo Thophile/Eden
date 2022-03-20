@@ -1,5 +1,6 @@
 using Assets.Scripts.Managers;
 using Assets.Scripts.Model;
+using Assets.Scripts.Model.Data;
 using Assets.Scripts.MonoBehaviours;
 using Assets.Scripts.Terrain;
 using Assets.Scripts.Ui;
@@ -11,7 +12,7 @@ public class GameManager : MonoBehaviour
 {
     public static bool isPaused;
     public static GameState gameState = null;
-    public static List<Ant> activeAnts = new List<Ant>();
+    public static List<Ant> antInstances = new List<Ant>();
     public static List<Ant> antsToUpdate = new List<Ant>();
     public int autoSaveTime;
     public World world;
@@ -63,36 +64,11 @@ public class GameManager : MonoBehaviour
 
     public static void Save() {
         if(gameState != null){
-            if (gameState.antsInfo.Count > 0 ) gameState.antsInfo.Clear();
-            if(AntSpawner.antsInfo.Count >0 ){
-                foreach (var item in AntSpawner.antsInfo)
+            if (gameState.ants.Count > 0 ) gameState.ants.Clear();
+            if(GameManager.antInstances.Count >0 ){
+                foreach (Ant ant in GameManager.antInstances)
                 {
-                    if(item != null)
-                    {
-                        List<object[]> previousPositions = new List<object[]>();
-                        foreach(var pos in item.GetComponent<Ant>().previousPositions)
-                        {
-                            previousPositions.Add(new object[] {
-                                pos.x,
-                                pos.y,
-                                pos.z,
-                                pos.time
-                            });
-                        }
-
-
-                        gameState.antsInfo.Add(new object[] {
-                            item.transform.position.x,
-                            item.transform.position.y,
-                            item.transform.position.z,
-                            item.transform.rotation.eulerAngles.x,
-                            item.transform.rotation.eulerAngles.y,
-                            item.transform.rotation.eulerAngles.z,
-                            item.GetComponent<Ant>().prefabName,
-                            item.GetComponent<Ant>().Load == null ? null : item.GetComponent<Ant>().Load.GetComponent<Carryable>().prefabName,
-                            previousPositions
-                            });
-                    }
+                    gameState.ants.Add(new AntData(ant));
                 }
             }
 
@@ -123,7 +99,7 @@ public class GameManager : MonoBehaviour
                 camera.transform.rotation.y,
                 camera.transform.rotation.z,
                 camera.transform.rotation.w,
-                camera.GetComponent<CameraController>().zoomLevel
+                camera.GetComponent<Controller>().zoomLevel
             };
 
             SaveManager.SaveGame();
@@ -132,26 +108,10 @@ public class GameManager : MonoBehaviour
 
     public static void Load() {
         // BuildWorld
-        AntSpawner.antsInfo.Clear();
-        foreach (var ar in gameState.antsInfo)
+        GameManager.antInstances.Clear();
+        foreach (AntData data in gameState.ants)
         {
-            List<TimedPosition> previousPositions = new List<TimedPosition>();
-            foreach(var e in ar[8] as List<object[]>)
-            {
-                previousPositions.Add(
-                    new TimedPosition(
-                        new Vector3((float)e[0], (float)e[1], (float)e[2]),
-                        (float)e[3])
-                    );
-            }
-            AntSpawner.SpawnAnt(
-                new Vector3((float)ar[0],(float)ar[1],(float)ar[2]),
-                Quaternion.Euler((float)ar[3], (float)ar[4], (float)ar[5]),
-                Resources.Load((string)ar[6]) as GameObject,
-                Resources.Load((string)ar[7]) as GameObject,
-                previousPositions
-
-            );
+            Ant.Spawn(data);
         }
 
         ResourceSpawner.resourceInfo.Clear();
@@ -177,7 +137,7 @@ public class GameManager : MonoBehaviour
                 (float)gameState.cameraInfo[4], 
                 (float)gameState.cameraInfo[5], 
                 (float)gameState.cameraInfo[6]);
-            camera.GetComponent<CameraController>().zoomLevel = (float)gameState.cameraInfo[7];
+            camera.GetComponent<Controller>().zoomLevel = (float)gameState.cameraInfo[7];
         }
     }
 

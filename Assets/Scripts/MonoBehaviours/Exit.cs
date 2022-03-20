@@ -7,13 +7,12 @@ namespace Assets.Scripts.MonoBehaviours
         public AntSpawner antSpawner;
         public override void Interact(Ant ant){
             base.Interact(ant);
-            if(ant.Load != null){
-                if(ant.Load.GetComponent<Carryable>()){
-                    GameManager.gameState.resources += ant.Load.GetComponent<Carryable>().resourceValue;
+            if(ant.Shipement != null){
+                if(ant.Shipement.GetComponent<Carryable>()){
+                    GameManager.gameState.resources += ant.Shipement.GetComponent<Carryable>().resourceValue;
                 }
             }
-            UnityEngine.Debug.Log(ant.gameObject);
-            antSpawner.DespawnAnt(ant.gameObject);
+            Ant.Despawn(ant);
             
         }
     }

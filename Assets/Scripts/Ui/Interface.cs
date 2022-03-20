@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.Ui
 {
-    public class UserInterface : MonoBehaviour
+    public class Interface : MonoBehaviour
     {
         [Header("Menu elements")]
         public GameObject menuPanel;
@@ -36,7 +36,7 @@ namespace Assets.Scripts.Ui
         // UI part
         public void UpdateUI(){
             resourceInfo.GetComponentInChildren<TextMeshProUGUI>().text = GameManager.gameState.resources.ToString();
-            antCount.GetComponentInChildren<TextMeshProUGUI>().text = (AntSpawner.antsInfo.Count).ToString() + "/" + GameManager.gameState.antNb.ToString();
+            antCount.GetComponentInChildren<TextMeshProUGUI>().text = (GameManager.antInstances.Count).ToString() + "/" + GameManager.gameState.antNb.ToString();
             gameTime.GetComponentInChildren<TextMeshProUGUI>().text = TimeSpan.FromSeconds(GameManager.gameState.gameTime).Hours.ToString() + ":" + TimeSpan.FromSeconds(GameManager.gameState.gameTime).Minutes.ToString("00");
         }
 

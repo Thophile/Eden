@@ -47,8 +47,8 @@ namespace Assets.Scripts.MonoBehaviours
             antComponent.prefabName = ant.name;
             if (load != null)
             {
-                antComponent.Load = Instantiate(load, antComponent.loadPos.position, antComponent.loadPos.rotation);
-                antComponent.Load.transform.parent = obj.transform;
+                antComponent.Shipement = Instantiate(load, antComponent.loadPos.position, antComponent.loadPos.rotation);
+                antComponent.Shipement.transform.parent = obj.transform;
             }
             if (previousPositions != null)
             {
@@ -56,12 +56,12 @@ namespace Assets.Scripts.MonoBehaviours
             }
 
             antsInfo.Add(obj);
-            GameProfiler.activeAnts.Add(antComponent);
+            GameProfiler.antInstances.Add(antComponent);
         }
         public void DespawnAnt(GameObject ant)
         {
             antsInfo.Remove(ant);
-            GameProfiler.activeAnts.Remove(ant.GetComponent<Ant>());
+            GameProfiler.antInstances.Remove(ant.GetComponent<Ant>());
             Destroy(ant);
         }
     }

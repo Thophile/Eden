@@ -1,4 +1,5 @@
 using Assets.Scripts.Model;
+using Assets.Scripts.Model.Data;
 using Assets.Scripts.Proxies;
 using Assets.Scripts.Ui;
 using System.Collections.Generic;
@@ -48,19 +49,19 @@ namespace Assets.Scripts.MonoBehaviours
         Animator animatorRef;
         Renderer rendererRef;
 
-        public GameObject Load
+        public GameObject Shipement
         {
-            get { return _load; }
+            get { return _shipement; }
             set
             {
                 if (value != null)
                 {
                     state = AntState.GoingHome;
-                    _load = value;
+                    _shipement = value;
                 }
             }
         }
-        GameObject _load = null;
+        GameObject _shipement = null;
 
         void Start()
         {
@@ -84,7 +85,7 @@ namespace Assets.Scripts.MonoBehaviours
             if (!GameManager.isPaused)
             {
                 rigidbodyRef.MoveRotation(Quaternion.Lerp(transform.rotation, newRotation, 12 * Time.deltaTime));
-                
+
                 //Apply down force
                 rigidbodyRef.AddForce((-downForce * newNormal) - Vector3.Project(rigidbodyRef.velocity, newNormal), ForceMode.VelocityChange);
 
@@ -93,7 +94,7 @@ namespace Assets.Scripts.MonoBehaviours
                     // Setting rotation and velocity
                     float turnRatio = 1 - (Vector3.Angle(newDirection, rigidbodyRef.velocity) / 180);
                     rigidbodyRef.AddForce(
-                        ((maxVelocity * turnRatio * turnRatio * transform.forward  + rigidbodyRef.velocity * 2) / 3f) 
+                        ((maxVelocity * turnRatio * turnRatio * transform.forward + rigidbodyRef.velocity * 2) / 3f)
                         - Vector3.ProjectOnPlane(rigidbodyRef.velocity, newNormal),
                         ForceMode.VelocityChange);
                 }
@@ -113,7 +114,7 @@ namespace Assets.Scripts.MonoBehaviours
         }
         void LateUpdate()
         {
-            if((Time.frameCount - instantiationFrame) % 3 == 0 && rendererRef.isVisible){
+            if ((Time.frameCount - instantiationFrame) % 3 == 0 && rendererRef.isVisible) {
                 var angle = Vector3.SignedAngle(transformProxy.forward, newDirection, transformProxy.up);
                 var localEuler = head.localEulerAngles;
                 head.localRotation = Quaternion.Lerp(head.localRotation,
@@ -288,7 +289,7 @@ namespace Assets.Scripts.MonoBehaviours
             {
                 if (item == null) continue;
                 if (item.GetComponent<Exit>() && state == AntState.Wandering) continue;
-                if (item.GetComponent<Resource>() && Load != null) continue;
+                if (item.GetComponent<Resource>() && Shipement != null) continue;
                 if (minDist == null || (transformProxy.position - item.transform.position).sqrMagnitude < minDist)
                 {
                     minDist = (transformProxy.position - item.transform.position).sqrMagnitude;
@@ -312,6 +313,31 @@ namespace Assets.Scripts.MonoBehaviours
             {
                 targets.Remove(other.gameObject);
             }
+        }
+
+        public static void Spawn(AntData data)
+        {
+            var ant = Instantiate(
+                Resources.Load(AntData.prefab) as GameObject,
+                data.transform.position,
+                data.transform.rotation);
+
+            var antComponent = ant.GetComponent<Ant>();
+            antComponent.previousPositions = data.previousPositions;
+            if (data.shipement != null)
+            {
+                antComponent.Shipement = Instantiate(
+                    Resources.Load(data.shipement) as GameObject,
+                    antComponent.loadPos.position,
+                    antComponent.loadPos.rotation);
+            }
+            GameManager.antInstances.Add(antComponent);
+        }
+
+        public static void Despawn(Ant ant)
+        {
+            GameManager.antInstances.Remove(ant);
+            Destroy(ant.gameObject);
         }
     }
 }

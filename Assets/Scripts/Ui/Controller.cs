@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Ui
 {
-    public class CameraController : MonoBehaviour
+    public class Controller : MonoBehaviour
     {
         public static GameObject camObject;
 

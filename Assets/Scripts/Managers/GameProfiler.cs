@@ -27,9 +27,9 @@ namespace Assets.Scripts.Managers
             GameManager.gameState.gameTime += dt;
             if (GameManager.gameState.gameTime < 2f) return;
 
-            if (activeAnts.Count < 1500)
+            if (antInstances.Count < 1500)
             {
-                frames.Add((activeAnts.Count, dt));
+                frames.Add((antInstances.Count, dt));
 
                 pheroDecayTimer += dt;
                 if (pheroDecayTimer > pheroDecayDelay)
@@ -57,7 +57,7 @@ namespace Assets.Scripts.Managers
         {
             while (true)
             {
-                foreach (Ant ant in activeAnts)
+                foreach (Ant ant in antInstances)
                 {
                     ant.UpdateSelf();
                 }

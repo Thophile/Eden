@@ -4,26 +4,27 @@ using UnityEngine;
 
 namespace Assets.Scripts.Proxies
 {
+    [System.Serializable]
     public class TransformProxy
     {
         float[] array;
 
-        public TransformProxy(Transform ant)
+        public TransformProxy(Transform transform)
         {
-            Init(ant);
+            Init(transform);
         }
 
-        public void Init(Transform ant)
+        public void Init(Transform transform)
         {
             this.array = new float[]
             {
-                ant.position.x,
-                ant.position.y,
-                ant.position.z,
-                ant.rotation.x,
-                ant.rotation.y,
-                ant.rotation.z,
-                ant.rotation.w
+                transform.position.x,
+                transform.position.y,
+                transform.position.z,
+                transform.rotation.x,
+                transform.rotation.y,
+                transform.rotation.z,
+                transform.rotation.w
             };
         }
 
