@@ -78,7 +78,7 @@ namespace Assets.Scripts.MonoBehaviours
             transformProxy = new TransformProxy(transform);
         }
 
-        void Update()
+        void FixedUpdate()
         {
             if (!GameManager.isPaused)
             {

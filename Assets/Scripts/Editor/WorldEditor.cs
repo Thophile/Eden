@@ -37,7 +37,7 @@ namespace Assets.Scripts
             }
             if (GUILayout.Button("Place colony"))
             {
-                world.PlaceColony();
+                world.PlaceColony(false);
             }
             if (GUILayout.Button("Clear"))
             {

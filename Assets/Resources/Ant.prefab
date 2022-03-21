@@ -61,7 +61,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 2
+  m_Radius: 3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!95 &1326394649850419092
 Animator:
@@ -94,8 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: db24bf0b197388b4eaa70f12e0f57bb5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabName: Ant
-  rigidbodyRef: {fileID: 0}
+  rigidbodyRef: {fileID: 405757102476171647}
   head: {fileID: 4912828174815185103}
   loadPos: {fileID: 4237965919035242033}
   waterLayer:

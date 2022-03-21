@@ -404,7 +404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   exit: {fileID: 0}
   ant: {fileID: 434551117337921783, guid: 904d305d8cd0c054083a34866dfdc55e, type: 3}
-  gameManager: {fileID: 0}
+  gameManager: {fileID: 844553389}
   spawnDelay: 1
 --- !u!1 &1261287527
 GameObject:

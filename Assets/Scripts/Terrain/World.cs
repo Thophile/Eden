@@ -34,15 +34,16 @@ namespace Assets.Scripts.Terrain
 
         public void BuildWorld()
         {
+            bool addCamera = false;
             if (GameManager.gameState.seed == null)
             {
                 GameManager.gameState.seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-
+                addCamera = true;
             }
             UnityEngine.Random.InitState((int)GameManager.gameState.seed);
             GenerateMap();
             PlaceAssets();
-            PlaceColony();
+            PlaceColony(addCamera);
         }
 
         public void GenerateMap()
@@ -146,7 +147,7 @@ namespace Assets.Scripts.Terrain
             }
         }
 
-        public void PlaceColony()
+        public void PlaceColony(bool addCamera)
         {
             for (int i = 0; i < instantiationTries*10; i++)
             {
@@ -164,7 +165,7 @@ namespace Assets.Scripts.Terrain
                             hit.point,
                             Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up))
                             .transform.SetParent(GameObject.Find("Assets").transform);
-                        if(GameManager.gameState.seed != default)
+                        if(addCamera)
                         {
                             ObjectManager.Spawn(
                                 new Model.MonoBehaviourData(

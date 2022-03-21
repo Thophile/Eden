@@ -50,7 +50,6 @@ public class GameManager : MonoBehaviour
     public IEnumerator UpdateAnts(){
         while (true)
         {
-            Debug.Log(antsToUpdate.Count);
             foreach (Ant ant in antsToUpdate)
             {
                 if (ant)
@@ -65,19 +64,16 @@ public class GameManager : MonoBehaviour
     }
 
     public static void Save() {
-
         gameState.monobehaviours.Clear();
         var saveables = FindObjectsOfType<MonoBehaviour>().OfType<ISaveable>();
         foreach (ISaveable saveable in saveables)
         {
             gameState.monobehaviours.Add(saveable.Save());
         }
-        Debug.Log(gameState.monobehaviours.Count);
         SaveManager.SaveGame();
     }
 
     public static void Load() {
-        Debug.Log(gameState.monobehaviours.Count);
         foreach (MonoBehaviourData data in gameState.monobehaviours)
         {
             ObjectManager.Spawn(data);
