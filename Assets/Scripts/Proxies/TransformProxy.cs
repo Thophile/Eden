@@ -13,6 +13,10 @@ namespace Assets.Scripts.Proxies
         {
             Init(transform);
         }
+        public TransformProxy(Vector3 position, Quaternion rotation)
+        {
+            Init(position, rotation);
+        }
 
         public void Init(Transform transform)
         {
@@ -25,6 +29,20 @@ namespace Assets.Scripts.Proxies
                 transform.rotation.y,
                 transform.rotation.z,
                 transform.rotation.w
+            };
+        }
+
+        public void Init(Vector3 position, Quaternion rotation)
+        {
+            this.array = new float[]
+            {
+                position.x,
+                position.y,
+                position.z,
+                rotation.x,
+                rotation.y,
+                rotation.z,
+                rotation.w
             };
         }
 

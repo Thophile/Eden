@@ -1,9 +1,10 @@
 using Assets.Scripts.Model;
+using Assets.Scripts.Model.Interfaces;
 using UnityEngine;
 
 namespace Assets.Scripts.Ui
 {
-    public class Controller : MonoBehaviour
+    public class Controller : MonoBehaviour, ISaveable
     {
         public static GameObject camObject;
 
@@ -117,6 +118,23 @@ namespace Assets.Scripts.Ui
             {
                 return hoverHeight - old;
             }
+        }
+
+        public MonoBehaviourData Save()
+        {
+            MonoBehaviourData data = new MonoBehaviourData("Camera", new Proxies.TransformProxy(transform));
+            data.properties.Add("ZoomLevel", zoomLevel);
+            return data;
+        }
+
+        public void Load(MonoBehaviourData data)
+        {
+            zoomLevel = (float) data.properties["ZoomLevel"];
+        }
+
+        public void Expunge()
+        {
+            return;
         }
     }
 }

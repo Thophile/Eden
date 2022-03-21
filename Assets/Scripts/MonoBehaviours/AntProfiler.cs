@@ -33,36 +33,19 @@ namespace Assets.Scripts.MonoBehaviours
                     time -= spawnDelay;
                     for (int i = 0; i < 10; i++)
                     {
-                        SpawnAnt(transform.position, Quaternion.AngleAxis(i * 36, Vector3.up), ant);
+                        ObjectManager.Spawn(
+                            new MonoBehaviourData(
+                            "Ant",
+                            new Proxies.TransformProxy(transform.position, Quaternion.AngleAxis(i * 36, Vector3.up))
+                            )
+                        );
                     }
                 }
             }
         }
 
-        public void SpawnAnt(Vector3 pos, Quaternion rot, GameObject ant, GameObject load = null, List<TimedPosition> previousPositions = null)
-        {
-            var obj = Instantiate(ant, pos, rot);
-            obj.transform.parent = gameManager;
-            var antComponent = obj.GetComponent<Ant>();
-            antComponent.prefabName = ant.name;
-            if (load != null)
-            {
-                antComponent.Shipement = Instantiate(load, antComponent.loadPos.position, antComponent.loadPos.rotation);
-                antComponent.Shipement.transform.parent = obj.transform;
-            }
-            if (previousPositions != null)
-            {
-                antComponent.previousPositions = previousPositions;
-            }
 
-            antsInfo.Add(obj);
-            GameProfiler.antInstances.Add(antComponent);
-        }
-        public void DespawnAnt(GameObject ant)
-        {
-            antsInfo.Remove(ant);
-            GameProfiler.antInstances.Remove(ant.GetComponent<Ant>());
-            Destroy(ant);
-        }
+
+
     }
 }

@@ -163,7 +163,7 @@ namespace Assets.Scripts.Terrain
                             hit.point,
                             Quaternion.LookRotation(Vector3.ProjectOnPlane(UnityEngine.Random.insideUnitSphere, Vector3.up), Vector3.up))
                             .transform.SetParent(GameObject.Find("Assets").transform);
-                        if (GameManager.gameState.cameraInfo == default(object[]))
+                        if(GameManager.gameState.seed != default)
                         {
                             playerCamera.transform.position = hit.point;
                         }

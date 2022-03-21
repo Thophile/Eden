@@ -1,4 +1,3 @@
-using Assets.Scripts.Model.Data;
 using System.Collections.Generic;
 
 namespace Assets.Scripts.Model
@@ -9,9 +8,7 @@ namespace Assets.Scripts.Model
         public float gameTime;
         public int antNb;
         public int? seed;
-        public object[] cameraInfo;
-        public List<AntData> ants;
-        public List<object[]> resourceInfo;
+        public List<MonoBehaviourData> monobehaviours;
         public ResourceProperties resources;
         public PheromonesMap pheromonesMap;
 
@@ -19,8 +16,6 @@ namespace Assets.Scripts.Model
             gameTime = 0f;
             antNb = 200;
             seed = null;
-            ants = new List<AntData>();
-            resourceInfo = new List<object[]>();
             resources = new ResourceProperties();
             pheromonesMap = new PheromonesMap();
         }

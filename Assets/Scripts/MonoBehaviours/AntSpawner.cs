@@ -1,5 +1,5 @@
+using Assets.Scripts.Managers;
 using Assets.Scripts.Model;
-using Assets.Scripts.Model.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -28,7 +28,12 @@ namespace Assets.Scripts.MonoBehaviours
                     time-=spawnDelay;
                     if (GameManager.antInstances.Count < GameManager.gameState.antNb){
                         var rand = Vector3.ProjectOnPlane(Random.insideUnitSphere, Vector3.up);
-                        Ant.Spawn(new AntData(exit.position, Quaternion.LookRotation(rand, Vector3.up)));
+                        ObjectManager.Spawn(
+                            new MonoBehaviourData(
+                            "Ant",
+                            new Proxies.TransformProxy(exit.position, Quaternion.LookRotation(rand, Vector3.up))
+                            )
+                        );
                     }
                 }
             }

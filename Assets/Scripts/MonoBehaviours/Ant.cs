@@ -1,5 +1,5 @@
 using Assets.Scripts.Model;
-using Assets.Scripts.Model.Data;
+using Assets.Scripts.Model.Interfaces;
 using Assets.Scripts.Proxies;
 using Assets.Scripts.Ui;
 using System.Collections.Generic;
@@ -7,11 +7,9 @@ using UnityEngine;
 
 namespace Assets.Scripts.MonoBehaviours
 {
-    public class Ant : MonoBehaviour
+    public class Ant : MonoBehaviour, ISaveable
     {
         // Parameters
-        [Header("General")]
-        public string prefabName;
         [Header("References")]
         public Rigidbody rigidbodyRef;
         public Transform head;
@@ -315,29 +313,33 @@ namespace Assets.Scripts.MonoBehaviours
             }
         }
 
-        public static void Spawn(AntData data)
+        public MonoBehaviourData Save()
         {
-            var ant = Instantiate(
-                Resources.Load(AntData.prefab) as GameObject,
-                data.transform.position,
-                data.transform.rotation);
-
-            var antComponent = ant.GetComponent<Ant>();
-            antComponent.previousPositions = data.previousPositions;
-            if (data.shipement != null)
+            MonoBehaviourData data = new MonoBehaviourData("Ant", new Proxies.TransformProxy(transform));
+            data.properties.Add("PreviousPosition", previousPositions);
+            if (Shipement)
             {
-                antComponent.Shipement = Instantiate(
-                    Resources.Load(data.shipement) as GameObject,
-                    antComponent.loadPos.position,
-                    antComponent.loadPos.rotation);
+                data.properties.Add("Shipement", Shipement.GetComponent<Carryable>().prefabName);
             }
-            GameManager.antInstances.Add(antComponent);
+            return data;
         }
 
-        public static void Despawn(Ant ant)
+        public void Load(MonoBehaviourData data)
         {
-            GameManager.antInstances.Remove(ant);
-            Destroy(ant.gameObject);
+            previousPositions = data.properties["PreviousPosition"] as List<TimedPosition>;
+            if (data.properties.ContainsKey("Shipement"))
+            {
+                Shipement = Instantiate(
+                    Resources.Load(data.properties["Shipement"] as string) as GameObject,
+                    loadPos.position,
+                    loadPos.rotation);
+            }
+            GameManager.antInstances.Add(this);
+        }
+
+        public void Expunge()
+        {
+            GameManager.antInstances.Remove(this);
         }
     }
 }

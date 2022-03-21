@@ -1,3 +1,4 @@
+using Assets.Scripts.Managers;
 using Assets.Scripts.Model;
 
 namespace Assets.Scripts.MonoBehaviours
@@ -12,7 +13,7 @@ namespace Assets.Scripts.MonoBehaviours
                     GameManager.gameState.resources += ant.Shipement.GetComponent<Carryable>().resourceValue;
                 }
             }
-            Ant.Despawn(ant);
+            ObjectManager.Despawn(ant.gameObject);
             
         }
     }
