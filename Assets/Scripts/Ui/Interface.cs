@@ -66,6 +66,7 @@ namespace Assets.Scripts.Ui
         public void Quit()
         {
             GameManager.Save();
+            Destroy(GameObject.Find("Speaker"));
             SceneManager.LoadScene(0);
         }
         public void PlayPausePhysics(bool isGamePaused){

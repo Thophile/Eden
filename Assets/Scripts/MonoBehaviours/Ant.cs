@@ -36,7 +36,7 @@ namespace Assets.Scripts.MonoBehaviours
         [HideInInspector] public TransformProxy transformProxy;
         [HideInInspector] public AntState state;
         [HideInInspector] public List<GameObject> targets = new List<GameObject>();
-        [HideInInspector] public List<TimedPosition> previousPositions;
+        [HideInInspector] public List<TimedPosition> previousPositions = new List<TimedPosition>();
         private float timestamp;
         private int instantiationFrame;
         private Vector3 velocity;
@@ -326,7 +326,10 @@ namespace Assets.Scripts.MonoBehaviours
 
         public void Load(MonoBehaviourData data)
         {
-            previousPositions = data.properties["PreviousPosition"] as List<TimedPosition>;
+            if (data.properties.ContainsKey("PreviousPosition"))
+            {
+                previousPositions = data.properties["PreviousPosition"] as List<TimedPosition>;
+            }
             if (data.properties.ContainsKey("Shipement"))
             {
                 Shipement = Instantiate(

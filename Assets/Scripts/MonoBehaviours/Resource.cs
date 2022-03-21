@@ -25,7 +25,6 @@ namespace Assets.Scripts.MonoBehaviours
             base.Interact(ant);
             health -= ant.damage;
             if (health <= 0){
-                ResourceSpawner.resourceInfo.Remove(gameObject);
                 Destroy(gameObject);
             }
             if (resourcePiece!= null){
@@ -33,13 +32,6 @@ namespace Assets.Scripts.MonoBehaviours
                 shipement.transform.parent = ant.loadPos;
                 shipement.GetComponent<Carryable>().resourceValue = ant.damage * baseValues;
                 ant.Shipement = shipement;
-            }
-        }
-
-        void Update(){
-            if (transform.position.y < -20){
-                ResourceSpawner.resourceInfo.Remove(gameObject);
-                Destroy(gameObject);
             }
         }
 

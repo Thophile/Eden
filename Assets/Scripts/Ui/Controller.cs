@@ -129,7 +129,10 @@ namespace Assets.Scripts.Ui
 
         public void Load(MonoBehaviourData data)
         {
-            zoomLevel = (float) data.properties["ZoomLevel"];
+            if (data.properties.ContainsKey("ZoomLevel"))
+            {
+                zoomLevel = (float) data.properties["ZoomLevel"];
+            }
         }
 
         public void Expunge()

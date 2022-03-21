@@ -137,10 +137,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1001699118404330955}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f7739d54ee265ff4aad0886a1a07d75e, type: 3}
+  m_Script: {fileID: 11500000, guid: b090b1351f4df5044a6a042548284750, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   layerMask:
     serializedVersion: 2
     m_Bits: 8
+  boundary: 256
   zoomLevel: 4

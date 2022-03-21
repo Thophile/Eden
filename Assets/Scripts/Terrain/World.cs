@@ -1,3 +1,4 @@
+using Assets.Scripts.Managers;
 using Assets.Scripts.Utils;
 using System;
 using System.Collections.Generic;
@@ -165,7 +166,12 @@ namespace Assets.Scripts.Terrain
                             .transform.SetParent(GameObject.Find("Assets").transform);
                         if(GameManager.gameState.seed != default)
                         {
-                            playerCamera.transform.position = hit.point;
+                            ObjectManager.Spawn(
+                                new Model.MonoBehaviourData(
+                                    "Camera",
+                                    new Proxies.TransformProxy(hit.point, Quaternion.identity)
+                                    )
+                                );
                         }
                         return;
                     }

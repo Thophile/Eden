@@ -16,6 +16,7 @@ namespace Assets.Scripts.Model
             gameTime = 0f;
             antNb = 200;
             seed = null;
+            monobehaviours = new List<MonoBehaviourData>();
             resources = new ResourceProperties();
             pheromonesMap = new PheromonesMap();
         }
