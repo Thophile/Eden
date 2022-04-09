@@ -10,7 +10,7 @@ namespace Assets.Scripts.Managers
 {
     public class ProfilerManager : GameManager
     {
-        static readonly string algorythm = nameof(UpdateAnts);
+        static readonly string algorythm = nameof(UpdateAntsQueued);
         static readonly string savePath = "/Profiling_" + algorythm + ".csv";
         public List<(int, float)> frames = new List<(int, float)>();
 
@@ -27,7 +27,7 @@ namespace Assets.Scripts.Managers
             GameManager.gameState.gameTime += dt;
             if (GameManager.gameState.gameTime < 2f) return;
 
-            if (dt < 0.05f)
+            if (activeAnts.Count < 1000)
             {
                 frames.Add((activeAnts.Count, dt));
 
